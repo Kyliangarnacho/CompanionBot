@@ -1,0 +1,19 @@
+{
+  "controller_frequency_hz": 500.0,
+  "physics_steps_per_update": 2,
+  "Q_diag": [16.0, 1.0, 131.31225400046978, 0.25],
+  "R": 0.6298815822624084,
+  "design_basis": {
+    "position_scale_m": 0.25,
+    "velocity_scale_m_s": 1.0,
+    "pitch_error_scale_deg": 5.0,
+    "pitch_rate_scale_rad_s": 2.0,
+    "summed_torque_scale_nm": 1.26,
+    "method": "Bryson-style initial physical scales; not optimized"
+  },
+  "test_duration_s": 8.0,
+  "settling_pitch_band_deg": 0.5,
+  "settling_pitch_rate_band_deg_s": 2.0,
+  "settling_dwell_s": 0.5,
+  "fall_pitch_error_deg": 45.0
+}

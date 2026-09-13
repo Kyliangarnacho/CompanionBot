@@ -1,0 +1,35 @@
+# Operating system and editor state
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.user
+*.suo
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Build and generated outputs
+build/
+dist/
+CMakeFiles/
+CMakeCache.txt
+*.o
+*.obj
+*.elf
+*.hex
+*.bin
+
+# Local logs and temporary files
+*.log
+*.tmp
+*.swp
+
+# Locally derived from third-party MiniSegway CAD; regenerate, do not publish.
+/models/minisegway/assets/upstream_local/

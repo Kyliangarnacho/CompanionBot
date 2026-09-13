@@ -1,0 +1,70 @@
+{
+  "controller_frequency_hz": 500.0,
+  "physics_steps_per_update": 2,
+  "probe": {
+    "type": "centered_prbs",
+    "amplitude_sum_torque_nm": 0.015,
+    "bit_period_s": 0.04,
+    "lfsr_bits": 7,
+    "seed": 17,
+    "nominal_start_s": 1.0,
+    "nominal_duration_s": 6.0
+  },
+  "auto_probe_manager": {
+    "role": "diagnostic_and_experimental_only",
+    "method": "normalized one-step innovation EWMA with persistence/hysteresis",
+    "residual_reference_scaled_rms": 0.06,
+    "residual_ewma_time_constant_s": 0.05,
+    "trigger_ratio": 5.0,
+    "trigger_absolute_floor": 0.30,
+    "trigger_persistence_s": 0.08,
+    "clear_ratio": 2.0,
+    "clear_absolute_floor": 0.12,
+    "clear_persistence_s": 0.25,
+    "cooldown_s": 1.0,
+    "minimum_session_duration_s": 0.8,
+    "maximum_session_duration_s": 3.0,
+    "minimum_effective_updates": 200,
+    "pe_qualified_persistence_s": 0.10,
+    "plateau_window_s": 0.40,
+    "maximum_parameter_relative_span": 0.05,
+    "maximum_residual_relative_improvement_for_plateau": 0.02
+  },
+  "identification_tests": {
+    "duration_s": 8.0
+  },
+  "discrete_identification": {
+    "role": "probe_information_diagnostics_only",
+    "identifiability_window_s": 0.5,
+    "minimum_window_samples": 200,
+    "minimum_normalized_gram_eigenvalue": 1e-8,
+    "maximum_normalized_gram_condition_number": 1000000.0
+  },
+  "full_state_identification": {
+    "state_order": ["position", "velocity", "pitch_error", "pitch_rate"],
+    "input": "tau_left_plus_tau_right",
+    "train_prbs_seed": 17,
+    "validation_prbs_seed": 73,
+    "fit_start_s": 1.0,
+    "fit_end_s": 7.0,
+    "ridge_lambda_normalized": 1e-8,
+    "minimum_scale": [1e-5, 1e-4, 1e-5, 1e-3],
+    "minimum_input_scale_nm": 0.001,
+    "rollout_horizons_s": [0.02, 0.1, 0.5, 1.0],
+    "rollout_start_stride_intervals": 10,
+    "offline_validation_max_scaled_one_step_rms": 0.1,
+    "offline_validation_max_scaled_rollout_rms_at_0_1_s": 0.5
+  },
+  "moving_payload_stress": {
+    "duration_s": 8.0,
+    "initial_pitch_error_deg": 0.0,
+    "history_frequency_hz": 50.0,
+    "collision_transient_window_s": 0.05,
+    "payload_mass_kg": 0.20,
+    "basket_contact_friction": 0.024,
+    "model_file": "mini_segway_moving_payload.xml"
+  },
+  "benchmark": {
+    "fall_pitch_error_deg": 45.0
+  }
+}

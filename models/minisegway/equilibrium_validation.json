@@ -1,0 +1,8 @@
+{
+  "theta_eq_rad": -0.04137206857258165,
+  "theta_eq_deg": -2.3704449189347607,
+  "gravity_bias_at_theta_eq_nm": 0.0,
+  "gravity_bias_at_theta_eq_minus_1deg_nm": 0.004718110686067727,
+  "gravity_bias_at_theta_eq_plus_1deg_nm": -0.0047181106860677245,
+  "meaning": "qfrc_bias changes sign at theta_eq; with zero applied torque, positive pitch error accelerates further positive"
+}

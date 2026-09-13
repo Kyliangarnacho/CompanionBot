@@ -1,0 +1,17 @@
+{
+  "target_body": "chassis",
+  "add_time_s": 3.0,
+  "mass_kg": 0.25,
+  "position_body_m": [
+    0.0001592717873344358,
+    -0.003311652222722137,
+    0.08
+  ],
+  "shape": {
+    "type": "box",
+    "full_size_m": [0.08, 0.04, 0.04]
+  },
+  "placement_basis": "Rigidly attached on the nominal body-CoM pitch ray: y/z matches the nominal body CoM, preserving theta_eq in the reduced model; x matches nominal body CoM to avoid roll offset.",
+  "collision": false,
+  "notes": "V1 inertial-only payload. It changes rigid-body mass, CoM and inertia at runtime; it is not an equivalent external force."
+}

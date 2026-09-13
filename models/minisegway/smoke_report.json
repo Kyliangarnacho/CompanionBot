@@ -1,0 +1,71 @@
+{
+  "model": "D:\\project\\CompanionBot\\models\\minisegway\\mini_segway.xml",
+  "mujoco_version": "3.2.0",
+  "duration_s": 2.9999999999997806,
+  "nq": 9,
+  "nv": 8,
+  "njnt": 3,
+  "nbody": 4,
+  "ngeom": 19,
+  "nu": 2,
+  "total_mass_kg": 1.0275706489,
+  "direct_torque_test_nm": [
+    0.12,
+    -0.23
+  ],
+  "direct_joint_qfrc_test_nm": [
+    0.12,
+    -0.23
+  ],
+  "hard_limit_test_nm": [
+    0.63,
+    -0.63
+  ],
+  "all_state_finite": true,
+  "max_contacts": 8,
+  "min_chassis_world_z_m": 0.04139945719691724,
+  "final_chassis_world_z_m": 0.04190873252942686,
+  "left_wheel_floor_contact": true,
+  "right_wheel_floor_contact": true,
+  "wheel_collision_radius_halfwidth_m": [
+    [
+      0.042,
+      0.012
+    ],
+    [
+      0.042,
+      0.012
+    ]
+  ],
+  "wheel_hinge_axes": [
+    [
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      1.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "visual_geom_contact_detected": false,
+  "contact_pairs": [
+    [
+      "floor",
+      "left_wheel_collision"
+    ],
+    [
+      "floor",
+      "lower_chassis_collision"
+    ],
+    [
+      "floor",
+      "right_wheel_collision"
+    ],
+    [
+      "floor",
+      "upper_chassis_collision"
+    ]
+  ]
+}

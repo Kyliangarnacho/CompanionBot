@@ -1,0 +1,29 @@
+{
+  "known": {
+    "wheel_mass_kg": 0.09,
+    "adapter_mass_kg": 0.0151,
+    "motor_mass_kg": 0.101,
+    "battery_mass_kg": 0.19,
+    "battery_count": 2,
+    "battery_size_m": [0.07, 0.014, 0.05],
+    "mc33926_mass_kg": 0.01,
+    "wheel_radius_m": 0.042,
+    "wheel_width_m": 0.024,
+    "motor_output_face_x_m": 0.0705,
+    "wheel_torque_hard_peak_nm": 0.63,
+    "wheel_torque_limit_basis": "47:1 25D stall/peak-level limit; not a continuous rated torque"
+  },
+  "provisional": {
+    "printed_effective_density_kg_m3": 600.0,
+    "wheel_center_x_m": 0.0885,
+    "battery_centers_m": [
+      [0.0, -0.012, 0.038],
+      [0.0, 0.012, 0.038]
+    ],
+    "mc33926_center_m": [0.0, 0.024, 0.067],
+    "electronics_lump_mass_kg": 0.05,
+    "electronics_lump_center_m": [0.0, -0.024, 0.067],
+    "electronics_lump_size_m": [0.07, 0.012, 0.085],
+    "wheel_friction": [1.0, 0.005, 0.0001]
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "coordinate_convention": {
+    "cad_axes": "+X right/wheel-axis, +Y rear, +Z up",
+    "forward_position_p": "axle midpoint displacement along CAD -Y, metres",
+    "pitch_theta": "right-hand rotation about +X; positive is nose-down, radians",
+    "theta_error": "pitch_theta - theta_eq",
+    "input_u": "tau_left + tau_right, positive wheel torque about +X, N*m"
+  },
+  "state": [
+    "p_m",
+    "p_dot_m_s",
+    "theta_error_rad",
+    "theta_dot_rad_s"
+  ],
+  "input": [
+    "wheel_torque_sum_nm"
+  ],
+  "parameters": {
+    "body_mass_kg": 0.8173706488571804,
+    "body_com_from_axle_m": [
+      0.0001592717873344358,
+      -0.0013944665352207735,
+      0.033686273868438865
+    ],
+    "body_com_forward_m": 0.0013944665352207735,
+    "body_com_height_m": 0.033686273868438865,
+    "body_com_length_m": 0.03371512396621608,
+    "body_pitch_inertia_about_com_kg_m2": 0.0009508052638366527,
+    "single_wheel_rotating_mass_kg": 0.1051,
+    "single_wheel_axial_inertia_kg_m2": 8.559077373880218e-05,
+    "wheel_radius_m": 0.042,
+    "track_width_m": 0.177,
+    "theta_eq_rad": -0.04137206857258165,
+    "theta_eq_deg": -2.3704449189347607,
+    "equivalent_translation_mass_kg": 1.1246123424385888,
+    "body_pitch_inertia_about_axle_kg_m2": 0.0018799183141197582
+  },
+  "continuous_time": {
+    "A": [
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        -5.499175424284827,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        0.0,
+        224.41744836431755,
+        0.0
+      ]
+    ],
+    "B": [
+      [
+        0.0
+      ],
+      [
+        53.380870164044005
+      ],
+      [
+        0.0
+      ],
+      [
+        -1314.4490391618965
+      ]
+    ],
+    "units": {
+      "A_1_2": "m/s^2 per rad",
+      "A_3_2": "rad/s^2 per rad",
+      "B_1_0": "m/s^2 per N*m summed wheel torque",
+      "B_3_0": "rad/s^2 per N*m summed wheel torque"
+    }
+  },
+  "assumptions": [
+    "small pitch error about theta_eq",
+    "symmetric straight-line motion",
+    "pure rolling without slip",
+    "rigid chassis and rigid wheels",
+    "no caster, motor electrical dynamics, backlash, compliance or drag",
+    "wheel torque sum only; yaw/differential mode excluded"
+  ]
+}

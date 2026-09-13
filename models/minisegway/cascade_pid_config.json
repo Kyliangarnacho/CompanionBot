@@ -1,0 +1,38 @@
+{
+  "controller_frequency_hz": 500.0,
+  "physics_steps_per_update": 2,
+  "gains": {
+    "position_kp_rad_per_m": 0.4,
+    "position_ki_rad_per_m_s": 0.05,
+    "velocity_kd_rad_per_m_s": 0.6,
+    "pitch_kp_nm_per_rad": 0.646,
+    "pitch_ki_nm_per_rad_s": 0.1,
+    "pitch_kd_nm_per_rad_s": 0.03043
+  },
+  "limits": {
+    "theta_reference_deg": 10.0,
+    "position_integral_m_s": 0.2,
+    "pitch_integral_rad_s": 0.2,
+    "sum_torque_nm": 1.26,
+    "per_wheel_hard_peak_nm": 0.63
+  },
+  "design_basis": {
+    "attempt_name": "physical_pole_seed",
+    "inner_target_natural_frequency_rad_s": 25.0,
+    "inner_target_damping_ratio": 0.8,
+    "outer_target_natural_frequency_rad_s": 1.2,
+    "outer_target_damping_ratio": 0.9,
+    "method": "Hand calculation from reduced_twip A/B; modest integral gains added, no parameter search"
+  },
+  "tuning_record": {
+    "gain_sets_evaluated": 1,
+    "post_seed_gain_adjustments": 0,
+    "decision": "The physical pole seed passed all four cases without torque or reference saturation, so tuning stopped."
+  },
+  "test_duration_s": 8.0,
+  "settling_pitch_band_deg": 0.5,
+  "settling_pitch_rate_band_deg_s": 2.0,
+  "settling_dwell_s": 0.5,
+  "fall_pitch_error_deg": 45.0,
+  "windup_limit_fraction_threshold": 0.95
+}
