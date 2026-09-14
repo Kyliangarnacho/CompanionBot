@@ -1,9 +1,7 @@
-"""Moving-payload benchmark for fixed LQR plus two-timescale disturbance rejection."""
+"""Moving-payload benchmark for fixed LQR plus filtered disturbance rejection."""
 
 from __future__ import annotations
 
-from collections import deque
-import json
 import math
 from pathlib import Path
 import sys
@@ -16,13 +14,11 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from control import (
-    AutoProbeManager,
     DiscreteStateSpaceModel,
-    TwoTimescaleDisturbanceCompensator,
-    auto_probe_config_from_dict,
+    FilteredDisturbanceCompensator,
     disturbance_rejection_config_from_dict,
 )
-from sim import MiniSegwaySim
+from sim import LongitudinalEstimator, MiniSegwaySim, load_longitudinal_estimator_config
 
 
 MODEL_DIR = ROOT / "models" / "minisegway"
@@ -31,7 +27,7 @@ DR_CONFIG_PATH = MODEL_DIR / "disturbance_rejection_config.json"
 REDUCED_PATH = MODEL_DIR / "reduced_twip.json"
 PLANT_PARAMETERS_PATH = MODEL_DIR / "plant_parameters.json"
 NOMINAL_OFFLINE_PATH = MODEL_DIR / "full_state_identification_results.json"
-RESULTS_PATH = MODEL_DIR / "two_timescale_disturbance_results.json"
+SENSORIZED_STATE = "sensorized_x_hat"
 
 
 def has_chassis_floor_contact(sim: MiniSegwaySim) -> bool:
@@ -46,6 +42,16 @@ def has_chassis_floor_contact(sim: MiniSegwaySim) -> bool:
         ):
             return True
     return False
+
+
+def held_initial_imu(
+    sim: MiniSegwaySim,
+) -> tuple[np.ndarray, np.ndarray, float, bool]:
+    """Initialize attitude from a motionless held chassis without reading GT state."""
+
+    sim.data.qacc[:] = 0.0
+    mujoco.mj_sensorAcc(sim.model, sim.data)
+    return sim.imu_estimator_input()
 
 
 def window_metrics(
@@ -64,21 +70,6 @@ def window_metrics(
         "peak_abs_pitch_deg": float(np.degrees(np.max(np.abs(values)))),
         "position_change_m": float(positions[mask][-1] - positions[mask][0]),
     }
-
-
-def pe_diagnostics(window: deque, dimension: int) -> tuple[float, float, np.ndarray]:
-    if not window:
-        return 0.0, float("inf"), np.zeros(dimension)
-    matrix = np.asarray(window, dtype=float)
-    column_rms = np.sqrt(np.mean(matrix**2, axis=0))
-    normalized = matrix / np.maximum(column_rms, 1e-12)
-    gram = normalized.T @ normalized / len(normalized)
-    eigenvalues = np.linalg.eigvalsh(gram)
-    minimum = float(max(eigenvalues[0], 0.0))
-    condition = (
-        float(eigenvalues[-1] / minimum) if minimum > 0.0 else float("inf")
-    )
-    return minimum, condition, column_rms
 
 
 class PayloadGroundTruthRecorder:
@@ -329,9 +320,7 @@ def attribute_final_saturation(
 def run_case(
     *,
     label: str,
-    enable_probe: bool,
-    enable_slow: bool,
-    enable_fast: bool,
+    enable_disturbance_rejection: bool,
     raw: dict,
     dr_raw: dict,
     reduced: dict,
@@ -348,7 +337,6 @@ def run_case(
 ) -> dict:
     stress = raw["moving_payload_stress"]
     benchmark = raw["benchmark"]
-    pe_config = raw["discrete_identification"]
     controller_hz = float(raw["controller_frequency_hz"])
     physics_steps = int(raw["physics_steps_per_update"])
     interval_count = round(float(stress["duration_s"]) * controller_hz)
@@ -374,6 +362,7 @@ def run_case(
         nominal_theta_eq
         + math.radians(float(stress["initial_pitch_error_deg"]))
     )
+    sim.calibrate_imu_stationary()
     payload_vertical_position = (
         0.141 + 0.5 * float(np.asarray(payload_full_size_m)[2])
         if payload_full_size_m is not None
@@ -385,30 +374,45 @@ def run_case(
         relative_velocity_m_s=initial_payload_longitudinal_velocity_m_s,
         relative_vertical_position_m=payload_vertical_position,
     )
+    estimator_config = load_longitudinal_estimator_config()
+    expected_physics_steps = round(
+        estimator_config.pitch.sample_period_s / sim.physics_dt
+    )
+    if expected_physics_steps != physics_steps:
+        raise RuntimeError("estimator, controller, and physics sample periods disagree")
+    imu_ticks_per_estimator = round(
+        estimator_config.pitch.sample_period_s / sim.imu_sample_period_s
+    )
+    if imu_ticks_per_estimator < 1 or not math.isclose(
+        estimator_config.pitch.sample_period_s,
+        imu_ticks_per_estimator * sim.imu_sample_period_s,
+        rel_tol=0.0,
+        abs_tol=1e-12,
+    ):
+        raise RuntimeError(
+            "estimator period must be an integer multiple of the IMU period"
+        )
+    estimator = LongitudinalEstimator(
+        estimator_config,
+        sim.encoder_profile,
+        float(reduced["parameters"]["wheel_radius_m"]),
+    )
+    accel, gyro, measurement_age_s, extrapolation_allowed = held_initial_imu(sim)
+    estimate = estimator.reset(
+        accel,
+        gyro,
+        sim.wheel_encoder_counts(),
+        measurement_age_s=measurement_age_s,
+        allow_kinematic_extrapolation=extrapolation_allowed,
+    )
     gt = PayloadGroundTruthRecorder(sim)
-    compensator = TwoTimescaleDisturbanceCompensator(
+    disturbance_config = disturbance_rejection_config_from_dict(dr_raw)
+    compensator = FilteredDisturbanceCompensator(
         nominal_model,
         state_scales,
         input_scale,
-        disturbance_rejection_config_from_dict(dr_raw),
+        disturbance_config,
     )
-    probe_manager = (
-        AutoProbeManager(
-            auto_probe_config_from_dict(
-                raw,
-                probe_seed=int(raw["probe"]["seed"]),
-            )
-        )
-        if enable_probe
-        else None
-    )
-    information_window = deque(
-        maxlen=round(
-            float(pe_config["identifiability_window_s"]) * controller_hz
-        )
-    )
-    minimum_samples = int(pe_config["minimum_window_samples"])
-
     times: list[float] = []
     positions: list[float] = []
     nominal_pitch_errors: list[float] = []
@@ -420,81 +424,112 @@ def run_case(
     wall_contact: list[bool] = []
     wall_force: list[float] = []
     lqr_commands: list[float] = []
-    slow_commands: list[float] = []
-    fast_commands: list[float] = []
-    probe_commands: list[float] = []
+    requested_u_dr_commands: list[float] = []
+    u_dr_commands: list[float] = []
     raw_disturbances: list[float] = []
     projected_disturbances: list[float] = []
     innovation_rms: list[float] = []
     matched_fractions: list[float] = []
+    estimator_errors = {
+        "position_m": [],
+        "velocity_m_s": [],
+        "pitch_rad": [],
+        "pitch_rate_rad_s": [],
+    }
     requested_sum_torques: list[float] = []
     held_sum_torques: list[float] = []
     actual_interval_sum_torques: list[float] = []
     saturation_eaten = {
         "lqr": [],
-        "slow": [],
-        "fast": [],
-        "probe": [],
+        "disturbance_rejection": [],
     }
     histories: list[dict] = []
     saturated_updates = 0
     fallen = False
-    previous_probe_active = False
 
     for interval in range(interval_count):
         start_time = float(sim.data.time)
-        state = sim.longitudinal_state(nominal_theta_eq)
-        compensation = compensator.command(
-            enable_slow=enable_slow, enable_fast=enable_fast
-        )
-        lqr_sum = -float((nominal_gain @ state).item())
-        probe_active = bool(probe_manager.active) if probe_manager else False
-        probe_sum = probe_manager.probe_value(start_time) if probe_manager else 0.0
-        raw_sum = lqr_sum + compensation.total_nm + probe_sum
+        control_state = estimate.controller_state(nominal_theta_eq)
+        compensation = compensator.command(enabled=enable_disturbance_rejection)
+        lqr_sum = -float((nominal_gain @ control_state).item())
+        raw_sum = lqr_sum + compensation.u_dr_nm
         held_sum = float(np.clip(raw_sum, -2.0 * peak, 2.0 * peak))
         saturated_updates += int(
             not np.isclose(raw_sum, held_sum, rtol=0.0, atol=1e-12)
         )
-
-        next_state = state
+        next_gt_state = None
         actual_sum = held_sum
         for _ in range(physics_steps):
             snapshot = sim.step(held_sum / 2.0, held_sum / 2.0)
-            next_state = sim.longitudinal_state(nominal_theta_eq)
+            next_gt_state = sim.longitudinal_state(nominal_theta_eq)
             actual_wheel_torque = float(np.max(np.abs(snapshot.applied_ctrl_nm)))
             actual_sum = float(np.sum(snapshot.applied_ctrl_nm))
             payload_position, theta_gt, contacting, force = gt.sample(
-                snapshot.time_s, next_state[2], actual_wheel_torque
+                snapshot.time_s, next_gt_state[2], actual_wheel_torque
             )
             times.append(snapshot.time_s)
-            positions.append(next_state[0])
-            nominal_pitch_errors.append(next_state[2])
-            pitch_rates.append(next_state[3])
+            positions.append(next_gt_state[0])
+            nominal_pitch_errors.append(next_gt_state[2])
+            pitch_rates.append(next_gt_state[3])
             wheel_torques.append(actual_wheel_torque)
             sum_torques.append(actual_sum)
             payload_positions.append(payload_position)
             theta_eq_gt.append(theta_gt)
             wall_contact.append(contacting)
             wall_force.append(force)
-            fallen |= abs(next_state[2]) >= math.radians(
+            fallen |= abs(next_gt_state[2]) >= math.radians(
                 benchmark["fall_pitch_error_deg"]
             )
             fallen |= has_chassis_floor_contact(sim)
 
-        observation = compensator.observe(state, actual_sum, next_state)
+        assert next_gt_state is not None
+        # Read the latest already-generated packet available at this time. GT is
+        # not passed into estimator or controller state assembly.
+        (
+            accel,
+            gyro,
+            measurement_age_s,
+            extrapolation_allowed,
+        ) = sim.imu_estimator_input()
+        imu_raw_log_fields = sim.imu_raw_log_fields()
+        estimate = estimator.update(
+            accel,
+            gyro,
+            sim.wheel_encoder_counts(),
+            measurement_age_s=measurement_age_s,
+            allow_kinematic_extrapolation=extrapolation_allowed,
+        )
+        next_control_state = estimate.controller_state(nominal_theta_eq)
+        estimator_errors["position_m"].append(
+            float(next_control_state[0] - next_gt_state[0])
+        )
+        estimator_errors["velocity_m_s"].append(
+            float(next_control_state[1] - next_gt_state[1])
+        )
+        estimator_errors["pitch_rad"].append(
+            float(
+                (next_control_state[2] - next_gt_state[2] + math.pi)
+                % (2.0 * math.pi)
+                - math.pi
+            )
+        )
+        estimator_errors["pitch_rate_rad_s"].append(
+            float(next_control_state[3] - next_gt_state[3])
+        )
+
+        observation = compensator.observe(
+            control_state, actual_sum, next_control_state
+        )
         channel_requests = {
             "lqr": lqr_sum,
-            "slow": compensation.slow_nm,
-            "fast": compensation.fast_nm,
-            "probe": probe_sum,
+            "disturbance_rejection": compensation.u_dr_nm,
         }
         attributed_loss = attribute_final_saturation(
             channel_requests, actual_sum
         )
         lqr_commands.append(lqr_sum)
-        slow_commands.append(compensation.slow_nm)
-        fast_commands.append(compensation.fast_nm)
-        probe_commands.append(probe_sum)
+        requested_u_dr_commands.append(compensation.requested_u_dr_nm)
+        u_dr_commands.append(compensation.u_dr_nm)
         raw_disturbances.append(observation.matched_disturbance_raw_nm)
         projected_disturbances.append(
             observation.matched_disturbance_projected_nm
@@ -507,58 +542,41 @@ def run_case(
         for channel, value in attributed_loss.items():
             saturation_eaten[channel].append(value)
 
-        pe_qualified = False
-        minimum_eigenvalue = 0.0
-        condition_number = float("inf")
-        if probe_active and not previous_probe_active:
-            information_window.clear()
-        if probe_active:
-            regressor = np.r_[state / state_scales, actual_sum / input_scale, 1.0]
-            information_window.append(regressor)
-            minimum_eigenvalue, condition_number, _ = pe_diagnostics(
-                information_window, 6
-            )
-            pe_qualified = bool(
-                len(information_window) >= minimum_samples
-                and minimum_eigenvalue
-                >= float(pe_config["minimum_normalized_gram_eigenvalue"])
-                and condition_number
-                <= float(pe_config["maximum_normalized_gram_condition_number"])
-            )
-        else:
-            information_window.clear()
-
-        if probe_manager is not None:
-            # The old manager remains a stress-excitation asset only.  No fake
-            # RLS updates are reported, so it cannot claim learning convergence;
-            # its unchanged maximum-duration safety stop ends the session.
-            probe_manager.observe(
-                start_time,
-                observation.normalized_innovation,
-                pe_qualified=pe_qualified,
-                accepted_updates=0,
-                parameter_vector=None,
-            )
         if interval % history_period == 0:
             histories.append(
                 {
                     "time_s": start_time,
-                    "probe_active": probe_active,
+                    "controller_state_source": SENSORIZED_STATE,
+                    "controller_state": control_state.tolist(),
+                    "next_controller_state": next_control_state.tolist(),
                     "scaled_innovation_rms": observation.scaled_innovation_rms,
                     "matched_disturbance_projected_nm": observation.matched_disturbance_projected_nm,
                     "u_lqr_nm": lqr_sum,
-                    "u_slow_nm": compensation.slow_nm,
-                    "u_fast_nm": compensation.fast_nm,
-                    "u_probe_nm": probe_sum,
+                    "requested_u_dr_nm": compensation.requested_u_dr_nm,
+                    "u_dr_nm": compensation.u_dr_nm,
+                    "q_filter_estimate_nm": compensation.q_filter_estimate_nm,
+                    "u_dr_authority_limited": compensation.authority_limited,
+                    "u_dr_slew_limited": compensation.slew_limited,
                     "requested_sum_torque_nm": raw_sum,
                     "software_limited_sum_torque_nm": held_sum,
                     "actual_applied_sum_torque_nm": actual_sum,
                     "final_saturation_eaten_nm": attributed_loss,
-                    "minimum_gram_eigenvalue": minimum_eigenvalue,
-                    "condition_number": condition_number,
+                    "next_theta_hat_measurement_time_rad": (
+                        estimate.theta_measurement_time_rad
+                    ),
+                    "next_theta_hat_control_time_rad": estimate.theta_hat_rad,
+                    "next_theta_dot_hat_control_time_rad_s": (
+                        estimate.theta_dot_hat_rad_s
+                    ),
+                    "next_imu_extrapolation_age_s": (
+                        estimate.imu_extrapolation_age_s
+                    ),
+                    "next_imu_kinematic_extrapolation_applied": (
+                        estimate.imu_kinematic_extrapolation_applied
+                    ),
+                    **imu_raw_log_fields,
                 }
             )
-        previous_probe_active = probe_active
 
     arrays = {
         "times": np.asarray(times),
@@ -589,50 +607,31 @@ def run_case(
     force_bearing_episodes = force_bearing_contact_episodes(
         arrays["wall_contact"], arrays["wall_force"]
     )
-    probe_start = probe_manager.session_start_s if probe_manager else None
-    probe_end = probe_manager.session_end_s if probe_manager else None
 
     def rms(values: np.ndarray) -> float:
         return float(np.sqrt(np.mean(values**2)))
+
+    def estimator_error_metrics(values: list[float], scale: float = 1.0) -> dict:
+        array = scale * np.asarray(values, dtype=float)
+        return {
+            "rms": rms(array),
+            "peak": float(np.max(np.abs(array))),
+            "final": float(array[-1]),
+        }
 
     requested_sum_array = np.asarray(requested_sum_torques)
     held_sum_array = np.asarray(held_sum_torques)
     actual_interval_sum_array = np.asarray(actual_interval_sum_torques)
 
-    if probe_start is None or probe_end is None:
-        phase_metrics = {
-            "full": window_metrics(
-                arrays["times"],
-                arrays["positions"],
-                instantaneous_gt_pitch_error,
-                0.0,
-                float(stress["duration_s"]),
-            )
-        }
-    else:
-        phase_metrics = {
-            "pre_probe": window_metrics(
-                arrays["times"],
-                arrays["positions"],
-                instantaneous_gt_pitch_error,
-                0.0,
-                probe_start,
-            ),
-            "probe": window_metrics(
-                arrays["times"],
-                arrays["positions"],
-                instantaneous_gt_pitch_error,
-                probe_start,
-                probe_end,
-            ),
-            "post_probe": window_metrics(
-                arrays["times"],
-                arrays["positions"],
-                instantaneous_gt_pitch_error,
-                probe_end,
-                float(stress["duration_s"]),
-            ),
-        }
+    phase_metrics = {
+        "full": window_metrics(
+            arrays["times"],
+            arrays["positions"],
+            instantaneous_gt_pitch_error,
+            0.0,
+            float(stress["duration_s"]),
+        )
+    }
     terminal_mask = arrays["times"] >= float(stress["duration_s"]) - 1.0
     payload_position_min = np.min(arrays["payload_position"], axis=0)
     payload_position_max = np.max(arrays["payload_position"], axis=0)
@@ -649,6 +648,7 @@ def run_case(
 
     result = {
         "label": label,
+        "controller_state_source": SENSORIZED_STATE,
         "fell": bool(fallen),
         "basket_contact_friction": float(
             basket_friction_override
@@ -659,24 +659,16 @@ def run_case(
         "payload_box_override": payload_box,
         "controller": {
             "fixed_nominal_K": nominal_gain.reshape(-1).tolist(),
+            "state_dataflow": "current integer encoder counts -> encoder PLL; delayed calibrated IMU packet -> complementary filter at measurement time -> guarded constant-rate extrapolation to control time; aligned encoder PLL + IMU output -> x_hat_control_time; LQR and matched-disturbance innovation consume that same state only",
+            "ground_truth_boundary": "GT is evaluator/logger-only after command assembly",
             "theta_reference_changed": False,
             "K_changed": False,
-            "slow_enabled": enable_slow,
-            "fast_enabled": enable_fast,
+            "disturbance_rejection_enabled": enable_disturbance_rejection,
+            "imu_hardware_profile": sim.imu_profile_name,
+            "imu_rng_seed": sim.imu_seed,
+            "sensorized_state_timestamp": "current controller horizon",
+            "dob_model_horizon": "frozen A_2ms/B_2ms",
         },
-        "probe_session": (
-            {
-                "start_s": probe_start,
-                "end_s": probe_end,
-                "stop_reason": probe_manager.stop_reason,
-                "events": probe_manager.events,
-                "amplitude_sum_torque_nm": float(
-                    raw["probe"]["amplitude_sum_torque_nm"]
-                ),
-            }
-            if probe_manager
-            else None
-        ),
         "pitch_nominal_reference": {
             "rms_deg": math.degrees(rms(arrays["nominal_pitch"])),
             "peak_deg": math.degrees(float(np.max(np.abs(arrays["nominal_pitch"])))),
@@ -760,6 +752,12 @@ def run_case(
             "collision_transient": collision_metrics,
         },
         "disturbance_rejection": {
+            "architecture": "bounded matched innovation -> single Q-filter -> augmentation authority bound -> optional final slew",
+            "q_filter_cutoff_hz": disturbance_config.q_filter_cutoff_hz,
+            "augmentation_authority_bound_nm": disturbance_config.augmentation_authority_bound_nm,
+            "slew_limiter_enabled": disturbance_config.augmentation_slew_rate_nm_s
+            is not None,
+            "augmentation_slew_rate_nm_s": disturbance_config.augmentation_slew_rate_nm_s,
             "observation_count": compensator.observation_count,
             "projection_clip_count": compensator.clipped_observation_count,
             "projection_clip_ratio": compensator.clipped_observation_count
@@ -771,148 +769,36 @@ def run_case(
                 np.asarray(projected_disturbances)
             ),
             "u_lqr_rms_nm": rms(np.asarray(lqr_commands)),
-            "u_slow_rms_nm": rms(np.asarray(slow_commands)),
-            "u_fast_rms_nm": rms(np.asarray(fast_commands)),
-            "u_slow_peak_nm": float(np.max(np.abs(slow_commands))),
-            "u_fast_peak_nm": float(np.max(np.abs(fast_commands))),
-            "u_total_compensation_rms_nm": rms(
-                np.asarray(slow_commands) + np.asarray(fast_commands)
+            "requested_u_dr_rms_nm": rms(np.asarray(requested_u_dr_commands)),
+            "requested_u_dr_peak_nm": float(
+                np.max(np.abs(requested_u_dr_commands))
             ),
-            "u_total_compensation_peak_nm": float(
-                np.max(
-                    np.abs(np.asarray(slow_commands) + np.asarray(fast_commands))
-                )
-            ),
-            "final_slow_estimate_nm": compensator.slow_estimate_nm,
-            "final_fast_band_estimate_nm": (
-                compensator.fast_lowpass_estimate_nm
-                - compensator.slow_estimate_nm
-            ),
+            "u_dr_rms_nm": rms(np.asarray(u_dr_commands)),
+            "u_dr_peak_nm": float(np.max(np.abs(u_dr_commands))),
+            "authority_limit_count": compensator.authority_limit_count,
+            "authority_limit_hit_ratio": compensator.authority_limit_count
+            / max(compensator.command_count, 1),
+            "slew_limit_count": compensator.slew_limit_count,
+            "slew_limit_hit_ratio": compensator.slew_limit_count
+            / max(compensator.command_count, 1),
         },
         "history_50hz": histories,
         "final_qpos": sim.data.qpos.tolist(),
         "final_qvel": sim.data.qvel.tolist(),
     }
+    result["estimator_error_at_500hz"] = {
+        "position_m": estimator_error_metrics(estimator_errors["position_m"]),
+        "velocity_m_s": estimator_error_metrics(estimator_errors["velocity_m_s"]),
+        "pitch_deg": estimator_error_metrics(
+            estimator_errors["pitch_rad"], 180.0 / math.pi
+        ),
+        "pitch_rate_deg_s": estimator_error_metrics(
+            estimator_errors["pitch_rate_rad_s"], 180.0 / math.pi
+        ),
+    }
+    result["imu_hardware_diagnostics"] = sim.imu_diagnostics(
+        include_hidden_truth=True
+    )
     if capture_commands:
         result["_held_sum_commands_nm"] = held_sum_torques
     return result
-
-
-def strip_repeat_state(result: dict) -> dict:
-    clean = dict(result)
-    clean.pop("final_qpos", None)
-    clean.pop("final_qvel", None)
-    return clean
-
-
-def main() -> None:
-    raw = json.loads(EXPERIMENT_CONFIG_PATH.read_text(encoding="utf-8"))
-    dr_raw = json.loads(DR_CONFIG_PATH.read_text(encoding="utf-8"))
-    reduced = json.loads(REDUCED_PATH.read_text(encoding="utf-8"))
-    plant = json.loads(PLANT_PARAMETERS_PATH.read_text(encoding="utf-8"))
-    offline = json.loads(NOMINAL_OFFLINE_PATH.read_text(encoding="utf-8"))
-    nominal_model = DiscreteStateSpaceModel(
-        np.asarray(offline["fit"]["A_identified"], dtype=float),
-        np.asarray(offline["fit"]["B_identified"], dtype=float),
-    )
-    nominal_gain = np.asarray(offline["identified_lqr"]["K_id"], dtype=float)
-    state_scales = np.asarray(offline["fit"]["state_scales"], dtype=float)
-    input_scale = float(offline["fit"]["input_scale_nm"])
-    peak = float(plant["known"]["wheel_torque_hard_peak_nm"])
-    common = dict(
-        raw=raw,
-        dr_raw=dr_raw,
-        reduced=reduced,
-        nominal_model=nominal_model,
-        nominal_gain=nominal_gain,
-        state_scales=state_scales,
-        input_scale=input_scale,
-        peak=peak,
-    )
-    a = run_case(
-        label="A_frozen_nominal_id_lqr",
-        enable_probe=False,
-        enable_slow=False,
-        enable_fast=False,
-        **common,
-    )
-    b = run_case(
-        label="B_frozen_nominal_id_lqr_same_auto_probe",
-        enable_probe=True,
-        enable_slow=False,
-        enable_fast=False,
-        **common,
-    )
-    c = run_case(
-        label="C_fixed_lqr_plus_slow_fast_disturbance_rejection",
-        enable_probe=True,
-        enable_slow=True,
-        enable_fast=True,
-        **common,
-    )
-    repeat = run_case(
-        label="C_fixed_lqr_plus_slow_fast_disturbance_rejection",
-        enable_probe=True,
-        enable_slow=True,
-        enable_fast=True,
-        **common,
-    )
-    deterministic = bool(
-        c["final_qpos"] == repeat["final_qpos"]
-        and c["final_qvel"] == repeat["final_qvel"]
-        and c["history_50hz"] == repeat["history_50hz"]
-    )
-    result = {
-        "status": "PASS" if not c["fell"] and deterministic else "FAIL",
-        "architecture": {
-            "control_law": "u = -K_nominal*x + u_slow + u_fast + u_probe",
-            "nominal_K_fixed": True,
-            "nominal_theta_reference_fixed": True,
-            "online_ABc_or_theta_equilibrium_not_used": True,
-            "payload_ground_truth_hidden_from_control": True,
-            "state_order": ["p", "p_dot", "theta_error_nominal", "theta_dot"],
-            "input": "tau_left_plus_tau_right",
-            "controller_hz": float(raw["controller_frequency_hz"]),
-            "physics_hz": 1.0 / 0.001,
-            "disturbance_config": dr_raw,
-        },
-        "scenario": {
-            "model": raw["moving_payload_stress"]["model_file"],
-            "payload_mass_kg": raw["moving_payload_stress"]["payload_mass_kg"],
-            "basket_contact_friction": raw["moving_payload_stress"]["basket_contact_friction"],
-            "duration_s": raw["moving_payload_stress"]["duration_s"],
-            "Q_diag_unchanged": offline["identified_lqr"]["Q_diag_unchanged"],
-            "R_unchanged": offline["identified_lqr"]["R_unchanged"],
-            "per_wheel_peak_nm_unchanged": peak,
-        },
-        "A_frozen": strip_repeat_state(a),
-        "B_frozen_same_auto_probe": strip_repeat_state(b),
-        "C_two_timescale": strip_repeat_state(c),
-        "C_deterministic_repeat_exact": deterministic,
-    }
-    RESULTS_PATH.write_text(json.dumps(result, indent=2), encoding="utf-8")
-    concise = {
-        "status": result["status"],
-        "deterministic": deterministic,
-        "cases": {},
-    }
-    for key in ("A_frozen", "B_frozen_same_auto_probe", "C_two_timescale"):
-        run = result[key]
-        concise["cases"][key] = {
-            "fell": run["fell"],
-            "pitch_nominal_reference": run["pitch_nominal_reference"],
-            "pitch_against_posthoc_instantaneous_gt": run[
-                "pitch_against_posthoc_instantaneous_gt"
-            ],
-            "final_position_drift_m": run["final_position_drift_m"],
-            "max_wheel_torque_nm": run["max_wheel_torque_nm"],
-            "saturation_ratio": run["saturation_ratio"],
-            "payload_gt": run["payload_gt"],
-            "disturbance_rejection": run["disturbance_rejection"],
-            "probe_session": run["probe_session"],
-        }
-    print(json.dumps(concise, indent=2))
-
-
-if __name__ == "__main__":
-    main()

@@ -1,4 +1,4 @@
-"""Interactive replay of the final moving-payload collision A/B/C scenarios."""
+"""Interactive replay of the final moving-payload collision scenarios."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from control import DiscreteStateSpaceModel
-from scripts.run_two_timescale_disturbance_benchmark import (
+from moving_payload_benchmark import (
     EXPERIMENT_CONFIG_PATH,
     DR_CONFIG_PATH,
     MODEL_DIR,
@@ -35,21 +35,13 @@ from sim import MiniSegwaySim
 CASES = {
     "A": {
         "label": "A_frozen_nominal_id_lqr_collision_acceptance",
-        "slow": False,
-        "fast": False,
+        "disturbance_rejection": False,
         "description": "Frozen nominal ID-LQR",
     },
-    "B": {
-        "label": "B_fixed_lqr_plus_slow_collision_acceptance",
-        "slow": True,
-        "fast": False,
-        "description": "Fixed nominal ID-LQR plus slow compensation",
-    },
-    "C": {
-        "label": "C_fixed_lqr_plus_slow_fast_collision_acceptance",
-        "slow": True,
-        "fast": True,
-        "description": "Fixed nominal ID-LQR plus slow and fast compensation",
+    "Q": {
+        "label": "sensorized_single_q_filtered_disturbance_rejection",
+        "disturbance_rejection": True,
+        "description": "Fixed nominal ID-LQR plus selected single Q-filter compensation",
     },
 }
 
@@ -107,9 +99,7 @@ def main() -> None:
     print(f"Preparing deterministic case {args.case}: {selected['description']}")
     result = run_case(
         label=selected["label"],
-        enable_probe=False,
-        enable_slow=selected["slow"],
-        enable_fast=selected["fast"],
+        enable_disturbance_rejection=selected["disturbance_rejection"],
         payload_full_size_m=payload_size,
         basket_friction_override=float(collision["basket_contact_friction"]),
         initial_payload_longitudinal_position_m=float(

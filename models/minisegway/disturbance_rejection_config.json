@@ -1,25 +1,23 @@
 {
   "controller_dt_s": 0.002,
-  "slow_cutoff_hz": 0.6,
-  "fast_cutoff_hz": 15.0,
+  "q_filter": {
+    "selected_cutoff_hz": 2.0
+  },
   "innovation_projection_bound_nm": 0.35,
-  "slow_compensation_bound_nm": 0.08,
-  "fast_compensation_bound_nm": 0.12,
-  "combined_compensation_bound_nm": 0.18,
-  "combined_slew_rate_nm_s": 5.0,
+  "augmentation_authority_bound_nm": 0.18,
+  "augmentation_slew_rate_nm_s": null,
   "projection_ridge": 1e-8,
   "collision_acceptance": {
     "payload_full_size_m": [0.064, 0.032, 0.032],
     "basket_contact_friction": 0.040,
     "initial_payload_longitudinal_center_m": 0.031,
     "initial_payload_longitudinal_velocity_m_s": 0.10,
-    "probe_enabled": false,
     "geometry_basis": "The acceptance payload is uniformly scaled to 80% of the original 80x40x40 mm box while retaining 0.20 kg mass; box inertia is recomputed. Its longitudinal center limit becomes approximately +/-0.033 m. It starts at +0.031 m (2 mm clearance) moving toward the wall at 0.10 m/s. Size-only tests at mu=0.024 retained a 0-to-many collision bifurcation, so friction was increased minimally through a bounded scan; mu=0.040 is the first tested value giving C two force-bearing contacts with containment and decay."
   },
   "design_basis": {
-    "slow_channel": "0.6 Hz low-pass equivalent-input disturbance compensation; well below the balance-loop bandwidth",
-    "fast_channel": "15 Hz minus 0.6 Hz complementary band from the same bounded one-step predictor innovation",
-    "bounds": "supplemental total torque is limited to 0.18 N*m (14.3% of the unchanged 1.26 N*m sum hard peak); innovation projection is separately clipped for impact robustness",
-    "tuning_policy": "single engineering-scale selection; Q/R, plant, payload, PRBS, gain bound, blend alpha, forgetting factor, and actuator limits unchanged"
+    "architecture": "bounded matched one-step innovation -> one 2 Hz Q-filter -> one u_dr augmentation command",
+    "bounds": "u_dr is limited to 0.18 N*m (14.3% of the unchanged 1.26 N*m sum hard peak); innovation projection is separately clipped for impact robustness",
+    "slew_policy": "the optional final augmentation slew envelope is disabled because it introduced unnecessary normal-path lag",
+    "tuning_policy": "2 Hz is the frozen Sensorization V1 cutoff; historical candidate sweeps are summarized in LEARNING_LOG.md"
   }
 }

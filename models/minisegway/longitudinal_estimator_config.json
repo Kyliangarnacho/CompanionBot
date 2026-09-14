@@ -1,0 +1,12 @@
+{
+  "sample_period_s": 0.002,
+  "imu_complementary_filter": {
+    "time_constant_s": 0.5
+  },
+  "encoder_velocity": {
+    "pll": {
+      "selected_bandwidth_rad_s": 80.0,
+      "snap_to_zero": true
+    }
+  }
+}

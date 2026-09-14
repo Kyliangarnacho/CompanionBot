@@ -54,6 +54,10 @@
       <geom name="basket_left_wall" class="collision" type="box" pos="-0.055 0 0.170" size="0.003 0.052 0.033" friction="0.024 0.005 0.0001" rgba="0 0 0 0"/>
       <geom name="basket_right_wall" class="collision" type="box" pos="0.055 0 0.170" size="0.003 0.052 0.033" friction="0.024 0.005 0.0001" rgba="0 0 0 0"/>
 
+      <!-- Massless IMU mounting frame: chassis-aligned and close to the wheel axle. -->
+      <site name="imu_site" type="box" pos="0 0 0.020" quat="1 0 0 0"
+            size="0.004 0.003 0.001" rgba="1 0.15 0.05 1"/>
+
       <body name="left_wheel" pos="-0.0885 0 0">
         <joint name="left_wheel_hinge" type="hinge" axis="1 0 0" damping="0.002" frictionloss="0.002"/>
         <inertial pos="0.001407549168 -2.310217342e-08 4.024972882e-05" mass="0.1051" fullinertia="8.559060347e-05 4.760138372e-05 4.763051958e-05 2.677568832e-11 -3.525425309e-08 -1.463149106e-11"/>
@@ -82,6 +86,13 @@
     <motor name="left_wheel_torque" joint="left_wheel_hinge" gear="1" ctrllimited="true" ctrlrange="-0.63 0.63" forcelimited="true" forcerange="-0.63 0.63"/>
     <motor name="right_wheel_torque" joint="right_wheel_hinge" gear="1" ctrllimited="true" ctrlrange="-0.63 0.63" forcelimited="true" forcerange="-0.63 0.63"/>
   </actuator>
+
+  <sensor>
+    <accelerometer name="imu_accelerometer" site="imu_site"/>
+    <gyro name="imu_gyro" site="imu_site"/>
+    <jointpos name="left_wheel_angle" joint="left_wheel_hinge"/>
+    <jointpos name="right_wheel_angle" joint="right_wheel_hinge"/>
+  </sensor>
 
   <keyframe>
     <key name="upright" qpos="0 0 0.043 1 0 0 0 0 0 0 0 0.204 1 0 0 0"/>

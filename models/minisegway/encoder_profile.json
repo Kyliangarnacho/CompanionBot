@@ -1,0 +1,9 @@
+{
+  "name": "pololu_25d_47_1_48cpr_x4",
+  "motor_shaft_decoded_counts_per_rev": 48,
+  "exact_gearbox_ratio": 46.8512,
+  "output_decoded_counts_per_rev": 2248.8576,
+  "quantization": "round_to_nearest_away_from_zero",
+  "left_count_sign": 1,
+  "right_count_sign": 1
+}

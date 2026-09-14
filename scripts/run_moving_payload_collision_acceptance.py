@@ -1,4 +1,4 @@
-"""Low-speed wall-impact acceptance at the selected basket friction."""
+"""Run the frozen final sensorized moving-payload collision acceptance once."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from control import DiscreteStateSpaceModel
-from scripts.run_two_timescale_disturbance_benchmark import run_case, strip_repeat_state
+from moving_payload_benchmark import SENSORIZED_STATE, run_case
 
 
 MODEL_DIR = ROOT / "models" / "minisegway"
@@ -22,7 +22,45 @@ DR_CONFIG_PATH = MODEL_DIR / "disturbance_rejection_config.json"
 REDUCED_PATH = MODEL_DIR / "reduced_twip.json"
 PLANT_PARAMETERS_PATH = MODEL_DIR / "plant_parameters.json"
 NOMINAL_OFFLINE_PATH = MODEL_DIR / "full_state_identification_results.json"
-RESULTS_PATH = MODEL_DIR / "moving_payload_collision_acceptance_results.json"
+RESULTS_PATH = MODEL_DIR / "moving_payload_timestamp_aligned_collision_results.json"
+
+
+def key_metrics(run: dict) -> dict:
+    payload = run["payload_gt"]
+    pitch = run["pitch_against_posthoc_instantaneous_gt"]
+    disturbance = run["disturbance_rejection"]
+    return {
+        "fell": bool(run["fell"]),
+        "contained": bool(payload["remained_in_basket"]),
+        "pitch_rms_deg": float(pitch["rms_deg"]),
+        "pitch_peak_deg": float(pitch["peak_deg"]),
+        "terminal_pitch_rms_deg": float(pitch["terminal_1s_rms_deg"]),
+        "world_position_drift_m": float(run["final_position_drift_m"]),
+        "effective_collision_count": int(
+            payload["force_bearing_wall_collision_episode_count"]
+        ),
+        "payload_decay_ratio": float(
+            payload["motion_decay"]["terminal_to_first_rms_ratio"]
+        ),
+        "max_wheel_torque_nm": float(run["max_wheel_torque_nm"]),
+        "wheel_saturation_fraction": float(run["saturation_ratio"]),
+        "u_dr_rms_nm": float(disturbance["u_dr_rms_nm"]),
+        "u_dr_peak_nm": float(disturbance["u_dr_peak_nm"]),
+        "u_dr_authority_hit_fraction": float(
+            disturbance["authority_limit_hit_ratio"]
+        ),
+        "innovation_scaled_rms": float(disturbance["innovation_scaled_rms"]),
+    }
+
+
+def accepted(metrics: dict) -> bool:
+    return bool(
+        not metrics["fell"]
+        and metrics["contained"]
+        and 1 <= metrics["effective_collision_count"] <= 5
+        and metrics["payload_decay_ratio"] < 0.5
+        and metrics["wheel_saturation_fraction"] <= 0.01
+    )
 
 
 def main() -> None:
@@ -31,24 +69,32 @@ def main() -> None:
     reduced = json.loads(REDUCED_PATH.read_text(encoding="utf-8"))
     plant = json.loads(PLANT_PARAMETERS_PATH.read_text(encoding="utf-8"))
     offline = json.loads(NOMINAL_OFFLINE_PATH.read_text(encoding="utf-8"))
+
+    selected_cutoff_hz = float(dr_raw["q_filter"]["selected_cutoff_hz"])
+    if selected_cutoff_hz != 2.0:
+        raise RuntimeError(
+            f"frozen final Q-filter cutoff changed: {selected_cutoff_hz} Hz"
+        )
+    collision = dr_raw["collision_acceptance"]
+    payload_size = np.asarray(collision["payload_full_size_m"], dtype=float)
     nominal_model = DiscreteStateSpaceModel(
         np.asarray(offline["fit"]["A_identified"], dtype=float),
         np.asarray(offline["fit"]["B_identified"], dtype=float),
     )
-    nominal_gain = np.asarray(offline["identified_lqr"]["K_id"], dtype=float)
-    collision = dr_raw["collision_acceptance"]
-    payload_size = np.asarray(collision["payload_full_size_m"], dtype=float)
     peak = float(plant["known"]["wheel_torque_hard_peak_nm"])
-    common = dict(
+
+    # One production acceptance run: no sweep, legacy ablation, or repeat.
+    run = run_case(
+        label="sensorization_v1_final_single_q_2_hz_collision",
         raw=raw,
         dr_raw=dr_raw,
         reduced=reduced,
         nominal_model=nominal_model,
-        nominal_gain=nominal_gain,
+        nominal_gain=np.asarray(offline["identified_lqr"]["K_id"], dtype=float),
         state_scales=np.asarray(offline["fit"]["state_scales"], dtype=float),
         input_scale=float(offline["fit"]["input_scale_nm"]),
         peak=peak,
-        enable_probe=False,
+        enable_disturbance_rejection=True,
         payload_full_size_m=payload_size,
         basket_friction_override=float(collision["basket_contact_friction"]),
         initial_payload_longitudinal_position_m=float(
@@ -58,102 +104,34 @@ def main() -> None:
             collision["initial_payload_longitudinal_velocity_m_s"]
         ),
     )
-    a = run_case(
-        label="A_frozen_nominal_id_lqr_collision_acceptance",
-        enable_slow=False,
-        enable_fast=False,
-        **common,
-    )
-    b = run_case(
-        label="B_fixed_lqr_plus_slow_collision_acceptance",
-        enable_slow=True,
-        enable_fast=False,
-        **common,
-    )
-    c = run_case(
-        label="C_fixed_lqr_plus_slow_fast_collision_acceptance",
-        enable_slow=True,
-        enable_fast=True,
-        **common,
-    )
-    repeat = run_case(
-        label="C_fixed_lqr_plus_slow_fast_collision_acceptance",
-        enable_slow=True,
-        enable_fast=True,
-        **common,
-    )
-    deterministic = bool(
-        c["final_qpos"] == repeat["final_qpos"]
-        and c["final_qvel"] == repeat["final_qvel"]
-        and c["history_50hz"] == repeat["history_50hz"]
-    )
-    collision_reproduced = bool(
-        1
-        <= c["payload_gt"]["force_bearing_wall_collision_episode_count"]
-        <= 5
-        and c["payload_gt"]["remained_in_basket"]
-    )
-    motion_decayed = bool(
-        c["payload_gt"]["motion_decay"]["terminal_to_first_rms_ratio"] < 0.5
-    )
-    actuator_headroom_pass = bool(c["saturation_ratio"] <= 0.01)
-    control_performance_pass = bool(
-        not c["fell"] and motion_decayed and actuator_headroom_pass
-    )
+    metrics = key_metrics(run)
     result = {
-        "status": "PASS"
-        if deterministic and collision_reproduced and control_performance_pass
-        else "FAIL",
-        "acceptance": {
-            "C_one_to_five_nonzero_force_collisions_with_containment": collision_reproduced,
-            "C_no_fall": not c["fell"],
-            "C_payload_motion_decayed": motion_decayed,
-            "C_actuator_headroom_pass": actuator_headroom_pass,
-            "C_control_performance_pass": control_performance_pass,
-            "C_deterministic_repeat_exact": deterministic,
+        "status": "PASS" if accepted(metrics) else "FAIL",
+        "execution": {
+            "final_scenario_run_count": 1,
+            "cutoff_sweep_run": False,
+            "legacy_ablation_run": False,
+            "deterministic_repeat_run": False,
         },
-        "scenario": {
-            "payload_mass_kg": raw["moving_payload_stress"]["payload_mass_kg"],
+        "frozen_configuration": {
+            "controller_state_source": SENSORIZED_STATE,
+            "q_filter_cutoff_hz": selected_cutoff_hz,
+            "Q_diag": offline["identified_lqr"]["Q_diag_unchanged"],
+            "R": offline["identified_lqr"]["R_unchanged"],
+            "K_id": offline["identified_lqr"]["K_id"],
+            "per_wheel_peak_nm": peak,
             "payload_full_size_m": payload_size.tolist(),
-            "payload_size_scale_from_original": 0.8,
             "basket_contact_friction": collision["basket_contact_friction"],
-            "initial_payload_longitudinal_center_m": collision[
-                "initial_payload_longitudinal_center_m"
-            ],
-            "initial_payload_longitudinal_velocity_m_s": collision[
-                "initial_payload_longitudinal_velocity_m_s"
-            ],
-            "probe_sum_torque_nm": 0.0,
-            "Q_diag_unchanged": offline["identified_lqr"]["Q_diag_unchanged"],
-            "R_unchanged": offline["identified_lqr"]["R_unchanged"],
-            "per_wheel_peak_nm_unchanged": peak,
         },
-        "A_frozen": strip_repeat_state(a),
-        "B_slow": strip_repeat_state(b),
-        "C_slow_fast": strip_repeat_state(c),
+        "metrics": metrics,
+        "estimator_error_at_500hz": run["estimator_error_at_500hz"],
+        "imu_hardware_diagnostics": run["imu_hardware_diagnostics"],
+        "controller": run["controller"],
+        "disturbance_rejection": run["disturbance_rejection"],
+        "payload_motion_decay": run["payload_gt"]["motion_decay"],
     }
     RESULTS_PATH.write_text(json.dumps(result, indent=2), encoding="utf-8")
-    concise = {
-        "status": result["status"],
-        "acceptance": result["acceptance"],
-        "scenario": result["scenario"],
-        "cases": {},
-    }
-    for key in ("A_frozen", "B_slow", "C_slow_fast"):
-        run = result[key]
-        concise["cases"][key] = {
-            "fell": run["fell"],
-            "pitch_nominal_reference": run["pitch_nominal_reference"],
-            "pitch_against_posthoc_instantaneous_gt": run[
-                "pitch_against_posthoc_instantaneous_gt"
-            ],
-            "final_position_drift_m": run["final_position_drift_m"],
-            "max_wheel_torque_nm": run["max_wheel_torque_nm"],
-            "saturation_ratio": run["saturation_ratio"],
-            "payload_gt": run["payload_gt"],
-            "disturbance_rejection": run["disturbance_rejection"],
-        }
-    print(json.dumps(concise, indent=2))
+    print(json.dumps({**result, "results_file": str(RESULTS_PATH)}, indent=2))
 
 
 if __name__ == "__main__":

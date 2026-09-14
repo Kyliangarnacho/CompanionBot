@@ -1,0 +1,61 @@
+{
+  "status": "PASS",
+  "provenance": "Final Sensorization V1 timestamp-aligned moving-payload collision run; detailed transient/debug arrays removed after benchmark closeout.",
+  "execution": {
+    "final_scenario_run_count": 1,
+    "rng_seed": 16448,
+    "controller_dt_s": 0.002,
+    "physics_dt_s": 0.001
+  },
+  "frozen_configuration": {
+    "controller_state_source": "sensorized_x_hat_control_time",
+    "q_filter_cutoff_hz": 2.0,
+    "augmentation_authority_bound_nm": 0.18,
+    "per_wheel_peak_nm": 0.63,
+    "payload_mass_kg": 0.2,
+    "payload_full_size_m": [0.064, 0.032, 0.032],
+    "basket_contact_friction": 0.04
+  },
+  "metrics": {
+    "fell": false,
+    "contained": true,
+    "pitch_rms_deg": 4.377198548400653,
+    "pitch_peak_deg": 9.368637623929091,
+    "terminal_pitch_rms_deg": 0.5498038548901109,
+    "world_position_drift_m": -0.1132215037592854,
+    "effective_collision_count": 5,
+    "payload_decay_ratio": 0.01773360880948901,
+    "max_wheel_torque_nm": 0.26556060492875255,
+    "wheel_saturation_fraction": 0.0,
+    "innovation_scaled_rms": 6.311743754163022,
+    "u_dr_rms_nm": 0.1326642520850834,
+    "u_dr_peak_nm": 0.18,
+    "u_dr_authority_hit_fraction": 0.33525
+  },
+  "estimator_error_at_500hz": {
+    "position_m": {"rms": 0.0009779944453241715, "peak": 0.001938128332032829, "final": -0.000041049136713933176},
+    "velocity_m_s": {"rms": 0.012445992800993122, "peak": 0.07112634304564744, "final": 0.0016148593480062243},
+    "pitch_deg": {"rms": 1.3239891779921427, "peak": 2.4854264929607126, "final": 0.09928247671996202},
+    "pitch_rate_deg_s": {"rms": 1.7027285337872233, "peak": 24.62558641457001, "final": 0.047203756841275805}
+  },
+  "imu_hardware": {
+    "profile": "rotors_adis16448_default_v1",
+    "measurement_age_typical_s": 0.0010000000000000009,
+    "measurement_age_max_s": 0.001000000000000334,
+    "invalid_read_count": 0,
+    "stale_read_count": 0,
+    "gyro_saturation_packet_count": 0,
+    "accelerometer_saturation_packet_count": 0
+  },
+  "closed_diagnostic": {
+    "welch_frequency_range_hz": [0.0, 5.0],
+    "physical_to_sensor_power_ratio_by_band": {
+      "0_to_0.5_hz": 156.65026234956,
+      "0.5_to_1_hz": 125.49514793784223,
+      "1_to_2_hz": 30.945954390782248,
+      "2_to_5_hz": 7.686119652883234
+    },
+    "sensor_over_physical_crossover_hz": null,
+    "decision": "Keep Q at 2 Hz; no evidence-supported cutoff change and no second collision run."
+  }
+}

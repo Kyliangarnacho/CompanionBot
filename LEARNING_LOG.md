@@ -49,13 +49,13 @@
 
 - 自由 payload 引入隐藏自由度和真实接触；4-state 模型无法把所有瞬态解释成一套缓慢变化的 A/B/c。
 - Auto Probe Manager 使用 prediction mismatch persistence/hysteresis 自动触发，避免单个碰撞峰值触发，并在 PE/平台或 max-duration 条件下结束。
-- 它对系统辨识仍有价值，但最终 slow/fast compensation 不依赖 probe 或 RLS 才能工作，因此降级为诊断/实验工具。
+- 它对系统辨识仍有价值，但最终 single-Q compensation 不依赖 probe 或 RLS，因此降级为诊断/实验工具。
 
-## 9. 上游启发与 slow/fast disturbance rejection
+## 9. 历史 slow/fast disturbance rejection
 
 - 参考 varying-payload self-tuning regulator、LQR + L1 adaptive predictor/projection/filtered compensation，以及成熟自平衡项目的控制边界组织。
 - 没有机械照搬；保留强 nominal ID-LQR，使用 nominal one-step residual 估计 equivalent input disturbance。
-- 最终结构为 `u = u_lqr + u_slow + u_fast`：slow/fast 按频带区分，均经过 projection、带宽和软件 authority 限制；碰撞不得修改长期 operating point。
+- 该阶段结构曾为 `u = u_lqr + u_slow + u_fast`；后续确认分路 clip/shared slew 会破坏频带互补并引入额外 lag，因此已由单一 matched innovation → Q-filter → `u_dr` 通道彻底替代，旧执行逻辑与逐点数据在 Sensorization V1 收口时删除。
 
 ## 10. Authority 与碰撞实验
 
@@ -66,6 +66,40 @@
 
 ## 11. V1 冻结结论
 
-- 最终保留：MuJoCo plant、Cascade PID、analytic LQR reference、Offline full-state ID-LQR、fixed LQR + slow/fast disturbance rejection。
+- 最终保留：MuJoCo plant、Cascade PID、analytic LQR reference、Offline full-state ID-LQR、sensorized fixed LQR + single-Q matched disturbance rejection。
 - Auto Probe 保留为诊断工具；Online adaptive A/B/K 与 affine theta_eq 不进入最终 moving-payload actuator 主链。
 - 当前设计域覆盖 nominal、温和自由滑动和有限低能碰撞；不承诺处理持续高能乒乓碰撞。
+
+## 12. Sensor timestamp 与未来 output predictor 路线
+
+- Sensorization V1 的 IMU packet 带真实 `sample_time` / `available_time`；1 ms availability latency 使 complementary-filter 姿态位于测量时刻，而 controller 入口位于当前控制时刻。当前最小修复只在 estimator 输出边界做 `theta_now = wrap(theta_delayed + theta_dot_delayed * measurement_age)`，`theta_dot_now = theta_dot_delayed`，再用 control-time 姿态与当前 encoder PLL 一起构造 `p_hat/v_hat`。`measurement_age` 始终取 packet timestamp 差值；stale/invalid guard 触发时禁止继续外推。
+- 本阶段仍使用冻结的 2 ms nominal `A/B`，LQR 与 DOB one-step residual 必须消费同一套 `x_hat_control_time[k]` / `x_hat_control_time[k+1]`。不实现 1 ms `A/B`，也不把 GT 或 post-hoc residual 引回 production path。
+- 未来候选：**model-based delayed-state → current-state output predictor**。当 latency 增加到数毫秒、多传感器 delay 不同或 constant-rate 外推不足时，考虑使用已知 input history 与 nominal dynamics 做 `x_now = A_delta x_delayed + B_delta u_history`，或引入 delayed fusion horizon + current-horizon output predictor。
+- 成熟参考：[PX4 ECL EKF](https://docs.px4.io/main/en/advanced_config/tuning_the_ecl_ekf) 使用 delayed fusion time horizon、FIFO-buffered measurements，并用 buffered IMU / output complementary filter 把状态传播到当前时刻；[ArduPilot EKF2](https://ardupilot.org/dev/docs/ekf2-estimation-system.html) 在 delayed horizon 融合，再用计算成本更低的 output predictor 将 delayed filter state 预测到 current horizon；Khosravian, Trumpf, Mahony, Hamel, “[Recursive Attitude Estimation in the Presence of Multi-rate and Multi-delay Vector Measurements](https://doi.org/10.1109/ACC.2015.7171825),” ACC 2015，给出 sampled/delayed vector measurement 与 observer 之间的递归 output-predictor 结构。本阶段仅记录，不移植完整 EKF 或 predictor。
+- 若后续 post-hoc 频谱确认 physical matched disturbance 与 sensor/estimator contamination 在低频严重重叠，单一 low-pass Q 无法只靠 cutoff 分离；届时再评估 NRDOB、higher-order/shaped Q、data-based sensitivity shaping 或 estimator-confidence/innovation-aware compensation。本阶段不实现这些升级。
+
+## 13. Sensorization V1 最终冻结 benchmark
+
+旧 boxcar、slow/fast、Q sweep、未对齐 IMU 状态和逐点 transient JSON 已清理；以下表格是其需要长期保留的工程结论。
+
+### Nominal ID-LQR：GT 与最终 PLL sensorized
+
+| Initial pitch | GT settle / RMS | PLL sensorized settle / RMS | Real drift | Peak torque / saturation |
+|---:|---:|---:|---:|---:|
+| -5° | 0.154 s / 0.258° | 0.277 s / 0.291° | +6.32 mm | 0.378 N·m / 0% |
+| -2° | 0.127 s / 0.104° | 0.289 s / 0.149° | +2.50 mm | 0.151 N·m / 0% |
+| +2° | 0.127 s / 0.104° | 0.255 s / 0.118° | -2.73 mm | 0.151 N·m / 0% |
+| +5° | 0.154 s / 0.258° | 0.289 s / 0.302° | -6.48 mm | 0.378 N·m / 0% |
+
+以上是 ideal-IMU PLL takeover 阶段的冻结结果，用于证明 sensor-only state assembly 可稳定接管；不是后来加入 ADIS16448 noise/latency 后的重新回归。PLL velocity error RMS 为 2.82–7.28 mm/s，peak 为 0.0316–0.0795 m/s；残余累计位置误差支持 wheel-ground slip 是独立 odometry limitation。
+
+### Moving-payload 路线收敛
+
+| 版本 | Pitch RMS / peak | Terminal RMS | Drift | Collisions | Payload decay | `u_dr` RMS / peak | Authority hit | 结果 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Noise-free sensorized Q=0.6 Hz | 1.91° / 7.61° | — | -188.9 mm | 2 | 0.00178 | 0.071 / 0.180 N·m | 3.80% | PASS |
+| Noise-free sensorized Q=2 Hz | 3.05° / 7.60° | 0.212° | -155.8 mm | 2 | 0.00082 | 0.116 / 0.180 N·m | 13.58% | PASS |
+| Full IMU V1、timestamp 未对齐 | 5.31° / 8.42° | 4.790° | -161.1 mm | 3 | 0.82172 | 0.148 / 0.180 N·m | 49.10% | FAIL |
+| **Final timestamp-aligned V1、Q=2 Hz** | **4.38° / 9.37°** | **0.550°** | **-113.2 mm** | **5** | **0.01773** | **0.133 / 0.180 N·m** | **33.53%** | **PASS** |
+
+最终 estimator error RMS / peak：`p` 0.978/1.938 mm，`v` 0.01245/0.07113 m/s，pitch 1.324/2.485°，pitch-rate 1.703/24.626°/s。IMU typical/max age 均约 1 ms，无 invalid、stale 或 saturation。Phase-B post-hoc Welch PSD 在 0–5 Hz 内没有 sensor-over-physical crossover，故 Q 保持 2 Hz且没有第二次 final run。

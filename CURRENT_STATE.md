@@ -1,58 +1,76 @@
-# CompanionBot V1 当前状态
+# CompanionBot Sensorization V1 最终状态
 
-冻结日期：2026-09-13。本页只描述已经验证的能力，不把计划中的功能写成已完成。
+冻结日期：2026-09-14。本页只描述当前 production baseline；历史选型与失败数据见 `LEARNING_LOG.md`。
 
-## Plant 与执行约束
+## Plant 与时序
 
-- MuJoCo physics：1 kHz；controller：500 Hz；控制周期固定为 2 个 physics step。
-- Nominal 整机质量：1.02757 kg；整机 CoM：`[0.000127, -0.001109, 0.026795] m`。
-- Reduced body mass：0.81737 kg；单轮旋转总成：0.1051 kg；轮半径：0.042 m；轮距：0.177 m。
-- Nominal 平衡角：-2.3704°；单轮 hard peak torque：±0.63 N·m。
-- Frame/cover 的真实材料与 infill 尚未知，相关质量仍是集中配置的 provisional 值。
+- MuJoCo physics 1 kHz；estimator/controller 500 Hz，控制周期固定 2 ms。
+- Nominal 总质量 1.02757 kg，CoM `[0.000127, -0.001109, 0.026795] m`。
+- Reduced body 0.81737 kg；单轮总成 0.1051 kg；轮半径 0.042 m；轮距 0.177 m。
+- Nominal 平衡角 -2.3704°；单轮 hard torque limit ±0.63 N·m。
+- Frame/cover 材料与 infill 尚未实测，相关质量仍是集中配置的 provisional 值。
 
-## Nominal baseline
+## 最终 sensor 数据流
 
-Offline full-state identification 使用独立 PRBS train/validation 数据拟合完整 `Ad(4×4), Bd(4×1)`。归一化 regressor condition number 为 3.80，validation one-step scaled RMS 为 0.0593；同一 Q/R 产生：
+Nominal 与 moving-payload MJCF 使用相同安装位姿和 profile：IMU site 位于 chassis local
+`[0, 0, 0.020] m`、与 chassis frame 对齐；左右 wheel joint angle 经同一 2248.8576
+counts/output-rev virtual quadrature profile 量化。
+
+```text
+MuJoCo ideal IMU
+  -> RotorS ADIS16448 noise/bias/full-scale hardware model @ 1 kHz
+  -> timestamped packet + 1 ms availability latency + startup gyro calibration
+  -> complementary pitch estimator at packet time
+  -> actual-age constant-rate theta extrapolation / theta-dot ZOH
+
+integer wheel counts @ 500 Hz
+  -> per-wheel ODrive-style PLL (80 rad/s)
+  -> continuous phi_hat / omega_hat
+
+aligned IMU + wheel PLL
+  -> p_hat / v_hat
+  -> x_hat_control_time
+```
+
+Controller state 为：
+
+```text
+[p_hat, v_hat, wrap(theta_hat - theta_eq), theta_dot_hat]
+```
+
+LQR 和 matched-disturbance residual 都只读取同一套 control-time estimate。MuJoCo chassis
+GT、payload pose/velocity/contact 和 instantaneous equilibrium 只进入 evaluator/logger。
+Reset 时 `p_hat=0`，PLL position 初始化为当前 integer count、PLL velocity 为 0，pitch
+从当前 accelerometer 初始化。Invalid/stale IMU 复用上一有效 measurement，且禁止继续外推。
+
+## 最终控制器
 
 ```text
 K_id = [-2.96019, -4.94019, -8.66198, -0.492105]
+u = -K_id*x_hat_control_time + u_dr
 ```
 
-ID-LQR 在 ±2°、±5° 全部未翻倒、无饱和；±5° settling 约 0.154 s，pitch RMS 约 0.258°。
+`u_dr` 是 bounded matched innovation 经单一 first-order Q-filter（2 Hz）与 ±0.18 N·m
+augmentation authority 后的补偿；final slew 当前关闭。旧 slow/fast actuator 分路、shared
+slew arbitration 和 boxcar velocity 已删除。Auto Probe/RLS 仅保留为离线辨识/诊断资产，
+不进入最终 actuator path。
 
-Cascade PID 同样在四个工况全部通过、无饱和；±5° settling 约 0.303 s，pitch RMS 约 0.485°。PID 和 LQR 参数均已冻结。
+## 最终 moving-payload acceptance
 
-## Payload 验证摘要
+场景：0.20 kg、64×32×32 mm payload，basket friction 0.040，固定 IMU seed 16448。
 
-### Static rigid payload
+| Fell | Contained | Pitch RMS / peak | Terminal RMS | Real drift | Collisions | Decay | Wheel torque / saturation |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 否 | 是 | 4.377° / 9.369° | 0.550° | -113.2 mm | 5 | 0.01773 | 0.2656 N·m / 0% |
 
-运行时 rigid payload 机制已验证可真实修改 MuJoCo body mass、CoM 和 inertia。早期中心 0.25 kg 静态载荷实验中 Frozen/Probe/Adaptive 均未翻倒且无饱和；该实验用于验证机制与辨识链，旧在线 `A/B/c/theta_eq` 控制路线已经退役。最终 slow/fast 主链没有在冻结后重新针对静态 offset payload 调参或刷分。
+`u_dr` RMS/peak 为 0.1327/0.180 N·m，authority hit 33.53%，innovation scaled RMS 6.312。
+Estimator RMS/peak error：position 0.978/1.938 mm，velocity 0.01245/0.07113 m/s，pitch
+1.324/2.485°，pitch-rate 1.703/24.626°/s。IMU typical/max age 约 1 ms，无 invalid、stale
+或 saturation。结果保存在 `moving_payload_timestamp_aligned_collision_results.json`。
 
-### Free-sliding payload，μ=0.024
+## 能力边界
 
-0.20 kg payload 可自由滑动，控制器不读取 payload GT。该次确定性场景没有撞壁，载荷相对运动自然衰减：
-
-| 控制 | Fall | Pitch RMS | Peak | Position drift | Max wheel torque | Saturation |
-|---|---:|---:|---:|---:|---:|---:|
-| A Frozen ID-LQR | 否 | 3.066° | 4.734° | -0.1599 m | 0.0321 N·m | 0% |
-| C ID-LQR + slow + fast | 否 | 2.151° | 4.423° | -0.1066 m | 0.0369 N·m | 0% |
-
-### Limited-impact acceptance，μ=0.040
-
-Payload 为 0.20 kg、64×32×32 mm，距纵向墙约 2 mm，初始相对速度 0.10 m/s。有效碰撞定义为连续 wall contact episode 中峰值法向力至少 0.01 N。
-
-| 控制 | Fall | 留在篮内 | 有效碰撞 | Pitch RMS / Peak | Drift | Max wheel torque | Saturation |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| A Frozen ID-LQR | 否 | 是 | 59 | 10.13° / 19.90° | -47.7 mm | 0.630 N·m | 11.30% |
-| B ID-LQR + slow | 否 | **否** | 30 | 6.61° / 27.62° | +12.6 mm | 0.630 N·m | 5.38% |
-| C ID-LQR + slow + fast | 否 | **是** | **2** | **1.77° / 5.72°** | -21.4 mm | **0.169 N·m** | **0%** |
-
-C 的两次有效接触发生在约 0.015 s 和 0.026 s，之后 terminal/early payload speed RMS ratio 为 0.00043；确定性重复结果一致。
-
-## V1 能力边界
-
-- 当前模型只有 longitudinal 4-state，不含 yaw、payload state、传感器噪声/延迟或电机电气动态。
-- Slow/fast 补偿只处理能投影到 wheel-torque input direction 的 matched disturbance；强烈的 hidden/unmatched contact dynamics 不保证可拒绝。
-- 持续高能量“乒乓”撞壁会造成大姿态误差、饱和甚至载荷逃出，**不属于 V1 设计域**。
-- Auto Probe/RLS 可用于诊断慢模型变化，但 moving-payload 主链不在线更新 A/B/K，也不依据瞬时 affine `c` 改写长期平衡角。
-- 所有结论目前都是 MuJoCo simulation evidence，不等同于实机安全认证。
+- 当前只有 longitudinal 4-state，不包含 yaw、terrain/slope、motor electrical dynamics、IMU temperature/vibration、通信 dropout 或 encoder fault。
+- Encoder odometry 没有 wheel-slip compensation；真实 drift 不应被解释为 estimator 纯数值误差。
+- 单 Q DOB 只处理可投影到 wheel-torque input direction 的 matched component；强 hidden/unmatched contact 不保证可拒绝。
+- 当前结论是 MuJoCo simulation evidence，不等同于实机安全认证。

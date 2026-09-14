@@ -12,7 +12,7 @@ from .disturbance_rejection import (
     CompensationCommand,
     DisturbanceObservation,
     DisturbanceRejectionConfig,
-    TwoTimescaleDisturbanceCompensator,
+    FilteredDisturbanceCompensator,
     config_from_dict as disturbance_rejection_config_from_dict,
 )
 from .probing import CenteredPRBS, PRBSConfig
@@ -40,7 +40,7 @@ __all__ = [
     "CenteredPRBS",
     "PRBSConfig",
     "ProbeTransition",
-    "TwoTimescaleDisturbanceCompensator",
+    "FilteredDisturbanceCompensator",
     "auto_probe_config_from_dict",
     "design_discrete_lqr",
     "design_from_files",

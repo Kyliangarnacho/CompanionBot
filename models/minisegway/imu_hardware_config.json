@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "active_profile": "rotors_adis16448_default_v1",
+  "sample_period_s": 0.001,
+  "availability_latency_s": 0.001,
+  "stale_threshold_s": 0.005,
+  "startup_gyro_calibration_duration_s": 0.5,
+  "rng_algorithm": "numpy.random.PCG64",
+  "default_seed": 16448,
+  "profile": {
+    "name": "rotors_adis16448_default_v1",
+    "gyroscope": {
+      "noise_density": {
+        "value": 0.0003393695767766752,
+        "unit": "rad/s/sqrt(Hz)",
+        "upstream_expression": "2 * 35 / 3600 deg/s/sqrt(Hz)"
+      },
+      "random_walk": {
+        "value": 0.00003878509448876288,
+        "unit": "rad/s^2/sqrt(Hz)",
+        "upstream_expression": "2 * 4 / 3600 deg/s^2/sqrt(Hz)"
+      },
+      "bias_correlation_time": {
+        "value": 1000.0,
+        "unit": "s"
+      },
+      "turn_on_bias_sigma": {
+        "value": 0.008726646259971648,
+        "unit": "rad/s",
+        "upstream_expression": "0.5 deg/s"
+      },
+      "full_scale": {
+        "value": 17.453292519943295,
+        "unit": "rad/s",
+        "reference_expression": "1000 deg/s"
+      }
+    },
+    "accelerometer": {
+      "noise_density": {
+        "value": 0.004,
+        "unit": "m/s^2/sqrt(Hz)",
+        "upstream_expression": "2 * 2e-3 m/s^2/sqrt(Hz)"
+      },
+      "random_walk": {
+        "value": 0.006,
+        "unit": "m/s^3/sqrt(Hz)",
+        "upstream_expression": "2 * 3e-3 m/s^3/sqrt(Hz)"
+      },
+      "bias_correlation_time": {
+        "value": 300.0,
+        "unit": "s"
+      },
+      "turn_on_bias_sigma": {
+        "value": 0.196,
+        "unit": "m/s^2",
+        "upstream_expression": "20e-3 * 9.8 m/s^2"
+      },
+      "full_scale": {
+        "value": 176.52,
+        "unit": "m/s^2",
+        "reference_expression": "18 * 9.806666666666667 m/s^2"
+      }
+    }
+  },
+  "discretization": {
+    "white_sigma": "noise_density / sqrt(dt)",
+    "bias_phi": "exp(-dt / correlation_time)",
+    "bias_discrete_sigma": "sqrt(-random_walk^2 * correlation_time / 2 * (exp(-2*dt/correlation_time) - 1))",
+    "bias_update": "bias[k+1] = bias_phi * bias[k] + bias_discrete_sigma * N(0,1)",
+    "measurement": "clip(ideal + turn_on_bias + bias[k+1] + white_sigma * N(0,1), +/-full_scale)"
+  },
+  "provenance": {
+    "profile": "RotorS gazebo_imu_plugin.h default values for ADIS16448",
+    "primary_source_header": "https://github.com/ethz-asl/rotors_simulator/blob/master/rotors_gazebo_plugins/include/rotors_gazebo_plugins/gazebo_imu_plugin.h",
+    "primary_source_update": "https://github.com/ethz-asl/rotors_simulator/blob/master/rotors_gazebo_plugins/src/gazebo_imu_plugin.cpp",
+    "corroborating_source": "https://github.com/PX4/PX4-SITL_gazebo-classic/blob/main/src/gazebo_imu_plugin.cpp",
+    "license_note": "Upstream source is Apache-2.0; CompanionBot reimplements the published equations and parameter values in Python without copying Gazebo integration code.",
+    "timing_adaptation": "ADIS16448-reference virtual sampling is fixed at 1 kHz, aligned with the 1 kHz MuJoCo physics tick; packets become available after 1 ms."
+  },
+  "v1_exclusions": [
+    "quantization",
+    "temperature_drift",
+    "vibration",
+    "encoder_fault"
+  ]
+}

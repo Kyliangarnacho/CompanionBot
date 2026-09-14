@@ -18,7 +18,7 @@
 ## 工程范围
 
 - MuJoCo physics step 固定 1 ms；V1 controller update 固定 2 ms，除非新阶段明确重新定义实验。
-- Moving-payload V1 主链是固定 nominal ID-LQR + slow/fast disturbance compensation。Auto Probe/RLS 默认只用于诊断，不得未经新证据重新接入 actuator。
+- Moving-payload V1 主链是 control-time sensorized state + 固定 nominal ID-LQR + 单一 2 Hz Q-filter matched disturbance compensation。Auto Probe/RLS 只用于诊断，不得未经新证据重新接入 actuator。
 - 验收脚本中的 payload GT observer 必须保持 post-hoc-only 数据边界。
 - 第三方 upstream 和本地派生 CAD mesh 不进入本仓库；许可证和来源记录不得删除。
 - 不为了“显得完整”增加空目录、万能抽象或未验证模块。
@@ -28,3 +28,9 @@
 - 用户检查前不要 commit、push、创建 GitHub repository 或添加 remote。
 - 保留用户已有改动；删除或迁移文件前确认目标范围。
 - 每轮结束只报告真实修改、验证结果、已知限制和未解决问题。
+
+## 电脑与 GUI 操作
+
+- 禁止 Codex 调用 Computer Use、桌面自动化或其他方式控制用户电脑。
+- 需要 viewer、IDE、浏览器或任何 GUI 人工确认时，只向用户提供简短明确的操作步骤，由用户亲自执行并反馈结果。
+- 不得以节省步骤、自动截图或验证方便为理由绕过此限制。

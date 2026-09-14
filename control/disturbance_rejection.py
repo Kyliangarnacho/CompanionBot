@@ -1,9 +1,8 @@
-"""Two-timescale matched-disturbance rejection around a fixed nominal LQR.
+"""Single-channel matched-disturbance rejection around a fixed nominal LQR.
 
-The controller deliberately does not identify a new operating point or redesign
-the LQR.  It projects the normalized one-step innovation onto the known nominal
-input direction, then splits that equivalent input disturbance into slow and
-fast complementary bands.  Payload ground truth is never an input.
+The observer projects the normalized one-step state innovation onto the known
+nominal input direction. A single bounded Q-filter estimate then produces one
+actuator augmentation command.
 """
 
 from __future__ import annotations
@@ -20,15 +19,11 @@ from .full_state_identification import DiscreteStateSpaceModel
 @dataclass(frozen=True)
 class DisturbanceRejectionConfig:
     controller_dt_s: float
-    slow_cutoff_hz: float
-    fast_cutoff_hz: float
+    q_filter_cutoff_hz: float
     innovation_projection_bound_nm: float
-    slow_compensation_bound_nm: float
-    fast_compensation_bound_nm: float
-    combined_compensation_bound_nm: float
-    combined_slew_rate_nm_s: float
+    augmentation_authority_bound_nm: float
+    augmentation_slew_rate_nm_s: float | None
     projection_ridge: float
-
 
 @dataclass(frozen=True)
 class DisturbanceObservation:
@@ -43,41 +38,40 @@ class DisturbanceObservation:
 
 @dataclass(frozen=True)
 class CompensationCommand:
-    slow_nm: float
-    fast_nm: float
-    total_nm: float
-    slow_estimate_nm: float
-    fast_band_estimate_nm: float
+    requested_u_dr_nm: float
+    u_dr_nm: float
+    q_filter_estimate_nm: float
+    authority_limited: bool
+    slew_limited: bool
 
 
 def config_from_dict(raw: dict) -> DisturbanceRejectionConfig:
+    q_filter = raw["q_filter"]
+    slew_rate = raw.get("augmentation_slew_rate_nm_s")
     return DisturbanceRejectionConfig(
         controller_dt_s=float(raw["controller_dt_s"]),
-        slow_cutoff_hz=float(raw["slow_cutoff_hz"]),
-        fast_cutoff_hz=float(raw["fast_cutoff_hz"]),
+        q_filter_cutoff_hz=float(q_filter["selected_cutoff_hz"]),
         innovation_projection_bound_nm=float(
             raw["innovation_projection_bound_nm"]
         ),
-        slow_compensation_bound_nm=float(raw["slow_compensation_bound_nm"]),
-        fast_compensation_bound_nm=float(raw["fast_compensation_bound_nm"]),
-        combined_compensation_bound_nm=float(
-            raw["combined_compensation_bound_nm"]
+        augmentation_authority_bound_nm=float(
+            raw["augmentation_authority_bound_nm"]
         ),
-        combined_slew_rate_nm_s=float(raw["combined_slew_rate_nm_s"]),
+        augmentation_slew_rate_nm_s=(
+            None if slew_rate is None else float(slew_rate)
+        ),
         projection_ridge=float(raw["projection_ridge"]),
     )
 
 
-class TwoTimescaleDisturbanceCompensator:
-    """Matched EID/fast-DOB augmentation for a fixed discrete model.
+class FilteredDisturbanceCompensator:
+    """One-dimensional matched DOB/L1-style filtered augmentation.
 
-    At the end of interval k, ``observe`` compares measured x[k+1] with the
-    nominal prediction from x[k] and the torque actually held over that complete
-    interval.  The resulting scalar estimate is available for interval k+1.
-
-    The fast low-pass estimate contains all supported compensation bandwidth.
-    The slow estimate carries its low-frequency portion; their difference is the
-    fast band.  Consequently ``u_slow + u_fast`` does not double-count DC bias.
+    At the end of interval k, :meth:`observe` compares measured x[k+1] with the
+    nominal prediction from x[k] and the torque actually held during the whole
+    interval. The projected equivalent input disturbance is bounded before a
+    single Q-filter. :meth:`command` applies the augmentation authority bound,
+    followed by an optional final slew safety envelope.
     """
 
     def __init__(
@@ -95,14 +89,18 @@ class TwoTimescaleDisturbanceCompensator:
             raise ValueError("state_scales must contain four positive values")
         if self.input_scale_nm <= 0.0:
             raise ValueError("input_scale_nm must be positive")
-        if not 0.0 < config.slow_cutoff_hz < config.fast_cutoff_hz:
-            raise ValueError("require 0 < slow cutoff < fast cutoff")
-        if config.fast_cutoff_hz >= 0.5 / config.controller_dt_s:
-            raise ValueError("fast cutoff must remain below controller Nyquist")
+        if not 0.0 < config.q_filter_cutoff_hz < 0.5 / config.controller_dt_s:
+            raise ValueError("Q-filter cutoff must lie between zero and Nyquist")
+        if config.innovation_projection_bound_nm <= 0.0:
+            raise ValueError("innovation projection bound must be positive")
+        if config.augmentation_authority_bound_nm <= 0.0:
+            raise ValueError("augmentation authority bound must be positive")
+        if (
+            config.augmentation_slew_rate_nm_s is not None
+            and config.augmentation_slew_rate_nm_s <= 0.0
+        ):
+            raise ValueError("augmentation slew rate must be positive or disabled")
 
-        # In normalized coordinates, this is the response to one normalized
-        # input unit.  It provides a dimensionally consistent least-squares
-        # projection despite very different state units.
         self._normalized_input_direction = (
             self.model.B[:, 0] * self.input_scale_nm / self.state_scales
         )
@@ -111,21 +109,22 @@ class TwoTimescaleDisturbanceCompensator:
         )
         if self._input_information <= np.finfo(float).eps:
             raise ValueError("nominal B has no usable matched input direction")
-        self._alpha_slow = 1.0 - math.exp(
-            -2.0 * math.pi * config.slow_cutoff_hz * config.controller_dt_s
-        )
-        self._alpha_fast = 1.0 - math.exp(
-            -2.0 * math.pi * config.fast_cutoff_hz * config.controller_dt_s
-        )
+        self._alpha_q = self._lowpass_alpha(config.q_filter_cutoff_hz)
         self.reset()
 
+    def _lowpass_alpha(self, cutoff_hz: float) -> float:
+        return 1.0 - math.exp(
+            -2.0 * math.pi * cutoff_hz * self.config.controller_dt_s
+        )
+
     def reset(self) -> None:
-        self.slow_estimate_nm = 0.0
-        self.fast_lowpass_estimate_nm = 0.0
-        self._previous_slow_compensation_nm = 0.0
-        self._previous_fast_compensation_nm = 0.0
+        self.q_filter_estimate_nm = 0.0
+        self._previous_u_dr_nm = 0.0
         self.observation_count = 0
         self.clipped_observation_count = 0
+        self.command_count = 0
+        self.authority_limit_count = 0
+        self.slew_limit_count = 0
         self.last_observation: DisturbanceObservation | None = None
 
     def observe(
@@ -166,11 +165,8 @@ class TwoTimescaleDisturbanceCompensator:
             min(1.0, np.linalg.norm(projected_residual) / max(residual_norm, 1e-12))
         )
 
-        self.slow_estimate_nm += self._alpha_slow * (
-            disturbance_projected_nm - self.slow_estimate_nm
-        )
-        self.fast_lowpass_estimate_nm += self._alpha_fast * (
-            disturbance_projected_nm - self.fast_lowpass_estimate_nm
+        self.q_filter_estimate_nm += self._alpha_q * (
+            disturbance_projected_nm - self.q_filter_estimate_nm
         )
         self.observation_count += 1
         self.clipped_observation_count += int(clipped)
@@ -188,77 +184,45 @@ class TwoTimescaleDisturbanceCompensator:
         self.last_observation = observation
         return observation
 
-    def command(
-        self,
-        *,
-        enable_slow: bool = True,
-        enable_fast: bool = True,
-    ) -> CompensationCommand:
-        slow_estimate = self.slow_estimate_nm
-        fast_band_estimate = self.fast_lowpass_estimate_nm - slow_estimate
-        slow = (
-            -float(
+    def command(self, *, enabled: bool = True) -> CompensationCommand:
+        requested = -self.q_filter_estimate_nm if enabled else 0.0
+        authority_limited_command = float(
+            np.clip(
+                requested,
+                -self.config.augmentation_authority_bound_nm,
+                self.config.augmentation_authority_bound_nm,
+            )
+        )
+        authority_limited = not np.isclose(
+            requested, authority_limited_command, rtol=0.0, atol=1e-12
+        )
+
+        command = authority_limited_command
+        slew_limited = False
+        if self.config.augmentation_slew_rate_nm_s is not None:
+            maximum_step = (
+                self.config.augmentation_slew_rate_nm_s
+                * self.config.controller_dt_s
+            )
+            command = self._previous_u_dr_nm + float(
                 np.clip(
-                    slow_estimate,
-                    -self.config.slow_compensation_bound_nm,
-                    self.config.slow_compensation_bound_nm,
+                    authority_limited_command - self._previous_u_dr_nm,
+                    -maximum_step,
+                    maximum_step,
                 )
             )
-            if enable_slow
-            else 0.0
-        )
-        fast = (
-            -float(
-                np.clip(
-                    fast_band_estimate,
-                    -self.config.fast_compensation_bound_nm,
-                    self.config.fast_compensation_bound_nm,
-                )
+            slew_limited = not np.isclose(
+                command, authority_limited_command, rtol=0.0, atol=1e-12
             )
-            if enable_fast
-            else 0.0
-        )
-        target_total = slow + fast
-        if abs(target_total) > self.config.combined_compensation_bound_nm:
-            scale = self.config.combined_compensation_bound_nm / abs(target_total)
-            slow *= scale
-            fast *= scale
-        maximum_step = (
-            self.config.combined_slew_rate_nm_s * self.config.controller_dt_s
-        )
-        # Both channels share one aggregate slew budget.  This preserves the
-        # individual projection bounds even when their desired values nearly
-        # cancel, and guarantees that the applied sum changes by at most the
-        # configured amount per controller interval.
-        slow_delta = float(
-            np.clip(
-                slow - self._previous_slow_compensation_nm,
-                -maximum_step,
-                maximum_step,
-            )
-        )
-        slow = self._previous_slow_compensation_nm + slow_delta
-        remaining_step = max(0.0, maximum_step - abs(slow_delta))
-        fast_delta = float(
-            np.clip(
-                fast - self._previous_fast_compensation_nm,
-                -remaining_step,
-                remaining_step,
-            )
-        )
-        fast = self._previous_fast_compensation_nm + fast_delta
-        total = slow + fast
-        if abs(total) > self.config.combined_compensation_bound_nm:
-            scale = self.config.combined_compensation_bound_nm / abs(total)
-            slow *= scale
-            fast *= scale
-            total = slow + fast
-        self._previous_slow_compensation_nm = slow
-        self._previous_fast_compensation_nm = fast
+
+        self._previous_u_dr_nm = command
+        self.command_count += 1
+        self.authority_limit_count += int(authority_limited)
+        self.slew_limit_count += int(slew_limited)
         return CompensationCommand(
-            slow_nm=slow,
-            fast_nm=fast,
-            total_nm=total,
-            slow_estimate_nm=slow_estimate,
-            fast_band_estimate_nm=fast_band_estimate,
+            requested_u_dr_nm=requested,
+            u_dr_nm=command,
+            q_filter_estimate_nm=self.q_filter_estimate_nm,
+            authority_limited=authority_limited,
+            slew_limited=slew_limited,
         )
