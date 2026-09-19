@@ -31,8 +31,8 @@ EXPERIMENT_CONFIG_PATH = MODEL_DIR / "experiment_config.json"
 LQR_CONFIG_PATH = MODEL_DIR / "lqr_baseline_config.json"
 REDUCED_PATH = MODEL_DIR / "reduced_twip.json"
 PLANT_PARAMETERS_PATH = MODEL_DIR / "plant_parameters.json"
-FIXED_RESULTS_PATH = MODEL_DIR / "lqr_baseline_results.json"
-RESULTS_PATH = MODEL_DIR / "full_state_identification_results.json"
+FIXED_RESULTS_PATH = MODEL_DIR / "stage1" / "results" / "lqr_baseline_results.json"
+RESULTS_PATH = MODEL_DIR / "stage2" / "results" / "full_state_identification_results.json"
 CASES_DEG = [-5.0, -2.0, 2.0, 5.0]
 
 

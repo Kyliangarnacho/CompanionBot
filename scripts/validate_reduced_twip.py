@@ -12,7 +12,7 @@ import mujoco
 ROOT = Path(__file__).resolve().parents[1]
 MODEL_DIR = ROOT / "models" / "minisegway"
 REDUCED_PATH = MODEL_DIR / "reduced_twip.json"
-OUTPUT_PATH = MODEL_DIR / "equilibrium_validation.json"
+OUTPUT_PATH = MODEL_DIR / "stage1" / "results" / "equilibrium_validation.json"
 
 
 reduced = json.loads(REDUCED_PATH.read_text(encoding="utf-8"))

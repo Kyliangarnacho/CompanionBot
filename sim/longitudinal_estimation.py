@@ -75,13 +75,46 @@ class PitchEstimate:
     theta_acc_rad: float
 
 
+@dataclass(frozen=True)
+class LongitudinalAccelerationCompensationConfig:
+    """Opt-in experiment; the frozen complementary filter remains the default.
+
+    50 ms smooths the existing PLL velocity derivative (3.18 Hz cutoff).
+    At 0.25 m/s^2 measured acceleration, accel correction is halved; the
+    smooth, symmetric gain returns to the frozen value as acceleration decays.
+    These constants are fixed before the single experiment, not swept.
+    """
+
+    acceleration_time_constant_s: float = 0.05
+    adaptive_acceleration_scale_m_s2: float = 0.25
+
+    def __post_init__(self) -> None:
+        if any(
+            not math.isfinite(value) or value <= 0.0
+            for value in (
+                self.acceleration_time_constant_s,
+                self.adaptive_acceleration_scale_m_s2,
+            )
+        ):
+            raise ValueError("acceleration compensation constants must be finite and positive")
+
+
 class ComplementaryPitchEstimator:
     """Fuse chassis-frame accelerometer tilt with pitch-axis gyro integration."""
 
-    def __init__(self, config: ComplementaryPitchConfig):
+    def __init__(
+        self,
+        config: ComplementaryPitchConfig,
+        acceleration_compensation: LongitudinalAccelerationCompensationConfig | None = None,
+    ):
         self.config = config
+        self.acceleration_compensation = acceleration_compensation
         self._initialized = False
         self._theta_hat_rad = 0.0
+        self.raw_theta_acc_rad = 0.0
+        self.acceleration_used_m_s2 = 0.0
+        self.accel_correction_gain_factor = 1.0
+        self.compensated_accelerometer_m_s2 = np.zeros(3, dtype=float)
 
     @staticmethod
     def accel_pitch_rad(accelerometer_m_s2: NDArray[np.float64]) -> float:
@@ -99,6 +132,12 @@ class ComplementaryPitchEstimator:
         gyro_x = 0.0 if gyro_rad_s is None else self._gyro_x(gyro_rad_s)
         self._theta_hat_rad = theta_acc
         self._initialized = True
+        self.raw_theta_acc_rad = theta_acc
+        self.acceleration_used_m_s2 = 0.0
+        self.accel_correction_gain_factor = 1.0
+        self.compensated_accelerometer_m_s2 = np.asarray(
+            accelerometer_m_s2, dtype=float
+        ).copy()
         return PitchEstimate(self._theta_hat_rad, gyro_x, theta_acc)
 
     @staticmethod
@@ -112,15 +151,38 @@ class ComplementaryPitchEstimator:
         self,
         accelerometer_m_s2: NDArray[np.float64],
         gyro_rad_s: NDArray[np.float64],
+        *,
+        longitudinal_acceleration_m_s2: float = 0.0,
     ) -> PitchEstimate:
         if not self._initialized:
             return self.reset(accelerometer_m_s2, gyro_rad_s)
         theta_acc = self.accel_pitch_rad(accelerometer_m_s2)
         gyro_x = self._gyro_x(gyro_rad_s)
         theta_gyro = self._theta_hat_rad + gyro_x * self.config.sample_period_s
+        self.raw_theta_acc_rad = theta_acc
+        self.compensated_accelerometer_m_s2 = np.asarray(
+            accelerometer_m_s2, dtype=float
+        ).copy()
+        if self.acceleration_compensation is not None:
+            acceleration = float(longitudinal_acceleration_m_s2)
+            if not math.isfinite(acceleration):
+                raise ValueError("longitudinal acceleration estimate must be finite")
+            # Positive longitudinal motion is world -Y; positive pitch is Rx.
+            # Its translational specific-force contribution in chassis axes is
+            # [0, -a*cos(theta), +a*sin(theta)]. Subtract using gyro prediction,
+            # never GT, the planner's acceleration, or the nominal lean target.
+            self.compensated_accelerometer_m_s2[1] += acceleration * math.cos(theta_gyro)
+            self.compensated_accelerometer_m_s2[2] -= acceleration * math.sin(theta_gyro)
+            theta_acc = self.accel_pitch_rad(self.compensated_accelerometer_m_s2)
+            self.acceleration_used_m_s2 = acceleration
+            scale = self.acceleration_compensation.adaptive_acceleration_scale_m_s2
+            self.accel_correction_gain_factor = 1.0 / (1.0 + (acceleration / scale) ** 2)
         accel_innovation = _wrap_angle(theta_acc - theta_gyro)
         self._theta_hat_rad = _wrap_angle(
-            theta_gyro + (1.0 - self.config.gyro_weight) * accel_innovation
+            theta_gyro
+            + (1.0 - self.config.gyro_weight)
+            * self.accel_correction_gain_factor
+            * accel_innovation
         )
         return PitchEstimate(self._theta_hat_rad, gyro_x, theta_acc)
 
@@ -336,21 +398,51 @@ class LongitudinalEstimate:
     wheel_relative_angle_hat_rad: NDArray[np.float64]
     wheel_relative_velocity_hat_rad_s: NDArray[np.float64]
 
-    def controller_state(
-        self, theta_eq_rad: float, position_reference_m: float = 0.0
-    ) -> NDArray[np.float64]:
-        """Return the sensor-only state consumed by longitudinal feedback."""
+    def plant_state(self, theta_eq_rad: float) -> NDArray[np.float64]:
+        """Return sensorized physical plant state at the controller horizon."""
 
-        if not math.isfinite(theta_eq_rad) or not math.isfinite(position_reference_m):
-            raise ValueError("controller references must be finite")
+        if not math.isfinite(theta_eq_rad):
+            raise ValueError("pitch equilibrium reference must be finite")
         return np.asarray(
             [
-                self.position_hat_m - position_reference_m,
+                self.position_hat_m,
                 self.velocity_hat_m_s,
                 _wrap_angle(self.theta_hat_rad - theta_eq_rad),
                 self.theta_dot_hat_rad_s,
             ],
             dtype=float,
+        )
+
+    def tracking_error_state(
+        self,
+        theta_eq_rad: float,
+        position_reference_m: float,
+        velocity_reference_m_s: float,
+    ) -> NDArray[np.float64]:
+        """Return ``x_plant - [p_ref, v_ref, 0, 0]`` for feedback only."""
+
+        if not math.isfinite(position_reference_m) or not math.isfinite(
+            velocity_reference_m_s
+        ):
+            raise ValueError("tracking references must be finite")
+        error = self.plant_state(theta_eq_rad)
+        error[:2] -= [position_reference_m, velocity_reference_m_s]
+        return error
+
+    def controller_state(
+        self, theta_eq_rad: float, position_reference_m: float = 0.0
+    ) -> NDArray[np.float64]:
+        """Return the legacy zero-velocity tracking state.
+
+        Frozen stationary callers retain their existing behavior.  Commanded
+        motion must use :meth:`plant_state` for model prediction and
+        :meth:`tracking_error_state` for LQR feedback.
+        """
+
+        return self.tracking_error_state(
+            theta_eq_rad,
+            position_reference_m,
+            0.0,
         )
 
 
@@ -363,13 +455,18 @@ class LongitudinalEstimator:
         encoder_profile: QuadratureEncoderProfile,
         wheel_radius_m: float,
         pll_bandwidth_rad_s: float | None = None,
+        *,
+        acceleration_compensation: LongitudinalAccelerationCompensationConfig | None = None,
     ):
         pll_bandwidth = (
             config.encoder_pll_bandwidth_rad_s
             if pll_bandwidth_rad_s is None
             else float(pll_bandwidth_rad_s)
         )
-        self.pitch = ComplementaryPitchEstimator(config.pitch)
+        self.pitch = ComplementaryPitchEstimator(config.pitch, acceleration_compensation)
+        self.acceleration_compensation = acceleration_compensation
+        self._previous_velocity_hat_m_s = 0.0
+        self._longitudinal_acceleration_lpf_m_s2 = 0.0
         self.odometry = EncoderLongitudinalEstimator(
             encoder_profile,
             wheel_radius_m,
@@ -394,6 +491,8 @@ class LongitudinalEstimator:
             allow_kinematic_extrapolation,
         )
         odometry = self.odometry.reset(encoder_counts, theta_control_time)
+        self._previous_velocity_hat_m_s = odometry.velocity_hat_m_s
+        self._longitudinal_acceleration_lpf_m_s2 = 0.0
         return self._combine(
             pitch_measurement_time,
             theta_control_time,
@@ -411,7 +510,11 @@ class LongitudinalEstimator:
         measurement_age_s: float = 0.0,
         allow_kinematic_extrapolation: bool = True,
     ) -> LongitudinalEstimate:
-        pitch_measurement_time = self.pitch.update(accelerometer_m_s2, gyro_rad_s)
+        pitch_measurement_time = self.pitch.update(
+            accelerometer_m_s2,
+            gyro_rad_s,
+            longitudinal_acceleration_m_s2=self._longitudinal_acceleration_lpf_m_s2,
+        )
         theta_control_time, extrapolation_age = self._pitch_at_control_time(
             pitch_measurement_time,
             measurement_age_s,
@@ -422,6 +525,20 @@ class LongitudinalEstimator:
             theta_control_time,
             pitch_measurement_time.theta_dot_hat_rad_s,
         )
+        if self.acceleration_compensation is not None:
+            dt_s = self.pitch.config.sample_period_s
+            derivative = (
+                odometry.velocity_hat_m_s - self._previous_velocity_hat_m_s
+            ) / dt_s
+            weight = dt_s / (
+                self.acceleration_compensation.acceleration_time_constant_s + dt_s
+            )
+            self._longitudinal_acceleration_lpf_m_s2 += weight * (
+                derivative - self._longitudinal_acceleration_lpf_m_s2
+            )
+            self._previous_velocity_hat_m_s = odometry.velocity_hat_m_s
+            # Causal one-control-step delay: preserve IMU -> odometry ordering
+            # and the frozen PLL updates; do not create a fusion/odom algebraic loop.
         return self._combine(
             pitch_measurement_time,
             theta_control_time,
@@ -429,6 +546,21 @@ class LongitudinalEstimator:
             extrapolation_age,
             odometry,
         )
+
+    def acceleration_compensation_log_fields(self) -> dict:
+        """Sensor-only experiment diagnostics at the just-consumed IMU sample."""
+
+        return {
+            "odometry_acceleration_used_m_s2": self.pitch.acceleration_used_m_s2,
+            "odometry_acceleration_lpf_next_m_s2": self._longitudinal_acceleration_lpf_m_s2,
+            "theta_acc_raw_rad": self.pitch.raw_theta_acc_rad,
+            "theta_acc_compensated_rad": self.pitch.accel_pitch_rad(
+                self.pitch.compensated_accelerometer_m_s2
+            ),
+            "compensated_accelerometer_m_s2": self.pitch.compensated_accelerometer_m_s2.tolist(),
+            "accel_correction_gain_factor": self.pitch.accel_correction_gain_factor,
+            "acceleration_estimate_causal_delay_s": self.pitch.config.sample_period_s,
+        }
 
     @staticmethod
     def _pitch_at_control_time(

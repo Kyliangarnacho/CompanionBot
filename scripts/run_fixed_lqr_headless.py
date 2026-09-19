@@ -22,7 +22,7 @@ MODEL_DIR = ROOT / "models" / "minisegway"
 REDUCED_PATH = MODEL_DIR / "reduced_twip.json"
 CONFIG_PATH = MODEL_DIR / "lqr_baseline_config.json"
 PARAMETERS_PATH = MODEL_DIR / "plant_parameters.json"
-RESULTS_PATH = MODEL_DIR / "lqr_baseline_results.json"
+RESULTS_PATH = MODEL_DIR / "stage1" / "results" / "lqr_baseline_results.json"
 CASES_DEG = [-5.0, -2.0, 2.0, 5.0]
 
 

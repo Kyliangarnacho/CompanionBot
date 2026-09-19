@@ -1,0 +1,43 @@
+{
+  "stage": "Stage 3B V1 parallel yaw / steering baseline",
+  "longitudinal_baseline": "baseline.json",
+  "command": {
+    "linear_velocity": "linear_velocity_cmd_m_s",
+    "yaw_rate": "yaw_rate_cmd_rad_s"
+  },
+  "relative_heading_reference": {
+    "update": "psi_ref[k+1] = psi_ref[k] + r_ref[k] * controller_dt",
+    "zero_rate_semantics": "hold the last psi_ref",
+    "enable_semantics": "initialize psi_ref from psi_hat",
+    "heading_error": "wrap_to_pi(psi_ref - psi_hat)"
+  },
+  "yaw_estimator": {
+    "source": "startup-bias-corrected realistic IMU gyro z only",
+    "integration": "new valid packet timestamps only",
+    "control_time_extrapolation": "psi_measurement + r_hat * measurement_age when packet is valid",
+    "encoder_fusion": false,
+    "magnetometer": false,
+    "GT_correction": false
+  },
+  "yaw_PD": {
+    "enabled": true,
+    "K_psi_nm_per_rad": 0.55,
+    "K_r_nm_per_rad_s": 0.20,
+    "equation": "u_diff_request = K_psi*wrap_to_pi(psi_ref-psi_hat) + K_r*(r_ref-r_hat)"
+  },
+  "torque_allocator": {
+    "priority": "longitudinal common-mode before yaw differential-mode",
+    "per_wheel_limit_source": "plant_parameters.json:known.wheel_torque_hard_peak_nm",
+    "u_diff_available": "max(0, 2*tau_lim - abs(u_sum))",
+    "positive_yaw_mixer": "u_left=(u_sum+u_diff_used)/2; u_right=(u_sum-u_diff_used)/2",
+    "final_per_wheel_guard": true
+  },
+  "yaw_motor_mismatch_enabled": false,
+  "validation_only_motor_mismatch": {
+    "model": "exact-discrete first-order torque tracking lag",
+    "left_time_constant_s": 0.10,
+    "right_time_constant_s": 0.13,
+    "production_default": false
+  },
+  "result": "../results/stage3b_yaw_control_results.json"
+}

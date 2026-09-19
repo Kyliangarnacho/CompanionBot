@@ -1,0 +1,114 @@
+{
+  "stage": "3A Flat-Ground Commanded Motion Closure",
+  "controller_dt_s": 0.002,
+  "physics_dt_s": 0.001,
+  "imu_rng_seed": 16448,
+  "reference_limits": {
+    "max_velocity_m_s": 0.60,
+    "max_acceleration_m_s2": 0.60
+  },
+  "history_frequency_hz": 50.0,
+  "terminal_window_s": 1.0,
+  "settling": {
+    "position_error_band_m": 0.03,
+    "velocity_error_band_m_s": 0.04,
+    "dwell_s": 0.50
+  },
+  "empty_gate": {
+    "maximum_position_tracking_rmse_m": 0.05,
+    "maximum_velocity_tracking_rmse_m_s": 0.06,
+    "maximum_final_position_error_m": 0.03,
+    "maximum_final_velocity_error_m_s": 0.03,
+    "maximum_pitch_peak_deg": 20.0,
+    "maximum_terminal_pitch_rms_deg": 2.0,
+    "maximum_wheel_saturation_fraction": 0.01,
+    "require_all_transitions_settled": true
+  },
+  "payload_gate": {
+    "maximum_position_tracking_rmse_m": 0.08,
+    "maximum_velocity_tracking_rmse_m_s": 0.08,
+    "maximum_final_position_error_m": 0.05,
+    "maximum_final_velocity_error_m_s": 0.04,
+    "maximum_pitch_peak_deg": 25.0,
+    "maximum_terminal_pitch_rms_deg": 3.0,
+    "maximum_wheel_saturation_fraction": 0.01,
+    "maximum_free_payload_terminal_to_first_speed_rms_ratio": 0.30,
+    "require_free_payload_containment": true
+  },
+  "scenarios": [
+    {
+      "name": "stationary_zero_reference",
+      "mode": "position",
+      "duration_s": 8.0,
+      "required_for_empty_gate": true,
+      "schedule": [{"time_s": 0.0, "command": 0.0}]
+    },
+    {
+      "name": "position_plus_0p25_return",
+      "mode": "position",
+      "duration_s": 8.5,
+      "required_for_empty_gate": true,
+      "schedule": [
+        {"time_s": 0.0, "command": 0.0},
+        {"time_s": 1.0, "command": 0.25},
+        {"time_s": 4.5, "command": 0.0}
+      ]
+    },
+    {
+      "name": "position_plus_0p50_return",
+      "mode": "position",
+      "duration_s": 11.0,
+      "required_for_empty_gate": true,
+      "schedule": [
+        {"time_s": 0.0, "command": 0.0},
+        {"time_s": 1.0, "command": 0.50},
+        {"time_s": 6.0, "command": 0.0}
+      ]
+    },
+    {
+      "name": "velocity_0p10_stop_reverse_stop",
+      "mode": "velocity_derived",
+      "duration_s": 9.5,
+      "required_for_empty_gate": true,
+      "schedule": [
+        {"time_s": 0.0, "command": 0.0},
+        {"time_s": 1.0, "command": 0.10},
+        {"time_s": 3.5, "command": 0.0},
+        {"time_s": 5.0, "command": -0.10},
+        {"time_s": 7.5, "command": 0.0}
+      ]
+    },
+    {
+      "name": "velocity_0p20_stop_reverse_stop",
+      "mode": "velocity_derived",
+      "duration_s": 11.1,
+      "required_for_empty_gate": false,
+      "schedule": [
+        {"time_s": 0.0, "command": 0.0},
+        {"time_s": 1.0, "command": 0.20},
+        {"time_s": 4.0, "command": 0.0},
+        {"time_s": 5.6, "command": -0.20},
+        {"time_s": 8.6, "command": 0.0}
+      ]
+    },
+    {
+      "name": "velocity_0p60_stop_reverse_stop",
+      "mode": "velocity_derived",
+      "duration_s": 13.4,
+      "required_for_empty_gate": false,
+      "schedule": [
+        {"time_s": 0.0, "command": 0.0},
+        {"time_s": 1.0, "command": 0.60},
+        {"time_s": 4.0, "command": 0.0},
+        {"time_s": 6.75, "command": -0.60},
+        {"time_s": 9.75, "command": 0.0}
+      ]
+    }
+  ],
+  "design_basis": {
+    "reference": "classic second-order trapezoidal profile; velocity-derived commands use the same acceleration bound and trapezoidal position integration",
+    "fixed_payload": "existing dynamic_payload_config.json applied before the run as an inertial-only rigid chassis load",
+    "free_payload": "frozen Sensorization V1 payload mass, accepted 64x32x32 mm size and mu=0.040; centered and stationary initially so commanded motion excites its hidden dynamics",
+    "gate_policy": "thresholds were fixed before executing Stage 3A; failures are classified and retained without controller retuning"
+  }
+}

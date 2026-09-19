@@ -1,89 +1,66 @@
 # CompanionBot
 
-CompanionBot 是一个面向个人学习与研究的双轮自平衡机器人项目。当前冻结版本为 **V1 MuJoCo longitudinal control baseline**：重点验证机械 plant、状态空间辨识、经典控制基线，以及自由移动载荷下的扰动抑制能力；尚未进入完整 CompanionBot 外形、感知、导航或 STM32H743 实机阶段。
+CompanionBot 是一个双轮自平衡机器人研究项目。Stage 3 已收口为一套可复现的 MuJoCo
+simulation baseline，覆盖 longitudinal commanded motion、并联 yaw control，以及机械整形后的
+free-moving payload 验证。它仍是仿真研究基线，不代表实机 torque/speed/payload 额定能力。
 
-## V1 控制架构
+## 冻结的 Stage 3 baseline
 
-物理仿真以 1 kHz 运行，控制器以 500 Hz 确定性更新。状态为：
+- MuJoCo physics：1 kHz；controller/estimator：500 Hz。
+- 控制状态：`[p_hat, v_hat, pitch_error, pitch_rate_hat]`。
+- Longitudinal：new fixed A/B 用于 dynamic nominal/feedforward，反馈保留经挑战验证的 K_old。
+- Reference：jerk-limited S-curve；velocity transient 使用 dynamic lean reference 和
+  `lambda_ff=0.6`，到 `T_full` 后 0.15 s smooth fade，hold 阶段 feedforward 严格为零。
+- Estimator：acceleration-compensated complementary pitch filter；GT 只用于 post-hoc evaluator。
+- Yaw：并联 relative-heading/yaw-rate PD，`K_psi=0.55`、`K_r=0.20`；优先保护 longitudinal torque。
+- Q observer：保留连续 diagnostic，actuator augmentation 关闭。
+- Stage 3C-R payload：0.10 kg、64×32×32 mm，滑动摩擦 0.35，使用统一柔顺/阻尼壁面接触。
 
-```text
-x = [position, velocity, pitch_error, pitch_rate]
-u = tau_left + tau_right
-tau_left = tau_right = clip(u / 2, -0.63, +0.63) N·m
-```
-
-最终 moving-payload 控制律：
-
-```text
-u = u_lqr + u_dr
-```
-
-- `u_lqr`：由 nominal MuJoCo 数据离线辨识得到的固定 4-state ID-LQR，是基础稳定器。
-- `u_dr`：sensorized nominal-model innovation 经 matched projection、单一 2 Hz Q-filter
-  和 ±0.18 N·m augmentation authority bound 后得到的补偿。
-- Virtual IMU hardware：1 kHz sensor tick 将 MuJoCo ideal accel/gyro 经过 RotorS ADIS16448
-  bias/noise 与 full-scale clipping 后形成 packet；固定 1 ms availability latency，启动时用
-  0.5 s noisy gyro 均值校准零偏，500 Hz estimator 只读取最新有效 available packet；输出端
-  根据 packet 实际 age 将 delayed attitude 外推到当前控制时刻，并与 current encoder PLL
-  统一形成 `x_hat_control_time`。
-- Auto Probe Manager：仅保留为辨识诊断/实验工具，不属于最终 moving-payload actuator 主链。
-- Payload 位置、速度、接触状态和事后真实平衡角只用于验收日志，控制器不可读取。
+唯一 baseline manifest：
+[`models/minisegway/stage3/config/baseline.json`](models/minisegway/stage3/config/baseline.json)。
 
 ## 快速运行
 
 在项目根目录使用现有 Python 3.11 虚拟环境：
 
 ```powershell
-# Plant load/contact smoke test
+# Plant smoke / Stage 1 baselines
 .\.venv\Scripts\python.exe scripts\smoke_test_minisegway.py
-
-# 保留的 sensor/encoder 几何 sanity checks
-.\.venv\Scripts\python.exe scripts\check_raw_sensors.py
-.\.venv\Scripts\python.exe scripts\check_virtual_encoders.py
-.\.venv\Scripts\python.exe scripts\check_encoder_displacement_geometry.py
-
-# Nominal baselines
 .\.venv\Scripts\python.exe scripts\run_fixed_lqr_headless.py
 .\.venv\Scripts\python.exe scripts\run_cascade_pid_headless.py
 
-# Offline full-state identification（会重新生成辨识结果）
-.\.venv\Scripts\python.exe scripts\run_full_state_identification.py
-
-# 最终 sensorized moving-payload acceptance（单次运行）
+# 冻结的 Stage 2 acceptance
 .\.venv\Scripts\python.exe scripts\run_moving_payload_collision_acceptance.py
+
+# Stage 3 longitudinal / yaw / mechanically conditioned payload
+.\.venv\Scripts\python.exe scripts\run_stage3a_velocity_feedforward_handoff.py
+.\.venv\Scripts\python.exe scripts\run_stage3b_yaw_control.py --final-only
+.\.venv\Scripts\python.exe scripts\run_stage3c_mechanical_payload_q_revalidation.py
 ```
 
-`run_moving_payload_collision_acceptance.py` 当前只执行一次冻结的 2 Hz Sensorization V1
-timestamp-aligned final case，不做 cutoff sweep 或 deterministic repeat。最近结果通过：
-payload decay 0.01773、terminal pitch RMS 0.550°、无 wheel saturation；记录在
-`moving_payload_timestamp_aligned_collision_results.json`。阶段性的 cutoff/PSD 诊断已收口为
-`LEARNING_LOG.md` 表格，不再留在 production acceptance 入口中。
-
-有限碰撞入口的当前在线主链统一使用 sensorized
-`x_hat=[p_hat,v_hat,wrap(theta_hat-theta_eq),theta_dot_hat]`；LQR 和 matched
-innovation 均不读取 MuJoCo GT。旧 boxcar、slow/fast 和未对齐 Sensorization V1 执行逻辑
-已经删除。
-
-人工查看最终有限碰撞场景：
+人工查看 Stage 3C-R 控制过程：
 
 ```powershell
-.\.venv\Scripts\python.exe scripts\view_moving_payload_stress.py --case A
-.\.venv\Scripts\python.exe scripts\view_moving_payload_stress.py --case Q
+.\.venv\Scripts\python.exe scripts\view_stage3c_dynamic_payload_q.py --arm q-off
 ```
 
-其中 A 为 Frozen ID-LQR，Q 为 ID-LQR + 当前选定的单通道 Q-filter 补偿。
+Viewer 由用户亲自启动；关闭窗口即可停止。`q-on` 仅复现实验臂，不是 production baseline。
 
 ## 目录
 
 ```text
-control/                 PID、固定 LQR、Offline-ID、filtered disturbance rejection 与 probe 诊断
-sim/                     MuJoCo 确定性仿真和运行时 rigid payload 支持
-models/minisegway/       MJCF、集中配置、质量属性和冻结 benchmark 结果
-scripts/                 少量可复现 run/smoke/viewer 入口
-tools/                   从本地 MiniSegway CAD 构建 plant、提取 reduced TWIP 参数
-CURRENT_STATE.md         V1 指标、能力和设计边界
-LEARNING_LOG.md          路线演进、失败结论与冻结 benchmark 表格
-AGENTS.md                后续开发约束
+control/                         LQR、reference、feedforward、yaw 与 Q observer primitives
+sim/                             MuJoCo 仿真、sensor/estimator 与 payload runtime support
+models/minisegway/               共享 plant/sensor config 与 stage 分层 artifacts
+  stage1/results/                smoke、equilibrium、PID/LQR 基线
+  stage2/results/                full-state ID 与冻结 moving-payload acceptance
+  stage3/config/                 Stage 3 manifest 和专用配置
+  stage3/results/                Stage 3 最终结果及少量历史摘要
+scripts/                         保留的可复现 run/check/viewer 入口
+CURRENT_STATE.md                 当前冻结状态和边界
+LEARNING_LOG.md                  调试路线、负结果和最终决策
 ```
 
-Plant 参数来源与 provisional 项见 [models/minisegway/README.md](models/minisegway/README.md)。
+Plant 参数与 sensor semantics 见
+[`models/minisegway/README.md`](models/minisegway/README.md)，当前冻结结论见
+[`CURRENT_STATE.md`](CURRENT_STATE.md)。

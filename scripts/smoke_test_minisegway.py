@@ -11,7 +11,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 MODEL_PATH = ROOT / "models" / "minisegway" / "mini_segway.xml"
-REPORT_PATH = ROOT / "models" / "minisegway" / "smoke_report.json"
+REPORT_PATH = ROOT / "models" / "minisegway" / "stage1" / "results" / "smoke_report.json"
 
 
 model = mujoco.MjModel.from_xml_path(str(MODEL_PATH))

@@ -21,7 +21,7 @@ from sim import MiniSegwaySim
 MODEL_DIR = ROOT / "models" / "minisegway"
 REDUCED_PATH = MODEL_DIR / "reduced_twip.json"
 CONFIG_PATH = MODEL_DIR / "cascade_pid_config.json"
-RESULTS_PATH = MODEL_DIR / "cascade_pid_results.json"
+RESULTS_PATH = MODEL_DIR / "stage1" / "results" / "cascade_pid_results.json"
 CASES_DEG = [-5.0, -2.0, 2.0, 5.0]
 
 

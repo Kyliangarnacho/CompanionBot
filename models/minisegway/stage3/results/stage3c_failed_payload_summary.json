@@ -1,0 +1,37 @@
+{
+  "stage": "Stage 3C historical failed moving-payload integration",
+  "source_removed_during_closeout": "stage3c_dynamic_payload_q_results.json",
+  "scenario": "stage3c_integrated_forward_stop_reverse_turn_straight_stop",
+  "mechanical_configuration": {
+    "payload_mass_kg": 0.20,
+    "payload_full_size_m": [0.064, 0.032, 0.032],
+    "basket_contact_friction": 0.040,
+    "wall_contact": "rigid/default"
+  },
+  "gate_thresholds_nm": {
+    "d_on": 0.005566735327612053,
+    "d_off": 0.0033400411965672314
+  },
+  "old_stage3c_Q_OFF_summary": {
+    "balance": {
+      "fall": true,
+      "pitch_RMS_GT_deg": 49.16518354921394,
+      "pitch_peak_GT_deg": 178.26165287569944
+    },
+    "tracking": {
+      "velocity_error_estimated_m_s": {
+        "rms": 5.782350415042415,
+        "peak_abs": 13.653807663277467
+      }
+    },
+    "control": {
+      "per_wheel_saturation_fraction": 0.2816666666666667
+    },
+    "payload_evaluator_posthoc": {
+      "remained_in_basket": false,
+      "force_bearing_wall_collision_episode_count": 52,
+      "maximum_wall_normal_force_n": 20.39573602037204
+    }
+  },
+  "decision": "High-energy repeated wall impacts were classified as a mechanical disturbance-shaping failure. Gated Q actuator augmentation was rejected."
+}

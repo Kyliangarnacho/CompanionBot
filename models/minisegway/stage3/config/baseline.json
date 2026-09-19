@@ -1,0 +1,51 @@
+{
+  "stage": "Stage 3 frozen CompanionBot V1 simulation baseline",
+  "status": "FROZEN_AFTER_STAGE3C_R",
+  "state_order": [
+    "p_hat",
+    "v_hat",
+    "pitch_error",
+    "pitch_rate_hat"
+  ],
+  "nominal_model": {
+    "source": "stage3/results/stage3a_refit_ab_0p60_validation_results.json",
+    "A_field": "new_A",
+    "B_field": "new_B"
+  },
+  "feedback": {
+    "source": "stage2/results/full_state_identification_results.json",
+    "K_field": "identified_lqr.K_id",
+    "selection": "retained K_old after new-A/B revalidation and bounded Q/R challenge"
+  },
+  "runtime_config": "stage3/config/stage3a_velocity_feedforward_lean_tail_config.json",
+  "motion_config": "stage3/config/stage3a_commanded_motion_config.json",
+  "dynamic_nominal_config": "stage3/config/stage3a_dynamic_nominal_reference_config.json",
+  "estimator": {
+    "pitch_filter_mode": "acceleration_compensated",
+    "parameter_source": "longitudinal_estimator_config.json"
+  },
+  "yaw": {
+    "config": "stage3/config/stage3b_yaw_control_config.json",
+    "K_psi_nm_per_rad": 0.55,
+    "K_r_nm_per_rad_s": 0.20
+  },
+  "disturbance_rejection": {
+    "config": "disturbance_rejection_config.json",
+    "observer": "always available for diagnostics",
+    "actuator_augmentation_production_enabled": false,
+    "decision_source": "stage3/results/stage3c_mechanical_payload_q_revalidation_results.json"
+  },
+  "mechanical_payload_validation": {
+    "result": "stage3/results/stage3c_mechanical_payload_q_revalidation_results.json",
+    "payload_mass_kg": 0.10,
+    "payload_full_size_m": [0.064, 0.032, 0.032],
+    "basket_payload_sliding_friction": 0.35,
+    "wall_solref": [0.020, 1.50],
+    "wall_solimp": [0.70, 0.95, 0.005, 0.50, 2.0]
+  },
+  "timing": {
+    "physics_dt_s": 0.001,
+    "controller_dt_s": 0.002
+  },
+  "scope_note": "Frozen MuJoCo research baseline; hardware limits and production payload rating require physical validation."
+}

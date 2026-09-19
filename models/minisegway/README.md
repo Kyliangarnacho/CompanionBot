@@ -6,6 +6,11 @@
 Actuator 是 `gear=1` 的直接 torque input，并保留 peak/stall hard limit；
 模型本身不包含 controller，balance mode 也不使用 ball caster。
 
+Artifact 按阶段分层：`stage1/results/` 保存 plant/PID/LQR 基线，`stage2/results/`
+保存 full-state ID 与冻结 moving-payload acceptance，`stage3/config/` 和
+`stage3/results/` 保存最终 commanded-motion/yaw/payload baseline。跨阶段仍直接使用的
+MJCF、plant、sensor、estimator 与 Q 配置留在本目录，避免复制出多份真值。
+
 ## 原始传感器坐标约定
 
 两份模型中的 `imu_site` 都刚性附着于 `chassis`，局部位置为
@@ -58,7 +63,7 @@ saturation flag。Packet stale threshold 是 5 ms；invalid/stale 时复用上�
 temperature、vibration、dropout、CRC/SPI failure 或 encoder fault injection。
 
 最终 timestamp-aligned 链路的冻结 2 Hz single-Q moving-payload collision 结果保存在
-`moving_payload_timestamp_aligned_collision_results.json`；详细历史逐点日志已在阶段收口时
+`stage2/results/moving_payload_timestamp_aligned_collision_results.json`；详细历史逐点日志已在阶段收口时
 删除，关键指标固化在根目录 `LEARNING_LOG.md` 与 `CURRENT_STATE.md`。
 
 ## Virtual quadrature encoder
@@ -222,7 +227,7 @@ LQR、matched-disturbance observation 和相关在线 regressor 只接收同一 
 `x_hat`。MuJoCo longitudinal GT、payload pose/contact 和事后 instantaneous equilibrium
 只用于 command 组装完成后的 evaluator/logger。旧 slow/fast、Q sweep 和未对齐状态的
 逐点结果已经删除；关键比较表保存在 `LEARNING_LOG.md`。最终结果只保留
-`moving_payload_timestamp_aligned_collision_results.json`。
+`stage2/results/moving_payload_timestamp_aligned_collision_results.json`。
 
 第三方 CAD 派生 mesh 已被 Git 忽略。若本地仍保留 upstream STEP，可使用独立
 CAD 环境重新生成 mesh、MJCF 和质量属性报告：

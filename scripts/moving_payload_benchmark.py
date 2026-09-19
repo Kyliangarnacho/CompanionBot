@@ -26,7 +26,7 @@ EXPERIMENT_CONFIG_PATH = MODEL_DIR / "experiment_config.json"
 DR_CONFIG_PATH = MODEL_DIR / "disturbance_rejection_config.json"
 REDUCED_PATH = MODEL_DIR / "reduced_twip.json"
 PLANT_PARAMETERS_PATH = MODEL_DIR / "plant_parameters.json"
-NOMINAL_OFFLINE_PATH = MODEL_DIR / "full_state_identification_results.json"
+NOMINAL_OFFLINE_PATH = MODEL_DIR / "stage2" / "results" / "full_state_identification_results.json"
 SENSORIZED_STATE = "sensorized_x_hat"
 
 
@@ -88,8 +88,10 @@ class PayloadGroundTruthRecorder:
         self.chassis_body = sim.model.body("chassis").id
         self.payload_geom = sim.model.geom("moving_payload_collision").id
         self.wall_ids = {sim.model.geom(name).id: name for name in self.WALL_NAMES}
+        self.floor_id = sim.model.geom("basket_floor").id
         self.previous_walls: set[str] = set()
         self.collision_episodes: list[dict] = []
+        self.resolved_contact_parameters: dict[str, dict] = {}
 
     def sample(
         self, time_s: float, nominal_pitch_error: float, torque: float
@@ -120,8 +122,19 @@ class PayloadGroundTruthRecorder:
             else:
                 continue
             if other not in self.wall_ids:
+                if other == self.floor_id:
+                    self.resolved_contact_parameters["basket_floor"] = {
+                        "friction": np.asarray(contact.friction).tolist(),
+                        "solref": np.asarray(contact.solref).tolist(),
+                        "solimp": np.asarray(contact.solimp).tolist(),
+                    }
                 continue
             wall_name = self.wall_ids[other]
+            self.resolved_contact_parameters[wall_name] = {
+                "friction": np.asarray(contact.friction).tolist(),
+                "solref": np.asarray(contact.solref).tolist(),
+                "solimp": np.asarray(contact.solimp).tolist(),
+            }
             active_walls.add(wall_name)
             force = np.zeros(6, dtype=float)
             mujoco.mj_contactForce(sim.model, sim.data, index, force)

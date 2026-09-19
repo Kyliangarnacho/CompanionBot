@@ -1,0 +1,31 @@
+{
+  "stage": "3A Final Longitudinal Baseline",
+  "source_baseline_results": "stage3/results/stage3a_longitudinal_baseline_results.json",
+  "scenario": "velocity_0p60_stop_reverse_stop",
+  "case": "new-fixed-AB-retained-K-old-transient-FF",
+  "lambda_ff": 0.60,
+  "velocity_lifecycle": {
+    "phases": ["VELOCITY_TRANSIENT", "VELOCITY_HOLD"],
+    "completion_semantics": "T_v is S-curve completion; T_full is the first feasible nominal horizon; existing FF fade starts at T_full",
+    "feedforward_rearm_threshold_s": 0.30,
+    "feedforward_fade_s": 0.15,
+    "feedforward_fade": "alpha=1-3*s^2+2*s^3, s=clip((t-t0)/0.15,0,1); u_ff_used=alpha*u_ff_exit",
+    "preload": "none; e_p and p_ref are not changed",
+    "lean_completion": "solver-constrained zero-lean/zero-rate endpoint at first feasible T_full; never the next command time",
+    "horizon_search": {
+      "candidate_step_s": 0.05,
+      "maximum_tail_s": 0.50,
+      "normalized_residual_rms_max": 0.020,
+      "threshold_basis": "V1 engineering threshold, not a theoretical feasibility theorem"
+    },
+    "feedforward_exit_input": "last solved nominal interval input; no cruise nominal solve",
+    "hold_reference": "[integrated p_ref, v_cmd, 0, 0]",
+    "hold_feedforward_nm": 0.0
+  },
+  "fixed_invariants": {
+    "all_accepted_targets_use_existing_s_curve": true,
+    "acceleration_limit_fallback": false,
+    "position_mode_lifecycle_unchanged": true,
+    "disturbance_rejection_enabled": false
+  }
+}

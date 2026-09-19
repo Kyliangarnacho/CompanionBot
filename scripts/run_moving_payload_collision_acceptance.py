@@ -21,8 +21,8 @@ EXPERIMENT_CONFIG_PATH = MODEL_DIR / "experiment_config.json"
 DR_CONFIG_PATH = MODEL_DIR / "disturbance_rejection_config.json"
 REDUCED_PATH = MODEL_DIR / "reduced_twip.json"
 PLANT_PARAMETERS_PATH = MODEL_DIR / "plant_parameters.json"
-NOMINAL_OFFLINE_PATH = MODEL_DIR / "full_state_identification_results.json"
-RESULTS_PATH = MODEL_DIR / "moving_payload_timestamp_aligned_collision_results.json"
+NOMINAL_OFFLINE_PATH = MODEL_DIR / "stage2" / "results" / "full_state_identification_results.json"
+RESULTS_PATH = MODEL_DIR / "stage2" / "results" / "moving_payload_timestamp_aligned_collision_results.json"
 
 
 def key_metrics(run: dict) -> dict:

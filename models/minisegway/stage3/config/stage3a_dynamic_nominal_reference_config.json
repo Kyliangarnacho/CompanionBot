@@ -1,0 +1,25 @@
+{
+  "stage": "3A Dynamic Nominal Reference Optimization of D",
+  "source_ablation_results": "historical decision retained in LEARNING_LOG.md",
+  "new_case": "D-dynamic-reference",
+  "reference": "Existing jerk-limited S-curve with unchanged v/a/j limits",
+  "max_jerk_m_s3": 1.0,
+  "state_order": ["position", "velocity", "pitch_error", "pitch_rate"],
+  "construction": {
+    "method": "Normalized sparse least-squares projection of prescribed p_ref/v_ref onto theta_ref/theta_dot_ref/u_ff over each command segment",
+    "row_scaling": "1 / identified state scale",
+    "unknown_column_scaling": "identified pitch/pitch-rate state scales and identified input scale; conditioning only, no regularization",
+    "segment_boundary": "theta_ref = theta_dot_ref = 0 at both ends of every scheduled command segment",
+    "pre_first_command": "theta_ref = theta_dot_ref = u_ff = 0",
+    "solver": "scipy.sparse.linalg.lsqr",
+    "atol": 1e-11,
+    "btol": 1e-11
+  },
+  "comparison_scenarios": [
+    "position_plus_0p25_return",
+    "position_plus_0p50_return",
+    "velocity_0p10_stop_reverse_stop",
+    "velocity_0p20_stop_reverse_stop"
+  ],
+  "disturbance_rejection_enabled": false
+}
