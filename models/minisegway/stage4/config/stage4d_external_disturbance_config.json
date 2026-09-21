@@ -1,0 +1,86 @@
+{
+  "stage": "Stage 4D — External Disturbance Closure",
+  "friction_model_version": "wheel_and_terrain_v2",
+  "physics_dt_s": 0.001,
+  "controller_dt_s": 0.002,
+  "history_frequency_hz": 50.0,
+  "seed": 4600,
+  "terrain": {
+    "forward_axis_world": [0.0, -1.0, 0.0],
+    "flat_lead_in_length_m": 0.7,
+    "flat_back_margin_m": 2.0,
+    "transition_length_m": 0.4,
+    "constant_grade_length_m": 8.0,
+    "half_width_m": 1.5,
+    "half_thickness_m": 0.1,
+    "boundary_guard_margin_m": 0.6
+  },
+  "slip_observer": {
+    "wheel_velocity_std_m_s": 0.018,
+    "body_acceleration_process_std_m_s2": 0.55,
+    "slip_random_walk_std_m_s_sqrt_s": 0.45,
+    "slip_decay_time_constant_s": 0.35,
+    "derivative_filter_time_constant_s": 0.06,
+    "imu_acceleration_filter_time_constant_s": 0.035,
+    "imu_bias_learning_time_constant_s": 0.25,
+    "maximum_abs_model_acceleration_m_s2": 5.0,
+    "initial_body_velocity_std_m_s": 0.025,
+    "initial_slip_velocity_std_m_s": 0.015,
+    "enter_chi": 9.0,
+    "exit_chi": 2.71,
+    "enter_persistence_s": 0.08,
+    "exit_persistence_s": 0.24,
+    "warmup_s": 0.5,
+    "minimum_active_speed_m_s": 0.08
+  },
+  "slip_gates": {
+    "slip_ratio_threshold": 0.2,
+    "minimum_recall": 0.9,
+    "target_precision": 0.85,
+    "maximum_false_positive_rate": 0.05,
+    "target_median_detection_latency_s": 0.2
+  },
+  "safe_slowdown": {
+    "speed_cap_m_s": 0.18,
+    "acceleration_limit_scale": 0.4
+  },
+  "slip_scenes": {
+    "development": [
+      {"name": "no_slip_nominal", "friction": 1.0, "speed_m_s": 0.4, "duration_s": 8.0},
+      {"name": "mild_transient", "base_friction": 1.0, "friction": 0.07, "friction_schedule": [{"start_time_s": 1.4, "end_time_s": 1.75, "friction": 0.045}], "speed_m_s": 0.4, "duration_s": 8.0},
+      {"name": "sustained_recoverable", "base_friction": 1.0, "friction": 0.06, "friction_schedule": [{"start_time_s": 1.4, "end_time_s": 3.0, "friction": 0.05}], "speed_m_s": 0.6, "duration_s": 8.0},
+      {"name": "severe_boundary", "friction": 0.055, "speed_m_s": 0.6, "duration_s": 6.0}
+    ],
+    "test": [
+      {"name": "no_slip_nominal", "friction": 0.9, "speed_m_s": 0.4, "duration_s": 8.0},
+      {"name": "mild_transient", "base_friction": 0.9, "friction": 0.07, "friction_schedule": [{"start_time_s": 1.5, "end_time_s": 1.9, "friction": 0.045}], "speed_m_s": 0.45, "duration_s": 8.0},
+      {"name": "sustained_recoverable", "base_friction": 0.9, "friction": 0.06, "friction_schedule": [{"start_time_s": 1.5, "end_time_s": 3.2, "friction": 0.05}], "speed_m_s": 0.55, "duration_s": 8.0},
+      {"name": "severe_boundary", "friction": 0.045, "speed_m_s": 0.6, "duration_s": 6.0}
+    ]
+  },
+  "slope_slip": {
+    "angles_deg": [-10.0, -6.0, 6.0, 10.0],
+    "frictions": [1.0, 0.12],
+    "speed_m_s": 0.4,
+    "duration_s": 12.0
+  },
+  "payload": {
+    "duration_s": 11.0,
+    "speed_m_s": 0.4,
+    "modes": ["fixed", "free"]
+  },
+  "terrain_baseline": {
+    "duration_s": 10.0,
+    "speed_m_s": 0.4,
+    "bump": {"height_m": 0.012, "length_m": 0.08, "spacing_m": 1.0},
+    "rough": {"height_m": 0.005, "length_m": 0.05, "spacing_m": 0.32}
+  },
+  "push": {
+    "forces_n": [0.5, 1.0, 1.5],
+    "duration_s": 0.1,
+    "start_time_s": 3.0,
+    "episode_duration_s": 7.0,
+    "speeds_m_s": [0.0, 0.4],
+    "directions": [-1, 1]
+  }
+}

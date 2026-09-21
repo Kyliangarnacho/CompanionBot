@@ -273,8 +273,21 @@ def evaluate_case_gate(result: dict, gate: dict, payload_mode: str) -> tuple[boo
     return not failures, failures
 
 
-def build_sim(payload_mode: str, seed: int, nominal_theta_eq: float, dr_raw: dict):
-    model_path = FREE_MODEL_PATH if payload_mode == "free" else EMPTY_MODEL_PATH
+def build_sim(
+    payload_mode: str,
+    seed: int,
+    nominal_theta_eq: float,
+    dr_raw: dict,
+    empty_model_path: Path | None = None,
+    model_path_override: Path | None = None,
+):
+    model_path = model_path_override
+    if model_path is None:
+        model_path = (
+            FREE_MODEL_PATH
+            if payload_mode == "free"
+            else (empty_model_path if empty_model_path is not None else EMPTY_MODEL_PATH)
+        )
     sim = MiniSegwaySim(model_path, imu_seed=seed)
     rigid_payload = None
     if payload_mode == "fixed":

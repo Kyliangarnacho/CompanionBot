@@ -9,6 +9,7 @@
 ## 实验纪律
 
 - 一次只验证一个核心假设，使用公平 ablation；明确区分 estimator 学习、supervisor 接管和 actuator 实际输出。
+- 每个阶段产生的配置、结果、history、图表和摘要必须保存到该阶段对应的成果目录中，不得再次散落到共享模型目录或其他阶段目录。
 - PID、LQR、Q/R、plant、payload、摩擦和 torque limit 一旦作为 baseline 冻结，不得在比较中暗改。
 - 不得为了让新算法“赢”而挑场景、缩小扰动、隐藏失败、改变 truth/tolerance，或丢弃不利工况。
 - Controller/estimator 禁止读取仅供验收的 GT/oracle 信息，包括 payload 真实位置/速度、接触状态、loaded reference model 和事后 theta_eq。
@@ -18,7 +19,7 @@
 ## 工程范围
 
 - MuJoCo physics step 固定 1 ms；V1 controller update 固定 2 ms，除非新阶段明确重新定义实验。
-- Moving-payload V1 主链是 control-time sensorized state + 固定 nominal ID-LQR + 单一 2 Hz Q-filter matched disturbance compensation。Auto Probe/RLS 只用于诊断，不得未经新证据重新接入 actuator。
+- Moving-payload V1 主链是 control-time sensorized state + 固定 nominal ID-LQR；Q observer 保留用于诊断，冻结 Stage 3 baseline 的 actuator augmentation 为 OFF。Stage 4 slope 仅把 Q ON 作为显式 ablation candidate。Auto Probe/RLS 只用于诊断，不得未经新证据重新接入 actuator。
 - 验收脚本中的 payload GT observer 必须保持 post-hoc-only 数据边界。
 - 第三方 upstream 和本地派生 CAD mesh 不进入本仓库；许可证和来源记录不得删除。
 - 不为了“显得完整”增加空目录、万能抽象或未验证模块。

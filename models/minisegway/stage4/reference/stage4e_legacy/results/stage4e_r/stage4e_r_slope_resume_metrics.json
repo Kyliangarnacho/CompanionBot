@@ -1,0 +1,277 @@
+{
+  "stage": "Stage 4E-R — slope qualification resumed after waived removal failure",
+  "passed": true,
+  "stop_reason": "none",
+  "waiver": {
+    "scope": "payload_remove qualification failure only",
+    "original_stop_reason": "payload_remove_failed",
+    "removal_failure_preserved": true
+  },
+  "identified_payload_mass_kg_from_passed_add": 0.2924258566255011,
+  "slope_entry": {
+    "error_deg": 3.0,
+    "persistence_s": 0.2
+  },
+  "slope_exit": {
+    "error_deg": 3.0,
+    "alpha_deg": 0.7,
+    "persistence_s": 0.75
+  },
+  "frozen_checks": {
+    "physics_dt_1ms": true,
+    "controller_dt_2ms": true,
+    "q_actuator_off": true,
+    "slip_detection_off": true,
+    "stage4c_ekf_unchanged": true,
+    "stage3_q_production_default_off": true
+  },
+  "qualification": {
+    "identified_payload_flat_acceleration": {
+      "state_counts": {
+        "FLAT_NORMAL": 500,
+        "PAYLOAD_ID": 0,
+        "SLOPE_TRACK": 0
+      },
+      "transition_count": 0,
+      "transitions": [],
+      "false_slope": false,
+      "false_payload": false,
+      "entered_slope": false,
+      "slope_entry_terrain_segment_GT_posthoc": null,
+      "pre_slope_false_positive": false,
+      "entered_payload_id": false,
+      "returned_flat_after_slope": false,
+      "final_payload_mass_hat_kg": 0.2919649372309546,
+      "payload_mass_abs_error_kg": null,
+      "payload_model_valid": true,
+      "slope_alpha_mae_deg": null,
+      "slope_alpha_p95_abs_error_deg": null,
+      "rls_frozen_on_slope": true,
+      "wheel_saturation_fraction": 0.0,
+      "fallen": false,
+      "termination_reason": null,
+      "unsupported_payload_change_on_slope": false,
+      "payload_model_updates": [
+        {
+          "time_s": 6.816000000000611,
+          "source": "SHADOW_FLAT",
+          "payload_mass_kg": 0.27102376961114927,
+          "covariance": 0.005686589783411593,
+          "information": 175.81231889191463,
+          "residual_ratio": 0.8152397676057854,
+          "stability_range_kg": 0.049662315922884864
+        },
+        {
+          "time_s": 6.890000000000636,
+          "source": "SHADOW_FLAT",
+          "payload_mass_kg": 0.28320728022943537,
+          "covariance": 0.005564010019964238,
+          "information": 179.68649157925609,
+          "residual_ratio": 0.8954459966639552,
+          "stability_range_kg": 0.038156584191327975
+        },
+        {
+          "time_s": 7.274000000000764,
+          "source": "SHADOW_FLAT",
+          "payload_mass_kg": 0.28073192252333407,
+          "covariance": 0.004566317970309685,
+          "information": 218.95482394831575,
+          "residual_ratio": 0.8979903685140017,
+          "stability_range_kg": 0.04581343483242911
+        },
+        {
+          "time_s": 7.330000000000783,
+          "source": "SHADOW_FLAT",
+          "payload_mass_kg": 0.2713445355281063,
+          "covariance": 0.004479000115815389,
+          "information": 223.2241156826481,
+          "residual_ratio": 0.8979903685140017,
+          "stability_range_kg": 0.03860091988170572
+        },
+        {
+          "time_s": 7.342000000000787,
+          "source": "SHADOW_FLAT",
+          "payload_mass_kg": 0.2691854431081251,
+          "covariance": 0.004464074714578163,
+          "information": 223.97058762173896,
+          "residual_ratio": 0.8979903685140017,
+          "stability_range_kg": 0.04059465150826874
+        },
+        {
+          "time_s": 7.35200000000079,
+          "source": "SHADOW_FLAT",
+          "payload_mass_kg": 0.268249364708587,
+          "covariance": 0.004453316269407639,
+          "information": 224.51175862302202,
+          "residual_ratio": 0.8979903685140017,
+          "stability_range_kg": 0.041712344949139835
+        },
+        {
+          "time_s": 7.356000000000791,
+          "source": "SHADOW_FLAT",
+          "payload_mass_kg": 0.26688471149794885,
+          "covariance": 0.004448667155165603,
+          "information": 224.74642818643864,
+          "residual_ratio": 0.8979903685140017,
+          "stability_range_kg": 0.04298745352969985
+        },
+        {
+          "time_s": 7.378000000000799,
+          "source": "SHADOW_FLAT",
+          "payload_mass_kg": 0.264206477563096,
+          "covariance": 0.004428053090528789,
+          "information": 225.7928840137243,
+          "residual_ratio": 0.8979903685140017,
+          "stability_range_kg": 0.04582938904024264
+        },
+        {
+          "time_s": 8.932000000000489,
+          "source": "SHADOW_FLAT",
+          "payload_mass_kg": 0.2840668866483658,
+          "covariance": 0.004201249580361281,
+          "information": 237.98442127563533,
+          "residual_ratio": 0.8873639709078914,
+          "stability_range_kg": 0.02874336847491965
+        },
+        {
+          "time_s": 9.198000000000341,
+          "source": "SHADOW_FLAT",
+          "payload_mass_kg": 0.2919649372309546,
+          "covariance": 0.0037763296892124806,
+          "information": 264.767387675026,
+          "residual_ratio": 0.8998879539538356,
+          "stability_range_kg": 0.04169599089975251
+        }
+      ],
+      "terminal_payload_rls_candidate": {
+        "mass_kg": 0.2637761881797429,
+        "covariance": 0.0035513770300761188,
+        "information": 281.5409167911876,
+        "residual_ratio": 0.7806991667773858,
+        "stability_range_kg": 0.03687848283253703,
+        "update_count": 1880
+      },
+      "failures": [],
+      "passed": true
+    },
+    "payload_slope_m8": {
+      "state_counts": {
+        "FLAT_NORMAL": 411,
+        "PAYLOAD_ID": 0,
+        "SLOPE_TRACK": 389
+      },
+      "transition_count": 2,
+      "transitions": [
+        {
+          "time_s": 5.412000000000142,
+          "from": "FLAT_NORMAL",
+          "to": "SLOPE_TRACK",
+          "reason": "persistent_reference_consistent_pitch_error",
+          "theta_error_deg": -5.5340126349343075,
+          "alpha_hat_deg": -8.029506728907094,
+          "payload_mass_hat_kg": 0.19833482451669937
+        },
+        {
+          "time_s": 13.201999999998122,
+          "from": "SLOPE_TRACK",
+          "to": "FLAT_NORMAL",
+          "reason": "persistent_flat_return",
+          "theta_error_deg": 2.209818659335787,
+          "alpha_hat_deg": 0.640743707976999,
+          "payload_mass_hat_kg": 0.19833482451669937
+        }
+      ],
+      "false_slope": false,
+      "false_payload": false,
+      "entered_slope": true,
+      "slope_entry_terrain_segment_GT_posthoc": "transition_up",
+      "pre_slope_false_positive": false,
+      "entered_payload_id": false,
+      "returned_flat_after_slope": true,
+      "final_payload_mass_hat_kg": 0.2924258566255011,
+      "payload_mass_abs_error_kg": null,
+      "payload_model_valid": true,
+      "slope_alpha_mae_deg": 1.0958910391244143,
+      "slope_alpha_p95_abs_error_deg": 3.596319438657522,
+      "rls_frozen_on_slope": true,
+      "wheel_saturation_fraction": 0.0,
+      "fallen": false,
+      "termination_reason": null,
+      "unsupported_payload_change_on_slope": false,
+      "payload_model_updates": [],
+      "terminal_payload_rls_candidate": {
+        "mass_kg": 0.19833482451669937,
+        "covariance": 0.010903312289232277,
+        "information": 91.67524885951993,
+        "residual_ratio": 0.9665663970786081,
+        "stability_range_kg": 0.2517365465840209,
+        "update_count": 513
+      },
+      "failures": [],
+      "passed": true
+    },
+    "payload_slope_p8": {
+      "state_counts": {
+        "FLAT_NORMAL": 398,
+        "PAYLOAD_ID": 0,
+        "SLOPE_TRACK": 402
+      },
+      "transition_count": 2,
+      "transitions": [
+        {
+          "time_s": 5.158000000000057,
+          "from": "FLAT_NORMAL",
+          "to": "SLOPE_TRACK",
+          "reason": "persistent_reference_consistent_pitch_error",
+          "theta_error_deg": 7.371478356908403,
+          "alpha_hat_deg": 7.839152061090402,
+          "payload_mass_hat_kg": 0.20965898122710133
+        },
+        {
+          "time_s": 13.191999999998128,
+          "from": "SLOPE_TRACK",
+          "to": "FLAT_NORMAL",
+          "reason": "persistent_flat_return",
+          "theta_error_deg": 2.0730540995741222,
+          "alpha_hat_deg": 0.45401903560190443,
+          "payload_mass_hat_kg": 0.20965898122710133
+        }
+      ],
+      "false_slope": false,
+      "false_payload": false,
+      "entered_slope": true,
+      "slope_entry_terrain_segment_GT_posthoc": "transition_up",
+      "pre_slope_false_positive": false,
+      "entered_payload_id": false,
+      "returned_flat_after_slope": true,
+      "final_payload_mass_hat_kg": 0.2924258566255011,
+      "payload_mass_abs_error_kg": null,
+      "payload_model_valid": true,
+      "slope_alpha_mae_deg": 0.9897570593736197,
+      "slope_alpha_p95_abs_error_deg": 3.168617974013717,
+      "rls_frozen_on_slope": true,
+      "wheel_saturation_fraction": 0.0,
+      "fallen": false,
+      "termination_reason": null,
+      "unsupported_payload_change_on_slope": false,
+      "payload_model_updates": [],
+      "terminal_payload_rls_candidate": {
+        "mass_kg": 0.20965898122710133,
+        "covariance": 0.01112164095568954,
+        "information": 89.87478901217602,
+        "residual_ratio": 1.0174279668827773,
+        "stability_range_kg": 0.2723179238635749,
+        "update_count": 513
+      },
+      "failures": [],
+      "passed": true
+    }
+  },
+  "legacy_slope_mae_gate": {
+    "maximum_deg": 1.0,
+    "exceeding_scenes": [
+      "payload_slope_m8"
+    ]
+  },
+  "skipped_scenes": []
+}

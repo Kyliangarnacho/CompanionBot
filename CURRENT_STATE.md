@@ -55,3 +55,48 @@ Stage 3 已完成并冻结为 MuJoCo simulation baseline。权威索引是
   GT-in-controller diagnostic 或 Q actuator augmentation。
 - 后续阶段若改变 plant、payload、timing、estimator、K/A/B 或 torque limit，应新建独立公平验证，
   不覆盖 Stage 1/2/3 冻结结果。
+
+## Stage 4 研究结论（不改写 Stage 3 baseline）
+
+- Stage 4A：冻结 baseline 在 ±8° 通过；±15° 属于压力测试 envelope。现有 2 Hz Q actuator
+  对坡面 tracking 无独立收益，production 继续 OFF；Q observer 保留。
+- Stage 4B：68 个 episode、episode-exclusive split、100 Hz / 0.8 s window 的 proprioception
+  pilot 已真实生成和训练。statistics+Ridge 的 test α MAE/p95 为 1.190°/3.348°；tiny raw
+  Conv1D 为 2.007°/3.815°，两者均未过 α Gate，payload counterfactual drift 也为 1.070°。
+- Stage 4B-R 发现旧 generator 只改 terrain friction、未改 wheel collision friction；修正版以新 ID
+  生成 108/9/40 train/val/test episode，旧数据不覆盖。2.4 s Ridge 的 online MAE/p95/max 为
+  2.615°/8.187°/21.954°；Ridge+±3° bounded residual 为 2.579°/7.284°/24.744°，仍有
+  53 个 window 的绝对误差超过 5°。Slip CNN recall 0.689，rough CNN F1 0.441。
+- Stage 4B-R 最终定案：**PERMANENT REJECT proprioceptive slope learning**；slip detector 不进
+  production；rough cheap baseline 只保留结果/代码。按 Stop Rule 未把 estimator 接回 controller，
+  也未执行条件式 A/B/C/D。解析 α→θ_eq 的 0.237°验证结果保留，但不代表 online sensing 可用。
+- Stage 4C 没有恢复学习路线，而是按 Parravicini/Corno/Savaresi 的解耦结构增加独立 physics
+  slope EKF。clean empty、smooth、`mu=1.0` 的 held-out ±3/±6/±10/±14°、0.2/0.4/0.6 m/s
+  上，TWIP-EKF MAE/p95/steady bias 为 0.206°/0.400°/0.143°，48/48 有效 episode 在恒坡
+  入口后最坏 0.08 s 收敛；因此定案 **KEEP TWIP-EKF**。STATIC-INVERSE 因 4 个有效 episode
+  未满足 5 s hard convergence 而不保留。
+- Stage 4C oracle `x_eq/u_eq` 和 estimated-alpha A/B/C 闭环均无 fall/saturation；estimated 闭环
+  steady velocity RMSE 为 0.0031–0.0054 m/s。fixed 0.10 kg payload 则使坡度 MAE/p95 恶化到
+  1.888°/2.564°，明确需要 payload-aware model parameters，本轮未做 payload adaptation。
+- Stage 4D 的 scalar `[v_body,d_slip]` IMU/encoder observer 在严格截断 45° fall 后的 held-out
+  pure-slip test 上 precision/recall/F1 = 0.947/0.419/0.581、FPR=0.0006、median latency=0.10 s；
+  recall 未过 0.90 Gate。按 Stop Rule 未接 safe slowdown、未跑 slope HOLD integration，production
+  不保留 slip path，并记录 future camera/visual-odometry independent velocity dependency。
+- Payload Q 最终 A/B 对 fixed/free 没有一致明确收益，且 free payload 的 pitch/velocity 指标略退化；
+  Q actuator 定案 **PERMANENT PRODUCTION OFF**，observer 仅 diagnostic。Frozen LQR 对 rough 与
+  12/12 个 0.5/1.0/1.5 N、0.10 s 双向 stationary/moving push 自行恢复；现有 modest bump 使车体
+  无 fall/无 saturation 但停滞在障碍前，属于当前 V1 traversable envelope 之外。
+- 最终职责：Q observer 继续 diagnostic/physics logging；Q actuator production OFF；Stage4B-R
+  的 proprioceptive **learning** 永久拒绝不变。TWIP-EKF 只在 clean empty nominal-traction
+  假设内保留；slip coupling 留给 Stage4D，rough/bump/free-payload 和几何传感不在 Stage4C 范围。
+- Stage 4 最终 runtime 只保留 `FLAT/SLOPE` 与 `payload_id_pending/payload_id_active`。Q one-step
+  innovation 只触发一次短 session；payload ID 以 50 Hz 使用 31 次自然 transient 更新，直接冻结
+  两个 sagittal 参数。本次 0.25 kg、前置 15 mm 真值的估计为 0.3476 kg、15.18 mm；质量偏高作为
+  baseline limitation 保留，不再增加 acceptance layer 或调参。
+- 最终 robustness smoke 中，中心/左右 ±10 mm 固定偏载与左右各 1 N×0.10 s 单轮纵向冲激均无
+  fall、无 wheel saturation。左偏载的 yaw drift/peak 最大（0.0627°/s、0.718°）；左右冲激相对
+  冲激前稳态带的 settling 分别为 0.062 s / 0.002 s。Stage 4 据 Stop Rule 收口。
+
+最终记录：`models/minisegway/stage4/stage4b/results/STAGE4B-R_REPORT.md`。
+Stage 4C 记录：`models/minisegway/stage4/results/STAGE4C_SLOPE_REPORT.md`。
+Stage 4 最终记录：`models/minisegway/stage4/results/final_baseline/STAGE4_FINAL_BASELINE.md`。

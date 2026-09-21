@@ -33,3 +33,6 @@ CMakeCache.txt
 
 # Locally derived from third-party MiniSegway CAD; regenerate, do not publish.
 /models/minisegway/assets/upstream_local/
+
+# Stage 4B raw/generated pilot data and local training checkpoints.
+/models/minisegway/stage4b/generated/

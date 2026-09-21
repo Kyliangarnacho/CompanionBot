@@ -1,0 +1,49 @@
+{
+  "status": "SKIPPED_BY_DECLARED_STOP_RULE",
+  "reason": "neither simple nor tiny Conv1D alpha estimator passed held-out/OOD gate",
+  "analytic_theta_eq": {
+    "formula": "theta_flat + asin(r*(m_body+2*m_wheel)*sin(alpha)/(m_body*l_com))",
+    "stage4a_validation": [
+      {
+        "alpha_deg": 8.0,
+        "analytic_theta_eq_deg": 10.218670171512212,
+        "stage4a_mean_pitch_deg": 10.489597098049027,
+        "error_deg": -0.2709269265368146
+      },
+      {
+        "alpha_deg": -8.0,
+        "analytic_theta_eq_deg": -14.95956000938173,
+        "stage4a_mean_pitch_deg": -14.667169497928263,
+        "error_deg": -0.2923905114534673
+      },
+      {
+        "alpha_deg": 15.0,
+        "analytic_theta_eq_deg": 21.541636174519915,
+        "stage4a_mean_pitch_deg": 21.446650694297976,
+        "error_deg": 0.09498548022193987
+      },
+      {
+        "alpha_deg": -15.0,
+        "analytic_theta_eq_deg": -26.282526012389436,
+        "stage4a_mean_pitch_deg": -25.99366024124679,
+        "error_deg": -0.2888657711426461
+      }
+    ],
+    "mae_deg": 0.23679217233871697
+  },
+  "closed_loop_ablation": {
+    "executed": false,
+    "arms": [
+      "A flat/Q OFF",
+      "B oracle/Q OFF",
+      "C estimated/Q OFF",
+      "D estimated/Q ON"
+    ],
+    "policy": "Section 14 permits alpha->theta_eq and the four-arm test only after alpha gate passes"
+  },
+  "Q_decision": {
+    "observer": "KEEP",
+    "actuator": "PRODUCTION_OFF",
+    "basis": "no theta-aware evidence may be claimed; retain frozen Stage4A/Stage3 production decision"
+  }
+}

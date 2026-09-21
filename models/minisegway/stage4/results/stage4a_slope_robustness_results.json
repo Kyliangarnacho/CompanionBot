@@ -1,0 +1,3046 @@
+{
+  "stage": "Stage 4A Slope / Grade Robustness",
+  "status": "COMPLETE",
+  "repository_audit": {
+    "authoritative_baseline": "models/minisegway/stage3/config/baseline.json",
+    "Q_observer_retained_diagnostic": true,
+    "Q_actuator_frozen_stage3_default": false,
+    "frozen_controller_changed": false,
+    "terrain_GT_runtime_controller_dependency": false
+  },
+  "experiment_config": {
+    "stage": "Stage 4A Slope / Grade Robustness",
+    "baseline_manifest": "../../stage3/config/baseline.json",
+    "angles_deg": [
+      8.0,
+      -8.0,
+      15.0,
+      -15.0
+    ],
+    "terrain": {
+      "forward_axis_world": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "flat_lead_in_length_m": 1.0,
+      "flat_back_margin_m": 2.0,
+      "transition_length_m": 0.5,
+      "constant_grade_length_m": 8.0,
+      "half_width_m": 1.5,
+      "half_thickness_m": 0.1,
+      "boundary_guard_margin_m": 0.75,
+      "model_basis": "finite analytic box geoms; no wall and no heightfield"
+    },
+    "command": {
+      "profile_source": "Stage 3B representative +0.4 m/s forward command",
+      "duration_s": 14.0,
+      "linear_velocity_schedule": [
+        {
+          "time_s": 0.0,
+          "command": 0.0
+        },
+        {
+          "time_s": 1.0,
+          "command": 0.4
+        }
+      ],
+      "yaw_rate_schedule": [
+        {
+          "time_s": 0.0,
+          "command": 0.0
+        }
+      ],
+      "maximum_commanded_travel_m": 5.2,
+      "available_path_to_boundary_guard_m": 8.75,
+      "minimum_path_margin_m": 3.55
+    },
+    "ablation": {
+      "q_states": [
+        "OFF",
+        "ON"
+      ],
+      "same_initial_state": true,
+      "same_command_schedule": true,
+      "same_imu_rng_seed": true,
+      "same_terrain_per_angle": true,
+      "observer_runs_in_both_arms": true,
+      "q_on_semantics": "existing single-channel matched DOB Q-filter command enters the actuator sum path without an added gate or slew limiter"
+    },
+    "frozen_q_parameters": {
+      "q_filter_cutoff_hz": 2.0,
+      "innovation_projection_bound_nm": 0.35,
+      "augmentation_authority_bound_nm": 0.18,
+      "augmentation_slew_rate_nm_s": null
+    },
+    "metrics": {
+      "steady_grade_settle_after_transition_s": 1.0,
+      "acceptance_basis": "reuse applicable Stage 3 empty-platform limits; no composite score",
+      "velocity_RMSE_acceptance_window": "steady constant-grade after the declared 1.0 s transition settling interval",
+      "maximum_steady_grade_velocity_tracking_rmse_m_s": 0.06,
+      "maximum_abs_steady_velocity_bias_m_s": 0.03,
+      "maximum_abs_pitch_deg": 20.0,
+      "maximum_wheel_saturation_fraction": 0.01,
+      "require_no_fall": true,
+      "require_no_boundary_termination": true
+    },
+    "history_frequency_hz": 50.0,
+    "data_boundary": "terrain angle, terrain normal, world pose and along-track GT are evaluator/logger/termination-only and never controller inputs"
+  },
+  "worlds": {
+    "+8": {
+      "path": "models/minisegway/stage4/worlds/slope_p08.xml",
+      "sha256": "a085fd3d780d5ea3362f3ec1c787e0336ada8a664e2adefc580e1699609dfcc6"
+    },
+    "-8": {
+      "path": "models/minisegway/stage4/worlds/slope_m08.xml",
+      "sha256": "e57df38c6ee027c5b27c0ae5d55f5d576171392dcdbfa2a33dc85ef872e4f1c3"
+    },
+    "+15": {
+      "path": "models/minisegway/stage4/worlds/slope_p15.xml",
+      "sha256": "01558cfab0e61a1bad7733e28c70b1f1455409e0d2e864394e0c12ac5052480a"
+    },
+    "-15": {
+      "path": "models/minisegway/stage4/worlds/slope_m15.xml",
+      "sha256": "8cc339cd221e81c34016ee0e29616ab78aea2b618e3a5b2693c1062a9d9118f8"
+    }
+  },
+  "run_count": 8,
+  "runs": [
+    {
+      "angle_deg": 8.0,
+      "Q_state": "OFF",
+      "world": "models/minisegway/stage4/worlds/slope_p08.xml",
+      "history": "models/minisegway/stage4/results/history/slope_p08_q_off.json",
+      "imu_rng_seed": 16448,
+      "summary": {
+        "velocity_tracking": {
+          "error_GT_slope_including_transition_m_s": {
+            "mean": -0.06533902880402338,
+            "rms": 0.11175279471226723,
+            "peak_abs": 0.2922332198750234
+          },
+          "error_estimated_slope_including_transition_m_s": {
+            "mean": -0.06202676131715908,
+            "rms": 0.10993128615220833,
+            "peak_abs": 0.28670711059219534
+          },
+          "steady_error_GT_m_s": {
+            "mean": -0.008621524271333187,
+            "rms": 0.014763182305276276,
+            "peak_abs": 0.05067550921679592
+          },
+          "maximum_abs_error_GT_m_s": 0.2922332198750234
+        },
+        "pitch": {
+          "GT_world_slope_deg": {
+            "mean": 10.489597098049027,
+            "rms": 10.697222402877989,
+            "peak_abs": 12.312550537767486
+          },
+          "estimated_world_slope_deg": {
+            "mean": 10.146546473086405,
+            "rms": 10.335374470508205,
+            "peak_abs": 12.001106954529433
+          }
+        },
+        "control": {
+          "u_base_slope_nm": {
+            "mean": 0.09643833021075598,
+            "rms": 0.09947331652509339,
+            "peak_abs": 0.16951243034821428
+          },
+          "u_sum_final_slope_nm": {
+            "mean": 0.09643833021075598,
+            "rms": 0.09947331652509339,
+            "peak_abs": 0.16951243034821428
+          },
+          "per_wheel_actual_slope_nm": {
+            "mean": 0.04821916510537799,
+            "rms": 0.04976352241675975,
+            "peak_abs": 0.08490520299930444
+          },
+          "maximum_wheel_torque_nm": 0.08490520299930444,
+          "wheel_saturation_fraction": 0.0
+        },
+        "Q": {
+          "actuator_enabled": false,
+          "matched_disturbance_projected_nm": {
+            "mean": -0.020110909992110147,
+            "rms": 0.030511567051160177,
+            "peak_abs": 0.10212722154434503
+          },
+          "q_filter_estimate_nm": {
+            "mean": -0.019958764850937095,
+            "rms": 0.02360939262044284,
+            "peak_abs": 0.03290209615861692
+          },
+          "requested_u_dr_nm": {
+            "mean": 0.019954892569781224,
+            "rms": 0.023607169630787378,
+            "peak_abs": 0.03290209615861692
+          },
+          "authority_bounded_u_dr_nm": {
+            "mean": 0.019954892569781224,
+            "rms": 0.023607169630787378,
+            "peak_abs": 0.03290209615861692
+          },
+          "applied_u_dr_nm": {
+            "mean": 0.0,
+            "rms": 0.0,
+            "peak_abs": 0.0
+          },
+          "matched_residual_fraction": {
+            "mean": 0.7803976140121253,
+            "rms": 0.8199442794652525,
+            "peak_abs": 0.9999907941771716
+          },
+          "projection_clipping_fraction": 0.0,
+          "authority_limiting_fraction": 0.0,
+          "observation_count": 7000,
+          "applied_after_sum_limit_slope_nm": {
+            "mean": 0.0,
+            "rms": 0.0,
+            "peak_abs": 0.0
+          },
+          "applied_transition_RMS_nm": 0.0,
+          "applied_steady_grade_RMS_nm": 0.0,
+          "matched_residual_fraction_slope": {
+            "mean": 0.828175848377402,
+            "rms": 0.853799962692168,
+            "peak_abs": 0.999973869013519
+          },
+          "projection_clipping_fraction_slope": 0.0,
+          "authority_limiting_fraction_slope": 0.0
+        },
+        "safety": {
+          "fall_or_instability": false,
+          "boundary_terminated": false,
+          "termination": {
+            "terminated_early": false,
+            "reason": null,
+            "actual_duration_s": 13.99999999999768,
+            "requested_duration_s": 14.0
+          },
+          "chassis_terrain_contact": false,
+          "pitch_instability": false,
+          "maximum_abs_pitch_error_deg": 14.685907583072847
+        },
+        "evaluation_windows": {
+          "slope_sample_count_50hz": 494,
+          "constant_grade_entry_s": 6.6620000000005595,
+          "steady_grade_sample_count_50hz": 317
+        },
+        "acceptance": {
+          "passed": true,
+          "checks": {
+            "steady_grade_velocity_RMSE": true,
+            "steady_velocity_bias": true,
+            "peak_pitch": true,
+            "wheel_saturation": true,
+            "no_fall": true,
+            "no_boundary_termination": true,
+            "finite": true
+          },
+          "basis": "reuse applicable Stage 3 empty-platform limits; no composite score"
+        }
+      },
+      "frozen_stage3_runner_summary": {
+        "scenario": {
+          "name": "stage4a_slope_p08",
+          "duration_s": 14.0,
+          "linear_velocity_schedule": [
+            {
+              "time_s": 0.0,
+              "command": 0.0
+            },
+            {
+              "time_s": 1.0,
+              "command": 0.4
+            }
+          ],
+          "yaw_rate_schedule": [
+            {
+              "time_s": 0.0,
+              "command": 0.0
+            }
+          ]
+        },
+        "yaw_enabled": true,
+        "gains": {
+          "K_psi_nm_per_rad": 0.55,
+          "K_r_nm_per_rad_s": 0.2
+        },
+        "yaw_estimator": {
+          "source": "startup-bias-corrected realistic IMU gyro z only",
+          "integration": "new valid packet timestamps only; stale samples never reintegrated",
+          "control_time_extrapolation": "psi_measurement + r_hat * measurement_age when valid",
+          "encoder_magnetometer_GT_correction": false,
+          "psi_estimator_error_rad": {
+            "mean": -0.00837751581812356,
+            "rms": 0.009725789907797707,
+            "peak_abs": 0.017310493113087855
+          },
+          "r_estimator_error_rad_s": {
+            "mean": -0.0012216002745301239,
+            "rms": 0.010857137357322553,
+            "peak_abs": 0.0495039417169774
+          }
+        },
+        "yaw_tracking": {
+          "turning_yaw_rate_error_GT_rad_s": {
+            "mean": null,
+            "rms": null,
+            "peak_abs": null
+          },
+          "turning_yaw_rate_error_estimated_rad_s": {
+            "mean": null,
+            "rms": null,
+            "peak_abs": null
+          },
+          "heading_error_GT_rad": {
+            "mean": -0.009143237110845831,
+            "rms": 0.010911194652736723,
+            "peak_abs": 0.019432167195752026
+          },
+          "heading_error_estimated_rad": {
+            "mean": -0.0007657212927223647,
+            "rms": 0.0014156267725909705,
+            "peak_abs": 0.0034410468771786107
+          },
+          "yaw_rate_overshoot_GT_rad_s": 0.0,
+          "stops": [],
+          "heading_terminal_RMS_GT_rad": 0.01895093932716383,
+          "sustained_yaw_oscillation": false,
+          "final_heading_error_GT_rad": -0.019284316023906012,
+          "heading_drift_rate_GT_rad_s": 0.0015662525437579295,
+          "final_lateral_GT_m": 0.04719533405189823
+        },
+        "longitudinal": {
+          "velocity_error_estimated_m_s": {
+            "mean": -0.04354335478065182,
+            "rms": 0.09252046218989396,
+            "peak_abs": 0.28976296861888196
+          },
+          "velocity_error_GT_m_s": {
+            "mean": -0.05777858786506817,
+            "rms": 0.10034238472055994,
+            "peak_abs": 0.2981868617646541
+          },
+          "pitch_peak_GT_deg": 14.685907583072847,
+          "pitch_terminal_RMS_GT_deg": 12.775008366902009,
+          "fell": false
+        },
+        "torque_allocation": {
+          "u_sum_nm": {
+            "mean": 0.0770298119419799,
+            "rms": 0.08671551155602955,
+            "peak_abs": 0.18616735465293008
+          },
+          "u_diff_request_nm": {
+            "mean": -0.0004527822991961002,
+            "rms": 0.002749243848866848,
+            "peak_abs": 0.0499401010444126
+          },
+          "u_diff_used_nm": {
+            "mean": -0.0004527822991961002,
+            "rms": 0.002749243848866848,
+            "peak_abs": 0.0499401010444126
+          },
+          "u_diff_first_difference_RMS_nm": 0.0032831585134931824,
+          "differential_clipping_fraction": 0.0,
+          "final_guard_clipping_fraction": 0.0,
+          "requested_wheel_peak_nm": 0.11805372784867134,
+          "actual_wheel_peak_nm": 0.11805372784867134,
+          "per_wheel_saturation_fraction": 0.0,
+          "yaw_feedback_opposes_longitudinal_feedback_fraction": 0.5852857142857143,
+          "combined_cancellation_fraction_diagnostic": 0.00821229404014856
+        },
+        "motor_mismatch": {
+          "enabled": false,
+          "model": "experiment-only exact-discrete first-order torque tracking lag",
+          "left_time_constant_s": 0.1,
+          "right_time_constant_s": 0.13,
+          "relative_difference": 0.3,
+          "production_default": false
+        },
+        "payload_posthoc": null,
+        "frozen_longitudinal": {
+          "A": [
+            [
+              0.9999999874412285,
+              0.00198358035996135,
+              -1.5730367580154398e-05,
+              7.626808015042417e-07
+            ],
+            [
+              -8.356067716638076e-06,
+              0.9890716954991472,
+              -0.010464775028843137,
+              0.0005042622337297176
+            ],
+            [
+              3.102639512161686e-07,
+              0.0004045470245279021,
+              1.00065512064526,
+              0.001981225150387709
+            ],
+            [
+              0.00020641684120603136,
+              0.2692501720320956,
+              0.4361986663022107,
+              0.9876179386454463
+            ]
+          ],
+          "B": [
+            [
+              0.00015433842091452972
+            ],
+            [
+              0.10272128406363928
+            ],
+            [
+              -0.0038026871955601557
+            ],
+            [
+              -2.5308968421621403
+            ]
+          ],
+          "K4": [
+            [
+              -2.960185163806781,
+              -4.940194755152595,
+              -8.661980390084155,
+              -0.4921046440134705
+            ]
+          ],
+          "lambda_ff": 0.6,
+          "reference_limits": {
+            "max_velocity_m_s": 0.6,
+            "max_acceleration_m_s2": 0.6
+          },
+          "max_jerk_m_s3": 1.0,
+          "Q_disturbance_rejection_enabled": false,
+          "transition_events": [
+            {
+              "command_time_s": 1.0000000000000007,
+              "target_velocity_m_s": 0.4,
+              "T_v_s": 1.268,
+              "T_full_s": 1.418,
+              "normalized_residual_rms": 0.01964013866150063
+            }
+          ],
+          "post_fade_HOLD_u_ff_strictly_zero": true
+        },
+        "finite": true,
+        "GT_runtime_dependency": false,
+        "simulation_termination": {
+          "terminated_early": false,
+          "reason": null,
+          "actual_duration_s": 13.99999999999768,
+          "requested_duration_s": 14.0
+        }
+      }
+    },
+    {
+      "angle_deg": 8.0,
+      "Q_state": "ON",
+      "world": "models/minisegway/stage4/worlds/slope_p08.xml",
+      "history": "models/minisegway/stage4/results/history/slope_p08_q_on.json",
+      "imu_rng_seed": 16448,
+      "summary": {
+        "velocity_tracking": {
+          "error_GT_slope_including_transition_m_s": {
+            "mean": -0.06630911835753157,
+            "rms": 0.11344575275248986,
+            "peak_abs": 0.29653185579126395
+          },
+          "error_estimated_slope_including_transition_m_s": {
+            "mean": -0.06299898917839727,
+            "rms": 0.11163952896924038,
+            "peak_abs": 0.2907831105350567
+          },
+          "steady_error_GT_m_s": {
+            "mean": -0.008641290822212572,
+            "rms": 0.014829739467567332,
+            "peak_abs": 0.04872528331600939
+          },
+          "maximum_abs_error_GT_m_s": 0.29653185579126395
+        },
+        "pitch": {
+          "GT_world_slope_deg": {
+            "mean": 10.488500596273843,
+            "rms": 10.700888848474325,
+            "peak_abs": 12.32321975113354
+          },
+          "estimated_world_slope_deg": {
+            "mean": 10.145196139670015,
+            "rms": 10.33851156398514,
+            "peak_abs": 12.02952409722657
+          }
+        },
+        "control": {
+          "u_base_slope_nm": {
+            "mean": 0.06834426558625493,
+            "rms": 0.07251396171562646,
+            "peak_abs": 0.14659591487247034
+          },
+          "u_sum_final_slope_nm": {
+            "mean": 0.09633383660434898,
+            "rms": 0.0993392220966126,
+            "peak_abs": 0.17412016022441656
+          },
+          "per_wheel_actual_slope_nm": {
+            "mean": 0.04816691830217449,
+            "rms": 0.04968974157448106,
+            "peak_abs": 0.08735285321411052
+          },
+          "maximum_wheel_torque_nm": 0.08735285321411052,
+          "wheel_saturation_fraction": 0.0
+        },
+        "Q": {
+          "actuator_enabled": true,
+          "matched_disturbance_projected_nm": {
+            "mean": -0.020109651194793653,
+            "rms": 0.030519836611171747,
+            "peak_abs": 0.09456423853146406
+          },
+          "q_filter_estimate_nm": {
+            "mean": -0.019957643963697858,
+            "rms": 0.023618653963260936,
+            "peak_abs": 0.03259011949457355
+          },
+          "requested_u_dr_nm": {
+            "mean": 0.019953775192523244,
+            "rms": 0.023616435872151637,
+            "peak_abs": 0.03259011949457355
+          },
+          "authority_bounded_u_dr_nm": {
+            "mean": 0.019953775192523244,
+            "rms": 0.023616435872151637,
+            "peak_abs": 0.03259011949457355
+          },
+          "applied_u_dr_nm": {
+            "mean": 0.019953775192523244,
+            "rms": 0.023616435872151637,
+            "peak_abs": 0.03259011949457355
+          },
+          "matched_residual_fraction": {
+            "mean": 0.7810936899808326,
+            "rms": 0.8198982658418926,
+            "peak_abs": 0.9999957196049535
+          },
+          "projection_clipping_fraction": 0.0,
+          "authority_limiting_fraction": 0.0,
+          "observation_count": 7000,
+          "applied_after_sum_limit_slope_nm": {
+            "mean": 0.027989571018094045,
+            "rms": 0.02805729854954981,
+            "peak_abs": 0.031148092374667858
+          },
+          "applied_transition_RMS_nm": 0.02836267352659147,
+          "applied_steady_grade_RMS_nm": 0.027803942956060024,
+          "matched_residual_fraction_slope": {
+            "mean": 0.8256929520927113,
+            "rms": 0.8540773110572834,
+            "peak_abs": 0.9998825809332464
+          },
+          "projection_clipping_fraction_slope": 0.0,
+          "authority_limiting_fraction_slope": 0.0
+        },
+        "safety": {
+          "fall_or_instability": false,
+          "boundary_terminated": false,
+          "termination": {
+            "terminated_early": false,
+            "reason": null,
+            "actual_duration_s": 13.99999999999768,
+            "requested_duration_s": 14.0
+          },
+          "chassis_terrain_contact": false,
+          "pitch_instability": false,
+          "maximum_abs_pitch_error_deg": 14.700054043227158
+        },
+        "evaluation_windows": {
+          "slope_sample_count_50hz": 494,
+          "constant_grade_entry_s": 6.682000000000566,
+          "steady_grade_sample_count_50hz": 316
+        },
+        "acceptance": {
+          "passed": true,
+          "checks": {
+            "steady_grade_velocity_RMSE": true,
+            "steady_velocity_bias": true,
+            "peak_pitch": true,
+            "wheel_saturation": true,
+            "no_fall": true,
+            "no_boundary_termination": true,
+            "finite": true
+          },
+          "basis": "reuse applicable Stage 3 empty-platform limits; no composite score"
+        }
+      },
+      "frozen_stage3_runner_summary": {
+        "scenario": {
+          "name": "stage4a_slope_p08",
+          "duration_s": 14.0,
+          "linear_velocity_schedule": [
+            {
+              "time_s": 0.0,
+              "command": 0.0
+            },
+            {
+              "time_s": 1.0,
+              "command": 0.4
+            }
+          ],
+          "yaw_rate_schedule": [
+            {
+              "time_s": 0.0,
+              "command": 0.0
+            }
+          ]
+        },
+        "yaw_enabled": true,
+        "gains": {
+          "K_psi_nm_per_rad": 0.55,
+          "K_r_nm_per_rad_s": 0.2
+        },
+        "yaw_estimator": {
+          "source": "startup-bias-corrected realistic IMU gyro z only",
+          "integration": "new valid packet timestamps only; stale samples never reintegrated",
+          "control_time_extrapolation": "psi_measurement + r_hat * measurement_age when valid",
+          "encoder_magnetometer_GT_correction": false,
+          "psi_estimator_error_rad": {
+            "mean": -0.008311945953817498,
+            "rms": 0.009652409400902857,
+            "peak_abs": 0.017221364166881248
+          },
+          "r_estimator_error_rad_s": {
+            "mean": -0.0012151331329236562,
+            "rms": 0.0108385590778883,
+            "peak_abs": 0.04443772402576464
+          }
+        },
+        "yaw_tracking": {
+          "turning_yaw_rate_error_GT_rad_s": {
+            "mean": null,
+            "rms": null,
+            "peak_abs": null
+          },
+          "turning_yaw_rate_error_estimated_rad_s": {
+            "mean": null,
+            "rms": null,
+            "peak_abs": null
+          },
+          "heading_error_GT_rad": {
+            "mean": -0.009042389981003334,
+            "rms": 0.01081024819934353,
+            "peak_abs": 0.019305653562062375
+          },
+          "heading_error_estimated_rad": {
+            "mean": -0.0007304440271859229,
+            "rms": 0.0014104065216495375,
+            "peak_abs": 0.003568759890017592
+          },
+          "yaw_rate_overshoot_GT_rad_s": 0.0,
+          "stops": [],
+          "heading_terminal_RMS_GT_rad": 0.018833761584991268,
+          "sustained_yaw_oscillation": false,
+          "final_heading_error_GT_rad": -0.01913497839614342,
+          "heading_drift_rate_GT_rad_s": 0.0015436529045337885,
+          "final_lateral_GT_m": 0.046619740895543965
+        },
+        "longitudinal": {
+          "velocity_error_estimated_m_s": {
+            "mean": -0.044215966545303916,
+            "rms": 0.09390879566815517,
+            "peak_abs": 0.2941474407151319
+          },
+          "velocity_error_GT_m_s": {
+            "mean": -0.058421280456107776,
+            "rms": 0.10164844546371331,
+            "peak_abs": 0.3022345751014127
+          },
+          "pitch_peak_GT_deg": 14.699155656955012,
+          "pitch_terminal_RMS_GT_deg": 12.773752945463945,
+          "fell": false
+        },
+        "torque_allocation": {
+          "u_sum_nm": {
+            "mean": 0.07695517005062616,
+            "rms": 0.086674959267089,
+            "peak_abs": 0.17412016022441656
+          },
+          "u_diff_request_nm": {
+            "mean": -0.00043255226523597766,
+            "rms": 0.0027215768261969983,
+            "peak_abs": 0.04510063105500458
+          },
+          "u_diff_used_nm": {
+            "mean": -0.00043255226523597766,
+            "rms": 0.0027215768261969983,
+            "peak_abs": 0.04510063105500458
+          },
+          "u_diff_first_difference_RMS_nm": 0.003279721555853303,
+          "differential_clipping_fraction": 0.0,
+          "final_guard_clipping_fraction": 0.0,
+          "requested_wheel_peak_nm": 0.10149163355674068,
+          "actual_wheel_peak_nm": 0.10149163355674068,
+          "per_wheel_saturation_fraction": 0.0,
+          "yaw_feedback_opposes_longitudinal_feedback_fraction": 0.5835714285714285,
+          "combined_cancellation_fraction_diagnostic": -0.3249743955148523
+        },
+        "motor_mismatch": {
+          "enabled": false,
+          "model": "experiment-only exact-discrete first-order torque tracking lag",
+          "left_time_constant_s": 0.1,
+          "right_time_constant_s": 0.13,
+          "relative_difference": 0.3,
+          "production_default": false
+        },
+        "payload_posthoc": null,
+        "frozen_longitudinal": {
+          "A": [
+            [
+              0.9999999874412285,
+              0.00198358035996135,
+              -1.5730367580154398e-05,
+              7.626808015042417e-07
+            ],
+            [
+              -8.356067716638076e-06,
+              0.9890716954991472,
+              -0.010464775028843137,
+              0.0005042622337297176
+            ],
+            [
+              3.102639512161686e-07,
+              0.0004045470245279021,
+              1.00065512064526,
+              0.001981225150387709
+            ],
+            [
+              0.00020641684120603136,
+              0.2692501720320956,
+              0.4361986663022107,
+              0.9876179386454463
+            ]
+          ],
+          "B": [
+            [
+              0.00015433842091452972
+            ],
+            [
+              0.10272128406363928
+            ],
+            [
+              -0.0038026871955601557
+            ],
+            [
+              -2.5308968421621403
+            ]
+          ],
+          "K4": [
+            [
+              -2.960185163806781,
+              -4.940194755152595,
+              -8.661980390084155,
+              -0.4921046440134705
+            ]
+          ],
+          "lambda_ff": 0.6,
+          "reference_limits": {
+            "max_velocity_m_s": 0.6,
+            "max_acceleration_m_s2": 0.6
+          },
+          "max_jerk_m_s3": 1.0,
+          "Q_disturbance_rejection_enabled": false,
+          "transition_events": [
+            {
+              "command_time_s": 1.0000000000000007,
+              "target_velocity_m_s": 0.4,
+              "T_v_s": 1.268,
+              "T_full_s": 1.418,
+              "normalized_residual_rms": 0.01964013866150063
+            }
+          ],
+          "post_fade_HOLD_u_ff_strictly_zero": true
+        },
+        "finite": true,
+        "GT_runtime_dependency": false,
+        "simulation_termination": {
+          "terminated_early": false,
+          "reason": null,
+          "actual_duration_s": 13.99999999999768,
+          "requested_duration_s": 14.0
+        }
+      }
+    },
+    {
+      "angle_deg": -8.0,
+      "Q_state": "OFF",
+      "world": "models/minisegway/stage4/worlds/slope_m08.xml",
+      "history": "models/minisegway/stage4/results/history/slope_m08_q_off.json",
+      "imu_rng_seed": 16448,
+      "summary": {
+        "velocity_tracking": {
+          "error_GT_slope_including_transition_m_s": {
+            "mean": 0.062026875389148334,
+            "rms": 0.10833865728458633,
+            "peak_abs": 0.2938674311404734
+          },
+          "error_estimated_slope_including_transition_m_s": {
+            "mean": 0.06024914891106102,
+            "rms": 0.10767841958684163,
+            "peak_abs": 0.30344952444607665
+          },
+          "steady_error_GT_m_s": {
+            "mean": 0.02552168444361162,
+            "rms": 0.0468756201444851,
+            "peak_abs": 0.16940855457307302
+          },
+          "maximum_abs_error_GT_m_s": 0.2938674311404734
+        },
+        "pitch": {
+          "GT_world_slope_deg": {
+            "mean": -14.667169497928263,
+            "rms": 14.815770121801823,
+            "peak_abs": 16.58973714822936
+          },
+          "estimated_world_slope_deg": {
+            "mean": -14.375182739151384,
+            "rms": 14.50928897030934,
+            "peak_abs": 16.362917157027276
+          }
+        },
+        "control": {
+          "u_base_slope_nm": {
+            "mean": -0.009481302356026537,
+            "rms": 0.026597520537231033,
+            "peak_abs": 0.11226461919113452
+          },
+          "u_sum_final_slope_nm": {
+            "mean": -0.009481302356026537,
+            "rms": 0.026597520537231033,
+            "peak_abs": 0.11226461919113452
+          },
+          "per_wheel_actual_slope_nm": {
+            "mean": -0.004740651178013268,
+            "rms": 0.013412355072424189,
+            "peak_abs": 0.08260531576275842
+          },
+          "maximum_wheel_torque_nm": 0.08260531576275842,
+          "wheel_saturation_fraction": 0.0
+        },
+        "Q": {
+          "actuator_enabled": false,
+          "matched_disturbance_projected_nm": {
+            "mean": 0.01981998009381066,
+            "rms": 0.030769900568942254,
+            "peak_abs": 0.11861649924254061
+          },
+          "q_filter_estimate_nm": {
+            "mean": 0.01965759797410185,
+            "rms": 0.023705465923922163,
+            "peak_abs": 0.031826968090126
+          },
+          "requested_u_dr_nm": {
+            "mean": -0.019653465149239022,
+            "rms": 0.02370294397286563,
+            "peak_abs": 0.031826968090126
+          },
+          "authority_bounded_u_dr_nm": {
+            "mean": -0.019653465149239022,
+            "rms": 0.02370294397286563,
+            "peak_abs": 0.031826968090126
+          },
+          "applied_u_dr_nm": {
+            "mean": 0.0,
+            "rms": 0.0,
+            "peak_abs": 0.0
+          },
+          "matched_residual_fraction": {
+            "mean": 0.7799163156706778,
+            "rms": 0.8196382122901762,
+            "peak_abs": 0.9999788433239526
+          },
+          "projection_clipping_fraction": 0.0,
+          "authority_limiting_fraction": 0.0,
+          "observation_count": 7000,
+          "applied_after_sum_limit_slope_nm": {
+            "mean": 0.0,
+            "rms": 0.0,
+            "peak_abs": 0.0
+          },
+          "applied_transition_RMS_nm": 0.0,
+          "applied_steady_grade_RMS_nm": 0.0,
+          "matched_residual_fraction_slope": {
+            "mean": 0.8366024646455366,
+            "rms": 0.8620398401686571,
+            "peak_abs": 0.9999166811476923
+          },
+          "projection_clipping_fraction_slope": 0.0,
+          "authority_limiting_fraction_slope": 0.0
+        },
+        "safety": {
+          "fall_or_instability": false,
+          "boundary_terminated": false,
+          "termination": {
+            "terminated_early": false,
+            "reason": null,
+            "actual_duration_s": 13.99999999999768,
+            "requested_duration_s": 14.0
+          },
+          "chassis_terrain_contact": false,
+          "pitch_instability": false,
+          "maximum_abs_pitch_error_deg": 14.22078336168433
+        },
+        "evaluation_windows": {
+          "slope_sample_count_50hz": 494,
+          "constant_grade_entry_s": 4.941999999999985,
+          "steady_grade_sample_count_50hz": 403
+        },
+        "acceptance": {
+          "passed": true,
+          "checks": {
+            "steady_grade_velocity_RMSE": true,
+            "steady_velocity_bias": true,
+            "peak_pitch": true,
+            "wheel_saturation": true,
+            "no_fall": true,
+            "no_boundary_termination": true,
+            "finite": true
+          },
+          "basis": "reuse applicable Stage 3 empty-platform limits; no composite score"
+        }
+      },
+      "frozen_stage3_runner_summary": {
+        "scenario": {
+          "name": "stage4a_slope_m08",
+          "duration_s": 14.0,
+          "linear_velocity_schedule": [
+            {
+              "time_s": 0.0,
+              "command": 0.0
+            },
+            {
+              "time_s": 1.0,
+              "command": 0.4
+            }
+          ],
+          "yaw_rate_schedule": [
+            {
+              "time_s": 0.0,
+              "command": 0.0
+            }
+          ]
+        },
+        "yaw_enabled": true,
+        "gains": {
+          "K_psi_nm_per_rad": 0.55,
+          "K_r_nm_per_rad_s": 0.2
+        },
+        "yaw_estimator": {
+          "source": "startup-bias-corrected realistic IMU gyro z only",
+          "integration": "new valid packet timestamps only; stale samples never reintegrated",
+          "control_time_extrapolation": "psi_measurement + r_hat * measurement_age when valid",
+          "encoder_magnetometer_GT_correction": false,
+          "psi_estimator_error_rad": {
+            "mean": -0.008419151694882518,
+            "rms": 0.009787867721739046,
+            "peak_abs": 0.017623181547119504
+          },
+          "r_estimator_error_rad_s": {
+            "mean": -0.0012523276348467682,
+            "rms": 0.010934311838399966,
+            "peak_abs": 0.08237761894933726
+          }
+        },
+        "yaw_tracking": {
+          "turning_yaw_rate_error_GT_rad_s": {
+            "mean": null,
+            "rms": null,
+            "peak_abs": null
+          },
+          "turning_yaw_rate_error_estimated_rad_s": {
+            "mean": null,
+            "rms": null,
+            "peak_abs": null
+          },
+          "heading_error_GT_rad": {
+            "mean": -0.007699513936975072,
+            "rms": 0.009038242378664156,
+            "peak_abs": 0.019584934761016193
+          },
+          "heading_error_estimated_rad": {
+            "mean": 0.0007196377579073554,
+            "rms": 0.0010025214247235488,
+            "peak_abs": 0.00402637677260298
+          },
+          "yaw_rate_overshoot_GT_rad_s": 0.0,
+          "stops": [],
+          "heading_terminal_RMS_GT_rad": 0.016348309008031824,
+          "sustained_yaw_oscillation": false,
+          "final_heading_error_GT_rad": -0.019584934761016193,
+          "heading_drift_rate_GT_rad_s": 0.001090653690301857,
+          "final_lateral_GT_m": 0.04595239777636996
+        },
+        "longitudinal": {
+          "velocity_error_estimated_m_s": {
+            "mean": 0.04278738354539976,
+            "rms": 0.09053694359809605,
+            "peak_abs": 0.30741418949168253
+          },
+          "velocity_error_GT_m_s": {
+            "mean": 0.019114356315238386,
+            "rms": 0.07266191214161406,
+            "peak_abs": 0.24169417854903785
+          },
+          "pitch_peak_GT_deg": 14.220682356771755,
+          "pitch_terminal_RMS_GT_deg": 12.587236175797011,
+          "fell": false
+        },
+        "torque_allocation": {
+          "u_sum_nm": {
+            "mean": 0.0021918031128193433,
+            "rms": 0.032368159498273416,
+            "peak_abs": 0.12383162687387156
+          },
+          "u_diff_request_nm": {
+            "mean": 0.0003662322223958566,
+            "rms": 0.0030207925902616477,
+            "peak_abs": 0.06877801669839319
+          },
+          "u_diff_used_nm": {
+            "mean": 0.0003662322223958566,
+            "rms": 0.0030207925902616477,
+            "peak_abs": 0.06877801669839319
+          },
+          "u_diff_first_difference_RMS_nm": 0.0033009445222169807,
+          "differential_clipping_fraction": 0.0,
+          "final_guard_clipping_fraction": 0.0,
+          "requested_wheel_peak_nm": 0.08260531576275842,
+          "actual_wheel_peak_nm": 0.08260531576275842,
+          "per_wheel_saturation_fraction": 0.0,
+          "yaw_feedback_opposes_longitudinal_feedback_fraction": 0.5178571428571429,
+          "combined_cancellation_fraction_diagnostic": 0.006515490833848503
+        },
+        "motor_mismatch": {
+          "enabled": false,
+          "model": "experiment-only exact-discrete first-order torque tracking lag",
+          "left_time_constant_s": 0.1,
+          "right_time_constant_s": 0.13,
+          "relative_difference": 0.3,
+          "production_default": false
+        },
+        "payload_posthoc": null,
+        "frozen_longitudinal": {
+          "A": [
+            [
+              0.9999999874412285,
+              0.00198358035996135,
+              -1.5730367580154398e-05,
+              7.626808015042417e-07
+            ],
+            [
+              -8.356067716638076e-06,
+              0.9890716954991472,
+              -0.010464775028843137,
+              0.0005042622337297176
+            ],
+            [
+              3.102639512161686e-07,
+              0.0004045470245279021,
+              1.00065512064526,
+              0.001981225150387709
+            ],
+            [
+              0.00020641684120603136,
+              0.2692501720320956,
+              0.4361986663022107,
+              0.9876179386454463
+            ]
+          ],
+          "B": [
+            [
+              0.00015433842091452972
+            ],
+            [
+              0.10272128406363928
+            ],
+            [
+              -0.0038026871955601557
+            ],
+            [
+              -2.5308968421621403
+            ]
+          ],
+          "K4": [
+            [
+              -2.960185163806781,
+              -4.940194755152595,
+              -8.661980390084155,
+              -0.4921046440134705
+            ]
+          ],
+          "lambda_ff": 0.6,
+          "reference_limits": {
+            "max_velocity_m_s": 0.6,
+            "max_acceleration_m_s2": 0.6
+          },
+          "max_jerk_m_s3": 1.0,
+          "Q_disturbance_rejection_enabled": false,
+          "transition_events": [
+            {
+              "command_time_s": 1.0000000000000007,
+              "target_velocity_m_s": 0.4,
+              "T_v_s": 1.268,
+              "T_full_s": 1.418,
+              "normalized_residual_rms": 0.01964013866150063
+            }
+          ],
+          "post_fade_HOLD_u_ff_strictly_zero": true
+        },
+        "finite": true,
+        "GT_runtime_dependency": false,
+        "simulation_termination": {
+          "terminated_early": false,
+          "reason": null,
+          "actual_duration_s": 13.99999999999768,
+          "requested_duration_s": 14.0
+        }
+      }
+    },
+    {
+      "angle_deg": -8.0,
+      "Q_state": "ON",
+      "world": "models/minisegway/stage4/worlds/slope_m08.xml",
+      "history": "models/minisegway/stage4/results/history/slope_m08_q_on.json",
+      "imu_rng_seed": 16448,
+      "summary": {
+        "velocity_tracking": {
+          "error_GT_slope_including_transition_m_s": {
+            "mean": 0.06304142987444138,
+            "rms": 0.10962132513271601,
+            "peak_abs": 0.296591120537521
+          },
+          "error_estimated_slope_including_transition_m_s": {
+            "mean": 0.061271444218811665,
+            "rms": 0.10894658366546231,
+            "peak_abs": 0.30526389409145105
+          },
+          "steady_error_GT_m_s": {
+            "mean": 0.026303189240788567,
+            "rms": 0.048186998305338735,
+            "peak_abs": 0.1730323161253109
+          },
+          "maximum_abs_error_GT_m_s": 0.296591120537521
+        },
+        "pitch": {
+          "GT_world_slope_deg": {
+            "mean": -14.667443474629046,
+            "rms": 14.815880667338984,
+            "peak_abs": 16.585663614105354
+          },
+          "estimated_world_slope_deg": {
+            "mean": -14.363451240734399,
+            "rms": 14.501030027937446,
+            "peak_abs": 16.341889822669515
+          }
+        },
+        "control": {
+          "u_base_slope_nm": {
+            "mean": 0.01890155319033118,
+            "rms": 0.03124770858940345,
+            "peak_abs": 0.15219365988875358
+          },
+          "u_sum_final_slope_nm": {
+            "mean": -0.009225349304173635,
+            "rms": 0.026441876648085852,
+            "peak_abs": 0.12186816316430106
+          },
+          "per_wheel_actual_slope_nm": {
+            "mean": -0.004612674652086817,
+            "rms": 0.01333575805125893,
+            "peak_abs": 0.08756599665645938
+          },
+          "maximum_wheel_torque_nm": 0.08756599665645938,
+          "wheel_saturation_fraction": 0.0
+        },
+        "Q": {
+          "actuator_enabled": true,
+          "matched_disturbance_projected_nm": {
+            "mean": 0.019858603099598263,
+            "rms": 0.030755463029676532,
+            "peak_abs": 0.13113860285996284
+          },
+          "q_filter_estimate_nm": {
+            "mean": 0.019696675742854386,
+            "rms": 0.023740552825817027,
+            "peak_abs": 0.03200386175375698
+          },
+          "requested_u_dr_nm": {
+            "mean": -0.01969255449226889,
+            "rms": 0.02373804868835452,
+            "peak_abs": 0.03200386175375698
+          },
+          "authority_bounded_u_dr_nm": {
+            "mean": -0.01969255449226889,
+            "rms": 0.02373804868835452,
+            "peak_abs": 0.03200386175375698
+          },
+          "applied_u_dr_nm": {
+            "mean": -0.01969255449226889,
+            "rms": 0.02373804868835452,
+            "peak_abs": 0.03200386175375698
+          },
+          "matched_residual_fraction": {
+            "mean": 0.779712060514258,
+            "rms": 0.8188860748776416,
+            "peak_abs": 0.9999860712475199
+          },
+          "projection_clipping_fraction": 0.0,
+          "authority_limiting_fraction": 0.0,
+          "observation_count": 7000,
+          "applied_after_sum_limit_slope_nm": {
+            "mean": -0.028126902494504818,
+            "rms": 0.02823052039739588,
+            "peak_abs": 0.03200386175375698
+          },
+          "applied_transition_RMS_nm": 0.02654383679546451,
+          "applied_steady_grade_RMS_nm": 0.02817276507841768,
+          "matched_residual_fraction_slope": {
+            "mean": 0.8248998705152042,
+            "rms": 0.8547305820108337,
+            "peak_abs": 0.9999727434055701
+          },
+          "projection_clipping_fraction_slope": 0.0,
+          "authority_limiting_fraction_slope": 0.0
+        },
+        "safety": {
+          "fall_or_instability": false,
+          "boundary_terminated": false,
+          "termination": {
+            "terminated_early": false,
+            "reason": null,
+            "actual_duration_s": 13.99999999999768,
+            "requested_duration_s": 14.0
+          },
+          "chassis_terrain_contact": false,
+          "pitch_instability": false,
+          "maximum_abs_pitch_error_deg": 14.220292482291669
+        },
+        "evaluation_windows": {
+          "slope_sample_count_50hz": 494,
+          "constant_grade_entry_s": 4.941999999999985,
+          "steady_grade_sample_count_50hz": 403
+        },
+        "acceptance": {
+          "passed": true,
+          "checks": {
+            "steady_grade_velocity_RMSE": true,
+            "steady_velocity_bias": true,
+            "peak_pitch": true,
+            "wheel_saturation": true,
+            "no_fall": true,
+            "no_boundary_termination": true,
+            "finite": true
+          },
+          "basis": "reuse applicable Stage 3 empty-platform limits; no composite score"
+        }
+      },
+      "frozen_stage3_runner_summary": {
+        "scenario": {
+          "name": "stage4a_slope_m08",
+          "duration_s": 14.0,
+          "linear_velocity_schedule": [
+            {
+              "time_s": 0.0,
+              "command": 0.0
+            },
+            {
+              "time_s": 1.0,
+              "command": 0.4
+            }
+          ],
+          "yaw_rate_schedule": [
+            {
+              "time_s": 0.0,
+              "command": 0.0
+            }
+          ]
+        },
+        "yaw_enabled": true,
+        "gains": {
+          "K_psi_nm_per_rad": 0.55,
+          "K_r_nm_per_rad_s": 0.2
+        },
+        "yaw_estimator": {
+          "source": "startup-bias-corrected realistic IMU gyro z only",
+          "integration": "new valid packet timestamps only; stale samples never reintegrated",
+          "control_time_extrapolation": "psi_measurement + r_hat * measurement_age when valid",
+          "encoder_magnetometer_GT_correction": false,
+          "psi_estimator_error_rad": {
+            "mean": -0.008382298721706807,
+            "rms": 0.009748482921859205,
+            "peak_abs": 0.017607510661179937
+          },
+          "r_estimator_error_rad_s": {
+            "mean": -0.0012492723585115733,
+            "rms": 0.010873926290170399,
+            "peak_abs": 0.06508164302589733
+          }
+        },
+        "yaw_tracking": {
+          "turning_yaw_rate_error_GT_rad_s": {
+            "mean": null,
+            "rms": null,
+            "peak_abs": null
+          },
+          "turning_yaw_rate_error_estimated_rad_s": {
+            "mean": null,
+            "rms": null,
+            "peak_abs": null
+          },
+          "heading_error_GT_rad": {
+            "mean": -0.007657004093744173,
+            "rms": 0.00899189191776438,
+            "peak_abs": 0.019422608567560395
+          },
+          "heading_error_estimated_rad": {
+            "mean": 0.0007252946279625418,
+            "rms": 0.0009900216982110628,
+            "peak_abs": 0.003974290125592361
+          },
+          "yaw_rate_overshoot_GT_rad_s": 0.0,
+          "stops": [],
+          "heading_terminal_RMS_GT_rad": 0.016261088904697473,
+          "sustained_yaw_oscillation": false,
+          "final_heading_error_GT_rad": -0.019422608567560395,
+          "heading_drift_rate_GT_rad_s": 0.0010888995585666436,
+          "final_lateral_GT_m": 0.04570558287330642
+        },
+        "longitudinal": {
+          "velocity_error_estimated_m_s": {
+            "mean": 0.04348815666312112,
+            "rms": 0.091585300785051,
+            "peak_abs": 0.3098304054613702
+          },
+          "velocity_error_GT_m_s": {
+            "mean": 0.01975443187481689,
+            "rms": 0.07351462710337883,
+            "peak_abs": 0.24386651349359267
+          },
+          "pitch_peak_GT_deg": 14.220292482291669,
+          "pitch_terminal_RMS_GT_deg": 12.590456019201989,
+          "fell": false
+        },
+        "torque_allocation": {
+          "u_sum_nm": {
+            "mean": 0.0022507476784687573,
+            "rms": 0.032365871424727716,
+            "peak_abs": 0.12637161004977707
+          },
+          "u_diff_request_nm": {
+            "mean": 0.0003709632544512756,
+            "rms": 0.0029944528414594255,
+            "peak_abs": 0.06932935274237198
+          },
+          "u_diff_used_nm": {
+            "mean": 0.0003709632544512756,
+            "rms": 0.0029944528414594255,
+            "peak_abs": 0.06932935274237198
+          },
+          "u_diff_first_difference_RMS_nm": 0.003297121396789214,
+          "differential_clipping_fraction": 0.0,
+          "final_guard_clipping_fraction": 0.0,
+          "requested_wheel_peak_nm": 0.08756599665645938,
+          "actual_wheel_peak_nm": 0.08756599665645938,
+          "per_wheel_saturation_fraction": 0.0,
+          "yaw_feedback_opposes_longitudinal_feedback_fraction": 0.464,
+          "combined_cancellation_fraction_diagnostic": 0.09142629070333408
+        },
+        "motor_mismatch": {
+          "enabled": false,
+          "model": "experiment-only exact-discrete first-order torque tracking lag",
+          "left_time_constant_s": 0.1,
+          "right_time_constant_s": 0.13,
+          "relative_difference": 0.3,
+          "production_default": false
+        },
+        "payload_posthoc": null,
+        "frozen_longitudinal": {
+          "A": [
+            [
+              0.9999999874412285,
+              0.00198358035996135,
+              -1.5730367580154398e-05,
+              7.626808015042417e-07
+            ],
+            [
+              -8.356067716638076e-06,
+              0.9890716954991472,
+              -0.010464775028843137,
+              0.0005042622337297176
+            ],
+            [
+              3.102639512161686e-07,
+              0.0004045470245279021,
+              1.00065512064526,
+              0.001981225150387709
+            ],
+            [
+              0.00020641684120603136,
+              0.2692501720320956,
+              0.4361986663022107,
+              0.9876179386454463
+            ]
+          ],
+          "B": [
+            [
+              0.00015433842091452972
+            ],
+            [
+              0.10272128406363928
+            ],
+            [
+              -0.0038026871955601557
+            ],
+            [
+              -2.5308968421621403
+            ]
+          ],
+          "K4": [
+            [
+              -2.960185163806781,
+              -4.940194755152595,
+              -8.661980390084155,
+              -0.4921046440134705
+            ]
+          ],
+          "lambda_ff": 0.6,
+          "reference_limits": {
+            "max_velocity_m_s": 0.6,
+            "max_acceleration_m_s2": 0.6
+          },
+          "max_jerk_m_s3": 1.0,
+          "Q_disturbance_rejection_enabled": false,
+          "transition_events": [
+            {
+              "command_time_s": 1.0000000000000007,
+              "target_velocity_m_s": 0.4,
+              "T_v_s": 1.268,
+              "T_full_s": 1.418,
+              "normalized_residual_rms": 0.01964013866150063
+            }
+          ],
+          "post_fade_HOLD_u_ff_strictly_zero": true
+        },
+        "finite": true,
+        "GT_runtime_dependency": false,
+        "simulation_termination": {
+          "terminated_early": false,
+          "reason": null,
+          "actual_duration_s": 13.99999999999768,
+          "requested_duration_s": 14.0
+        }
+      }
+    },
+    {
+      "angle_deg": 15.0,
+      "Q_state": "OFF",
+      "world": "models/minisegway/stage4/worlds/slope_p15.xml",
+      "history": "models/minisegway/stage4/results/history/slope_p15_q_off.json",
+      "imu_rng_seed": 16448,
+      "summary": {
+        "velocity_tracking": {
+          "error_GT_slope_including_transition_m_s": {
+            "mean": -0.1153421047244559,
+            "rms": 0.18981163027231285,
+            "peak_abs": 0.5500441781319685
+          },
+          "error_estimated_slope_including_transition_m_s": {
+            "mean": -0.10928652477593513,
+            "rms": 0.18548844614216414,
+            "peak_abs": 0.5456073946482092
+          },
+          "steady_error_GT_m_s": {
+            "mean": -0.010023497554106723,
+            "rms": 0.013077436332517359,
+            "peak_abs": 0.0350748530062332
+          },
+          "maximum_abs_error_GT_m_s": 0.5500441781319685
+        },
+        "pitch": {
+          "GT_world_slope_deg": {
+            "mean": 21.446650694297976,
+            "rms": 21.7905768607559,
+            "peak_abs": 24.365254085394252
+          },
+          "estimated_world_slope_deg": {
+            "mean": 20.701551821038755,
+            "rms": 21.007596407960087,
+            "peak_abs": 23.491555766366005
+          }
+        },
+        "control": {
+          "u_base_slope_nm": {
+            "mean": 0.14008166402499772,
+            "rms": 0.14282221828603525,
+            "peak_abs": 0.20886475758003417
+          },
+          "u_sum_final_slope_nm": {
+            "mean": 0.14008166402499772,
+            "rms": 0.14282221828603525,
+            "peak_abs": 0.20886475758003417
+          },
+          "per_wheel_actual_slope_nm": {
+            "mean": 0.07004083201249886,
+            "rms": 0.07143601786934071,
+            "peak_abs": 0.12453063882170369
+          },
+          "maximum_wheel_torque_nm": 0.12453063882170369,
+          "wheel_saturation_fraction": 0.0
+        },
+        "Q": {
+          "actuator_enabled": false,
+          "matched_disturbance_projected_nm": {
+            "mean": -0.03566014416076032,
+            "rms": 0.0453782006599572,
+            "peak_abs": 0.1346931182038022
+          },
+          "q_filter_estimate_nm": {
+            "mean": -0.03538012174128071,
+            "rms": 0.0420838910273723,
+            "peak_abs": 0.0555306581456384
+          },
+          "requested_u_dr_nm": {
+            "mean": 0.035372994825956225,
+            "rms": 0.04207966650948472,
+            "peak_abs": 0.0555306581456384
+          },
+          "authority_bounded_u_dr_nm": {
+            "mean": 0.035372994825956225,
+            "rms": 0.04207966650948472,
+            "peak_abs": 0.0555306581456384
+          },
+          "applied_u_dr_nm": {
+            "mean": 0.0,
+            "rms": 0.0,
+            "peak_abs": 0.0
+          },
+          "matched_residual_fraction": {
+            "mean": 0.8646226638494604,
+            "rms": 0.8896680771402221,
+            "peak_abs": 0.9999961414948622
+          },
+          "projection_clipping_fraction": 0.0,
+          "authority_limiting_fraction": 0.0,
+          "observation_count": 7000,
+          "applied_after_sum_limit_slope_nm": {
+            "mean": 0.0,
+            "rms": 0.0,
+            "peak_abs": 0.0
+          },
+          "applied_transition_RMS_nm": 0.0,
+          "applied_steady_grade_RMS_nm": 0.0,
+          "matched_residual_fraction_slope": {
+            "mean": 0.949359689398694,
+            "rms": 0.9506388737131485,
+            "peak_abs": 0.9999626066188825
+          },
+          "projection_clipping_fraction_slope": 0.0,
+          "authority_limiting_fraction_slope": 0.0
+        },
+        "safety": {
+          "fall_or_instability": false,
+          "boundary_terminated": false,
+          "termination": {
+            "terminated_early": false,
+            "reason": null,
+            "actual_duration_s": 13.99999999999768,
+            "requested_duration_s": 14.0
+          },
+          "chassis_terrain_contact": false,
+          "pitch_instability": false,
+          "maximum_abs_pitch_error_deg": 26.7395591856458
+        },
+        "evaluation_windows": {
+          "slope_sample_count_50hz": 482,
+          "constant_grade_entry_s": 8.122000000000938,
+          "steady_grade_sample_count_50hz": 243
+        },
+        "acceptance": {
+          "passed": false,
+          "checks": {
+            "steady_grade_velocity_RMSE": true,
+            "steady_velocity_bias": true,
+            "peak_pitch": false,
+            "wheel_saturation": true,
+            "no_fall": true,
+            "no_boundary_termination": true,
+            "finite": true
+          },
+          "basis": "reuse applicable Stage 3 empty-platform limits; no composite score"
+        }
+      },
+      "frozen_stage3_runner_summary": {
+        "scenario": {
+          "name": "stage4a_slope_p15",
+          "duration_s": 14.0,
+          "linear_velocity_schedule": [
+            {
+              "time_s": 0.0,
+              "command": 0.0
+            },
+            {
+              "time_s": 1.0,
+              "command": 0.4
+            }
+          ],
+          "yaw_rate_schedule": [
+            {
+              "time_s": 0.0,
+              "command": 0.0
+            }
+          ]
+        },
+        "yaw_enabled": true,
+        "gains": {
+          "K_psi_nm_per_rad": 0.55,
+          "K_r_nm_per_rad_s": 0.2
+        },
+        "yaw_estimator": {
+          "source": "startup-bias-corrected realistic IMU gyro z only",
+          "integration": "new valid packet timestamps only; stale samples never reintegrated",
+          "control_time_extrapolation": "psi_measurement + r_hat * measurement_age when valid",
+          "encoder_magnetometer_GT_correction": false,
+          "psi_estimator_error_rad": {
+            "mean": -0.009178491843893787,
+            "rms": 0.010921347651329665,
+            "peak_abs": 0.020007842458131808
+          },
+          "r_estimator_error_rad_s": {
+            "mean": -0.0014146545901546064,
+            "rms": 0.011139183169669121,
+            "peak_abs": 0.0713554285993254
+          }
+        },
+        "yaw_tracking": {
+          "turning_yaw_rate_error_GT_rad_s": {
+            "mean": null,
+            "rms": null,
+            "peak_abs": null
+          },
+          "turning_yaw_rate_error_estimated_rad_s": {
+            "mean": null,
+            "rms": null,
+            "peak_abs": null
+          },
+          "heading_error_GT_rad": {
+            "mean": -0.010753685771150403,
+            "rms": 0.013604258770166315,
+            "peak_abs": 0.02520262153620978
+          },
+          "heading_error_estimated_rad": {
+            "mean": -0.0015751939272567062,
+            "rms": 0.003127687126729805,
+            "peak_abs": 0.006082091137312506
+          },
+          "yaw_rate_overshoot_GT_rad_s": 0.0,
+          "stops": [],
+          "heading_terminal_RMS_GT_rad": 0.02473873400598274,
+          "sustained_yaw_oscillation": false,
+          "final_heading_error_GT_rad": -0.025136220274227572,
+          "heading_drift_rate_GT_rad_s": 0.0015480201626026442,
+          "final_lateral_GT_m": 0.05411762538437349
+        },
+        "longitudinal": {
+          "velocity_error_estimated_m_s": {
+            "mean": -0.08212060688792898,
+            "rms": 0.16384100392028345,
+            "peak_abs": 0.5478868309436975
+          },
+          "velocity_error_GT_m_s": {
+            "mean": -0.12517909275120506,
+            "rms": 0.18295552426944672,
+            "peak_abs": 0.5236119702571462
+          },
+          "pitch_peak_GT_deg": 26.7395591856458,
+          "pitch_terminal_RMS_GT_deg": 24.118951636077615,
+          "fell": false
+        },
+        "torque_allocation": {
+          "u_sum_nm": {
+            "mean": 0.10739193940727902,
+            "rms": 0.12180265739765982,
+            "peak_abs": 0.20886475758003417
+          },
+          "u_diff_request_nm": {
+            "mean": -0.0009426887908361357,
+            "rms": 0.0033280332610896644,
+            "peak_abs": 0.0401965200633732
+          },
+          "u_diff_used_nm": {
+            "mean": -0.0009426887908361357,
+            "rms": 0.0033280332610896644,
+            "peak_abs": 0.0401965200633732
+          },
+          "u_diff_first_difference_RMS_nm": 0.003286809044216801,
+          "differential_clipping_fraction": 0.0,
+          "final_guard_clipping_fraction": 0.0,
+          "requested_wheel_peak_nm": 0.12453063882170369,
+          "actual_wheel_peak_nm": 0.12453063882170369,
+          "per_wheel_saturation_fraction": 0.0,
+          "yaw_feedback_opposes_longitudinal_feedback_fraction": 0.641,
+          "combined_cancellation_fraction_diagnostic": 0.01465379605544248
+        },
+        "motor_mismatch": {
+          "enabled": false,
+          "model": "experiment-only exact-discrete first-order torque tracking lag",
+          "left_time_constant_s": 0.1,
+          "right_time_constant_s": 0.13,
+          "relative_difference": 0.3,
+          "production_default": false
+        },
+        "payload_posthoc": null,
+        "frozen_longitudinal": {
+          "A": [
+            [
+              0.9999999874412285,
+              0.00198358035996135,
+              -1.5730367580154398e-05,
+              7.626808015042417e-07
+            ],
+            [
+              -8.356067716638076e-06,
+              0.9890716954991472,
+              -0.010464775028843137,
+              0.0005042622337297176
+            ],
+            [
+              3.102639512161686e-07,
+              0.0004045470245279021,
+              1.00065512064526,
+              0.001981225150387709
+            ],
+            [
+              0.00020641684120603136,
+              0.2692501720320956,
+              0.4361986663022107,
+              0.9876179386454463
+            ]
+          ],
+          "B": [
+            [
+              0.00015433842091452972
+            ],
+            [
+              0.10272128406363928
+            ],
+            [
+              -0.0038026871955601557
+            ],
+            [
+              -2.5308968421621403
+            ]
+          ],
+          "K4": [
+            [
+              -2.960185163806781,
+              -4.940194755152595,
+              -8.661980390084155,
+              -0.4921046440134705
+            ]
+          ],
+          "lambda_ff": 0.6,
+          "reference_limits": {
+            "max_velocity_m_s": 0.6,
+            "max_acceleration_m_s2": 0.6
+          },
+          "max_jerk_m_s3": 1.0,
+          "Q_disturbance_rejection_enabled": false,
+          "transition_events": [
+            {
+              "command_time_s": 1.0000000000000007,
+              "target_velocity_m_s": 0.4,
+              "T_v_s": 1.268,
+              "T_full_s": 1.418,
+              "normalized_residual_rms": 0.01964013866150063
+            }
+          ],
+          "post_fade_HOLD_u_ff_strictly_zero": true
+        },
+        "finite": true,
+        "GT_runtime_dependency": false,
+        "simulation_termination": {
+          "terminated_early": false,
+          "reason": null,
+          "actual_duration_s": 13.99999999999768,
+          "requested_duration_s": 14.0
+        }
+      }
+    },
+    {
+      "angle_deg": 15.0,
+      "Q_state": "ON",
+      "world": "models/minisegway/stage4/worlds/slope_p15.xml",
+      "history": "models/minisegway/stage4/results/history/slope_p15_q_on.json",
+      "imu_rng_seed": 16448,
+      "summary": {
+        "velocity_tracking": {
+          "error_GT_slope_including_transition_m_s": {
+            "mean": -0.11698605773832443,
+            "rms": 0.191930694882944,
+            "peak_abs": 0.5564976225632854
+          },
+          "error_estimated_slope_including_transition_m_s": {
+            "mean": -0.1108641647700509,
+            "rms": 0.1875306256585718,
+            "peak_abs": 0.5498614309573774
+          },
+          "steady_error_GT_m_s": {
+            "mean": -0.009756176568733097,
+            "rms": 0.01275314484436255,
+            "peak_abs": 0.034457881567927784
+          },
+          "maximum_abs_error_GT_m_s": 0.5564976225632854
+        },
+        "pitch": {
+          "GT_world_slope_deg": {
+            "mean": 21.42048868457107,
+            "rms": 21.776179900098008,
+            "peak_abs": 24.41580214038893
+          },
+          "estimated_world_slope_deg": {
+            "mean": 20.68089842327532,
+            "rms": 20.997803101887335,
+            "peak_abs": 23.54625416485205
+          }
+        },
+        "control": {
+          "u_base_slope_nm": {
+            "mean": 0.08953856613957692,
+            "rms": 0.0934271129363986,
+            "peak_abs": 0.1576418560667783
+          },
+          "u_sum_final_slope_nm": {
+            "mean": 0.1397243356156607,
+            "rms": 0.14257766329202515,
+            "peak_abs": 0.20777948944683575
+          },
+          "per_wheel_actual_slope_nm": {
+            "mean": 0.06986216780783036,
+            "rms": 0.07130928230004407,
+            "peak_abs": 0.10493177400750892
+          },
+          "maximum_wheel_torque_nm": 0.10493177400750892,
+          "wheel_saturation_fraction": 0.0
+        },
+        "Q": {
+          "actuator_enabled": true,
+          "matched_disturbance_projected_nm": {
+            "mean": -0.0355535252465837,
+            "rms": 0.045281753613648126,
+            "peak_abs": 0.13055624378341324
+          },
+          "q_filter_estimate_nm": {
+            "mean": -0.035273472144872316,
+            "rms": 0.041983431916893285,
+            "peak_abs": 0.05615545134542665
+          },
+          "requested_u_dr_nm": {
+            "mean": 0.03526634444864725,
+            "rms": 0.04197919636136542,
+            "peak_abs": 0.05615545134542665
+          },
+          "authority_bounded_u_dr_nm": {
+            "mean": 0.03526634444864725,
+            "rms": 0.04197919636136542,
+            "peak_abs": 0.05615545134542665
+          },
+          "applied_u_dr_nm": {
+            "mean": 0.03526634444864725,
+            "rms": 0.04197919636136542,
+            "peak_abs": 0.05615545134542665
+          },
+          "matched_residual_fraction": {
+            "mean": 0.8663894989679778,
+            "rms": 0.8903433924816139,
+            "peak_abs": 0.9999904539071455
+          },
+          "projection_clipping_fraction": 0.0,
+          "authority_limiting_fraction": 0.0,
+          "observation_count": 7000,
+          "applied_after_sum_limit_slope_nm": {
+            "mean": 0.050185769476083796,
+            "rms": 0.05031078959050712,
+            "peak_abs": 0.054560707983151546
+          },
+          "applied_transition_RMS_nm": 0.04976660267062617,
+          "applied_steady_grade_RMS_nm": 0.05054399188798239,
+          "matched_residual_fraction_slope": {
+            "mean": 0.9478333690329236,
+            "rms": 0.9493956593249027,
+            "peak_abs": 0.9999901369317834
+          },
+          "projection_clipping_fraction_slope": 0.0,
+          "authority_limiting_fraction_slope": 0.0
+        },
+        "safety": {
+          "fall_or_instability": false,
+          "boundary_terminated": false,
+          "termination": {
+            "terminated_early": false,
+            "reason": null,
+            "actual_duration_s": 13.99999999999768,
+            "requested_duration_s": 14.0
+          },
+          "chassis_terrain_contact": false,
+          "pitch_instability": false,
+          "maximum_abs_pitch_error_deg": 26.79060983009465
+        },
+        "evaluation_windows": {
+          "slope_sample_count_50hz": 482,
+          "constant_grade_entry_s": 8.182000000000905,
+          "steady_grade_sample_count_50hz": 240
+        },
+        "acceptance": {
+          "passed": false,
+          "checks": {
+            "steady_grade_velocity_RMSE": true,
+            "steady_velocity_bias": true,
+            "peak_pitch": false,
+            "wheel_saturation": true,
+            "no_fall": true,
+            "no_boundary_termination": true,
+            "finite": true
+          },
+          "basis": "reuse applicable Stage 3 empty-platform limits; no composite score"
+        }
+      },
+      "frozen_stage3_runner_summary": {
+        "scenario": {
+          "name": "stage4a_slope_p15",
+          "duration_s": 14.0,
+          "linear_velocity_schedule": [
+            {
+              "time_s": 0.0,
+              "command": 0.0
+            },
+            {
+              "time_s": 1.0,
+              "command": 0.4
+            }
+          ],
+          "yaw_rate_schedule": [
+            {
+              "time_s": 0.0,
+              "command": 0.0
+            }
+          ]
+        },
+        "yaw_enabled": true,
+        "gains": {
+          "K_psi_nm_per_rad": 0.55,
+          "K_r_nm_per_rad_s": 0.2
+        },
+        "yaw_estimator": {
+          "source": "startup-bias-corrected realistic IMU gyro z only",
+          "integration": "new valid packet timestamps only; stale samples never reintegrated",
+          "control_time_extrapolation": "psi_measurement + r_hat * measurement_age when valid",
+          "encoder_magnetometer_GT_correction": false,
+          "psi_estimator_error_rad": {
+            "mean": -0.009237953872763868,
+            "rms": 0.010982056726482017,
+            "peak_abs": 0.020085639526132848
+          },
+          "r_estimator_error_rad_s": {
+            "mean": -0.0014191567066721316,
+            "rms": 0.011206530497289289,
+            "peak_abs": 0.11062595759282508
+          }
+        },
+        "yaw_tracking": {
+          "turning_yaw_rate_error_GT_rad_s": {
+            "mean": null,
+            "rms": null,
+            "peak_abs": null
+          },
+          "turning_yaw_rate_error_estimated_rad_s": {
+            "mean": null,
+            "rms": null,
+            "peak_abs": null
+          },
+          "heading_error_GT_rad": {
+            "mean": -0.010712223990942515,
+            "rms": 0.013593975753782338,
+            "peak_abs": 0.02517323105499525
+          },
+          "heading_error_estimated_rad": {
+            "mean": -0.0014742701181787391,
+            "rms": 0.0031411405042413155,
+            "peak_abs": 0.006105129173441526
+          },
+          "yaw_rate_overshoot_GT_rad_s": 0.0,
+          "stops": [],
+          "heading_terminal_RMS_GT_rad": 0.02472447859322859,
+          "sustained_yaw_oscillation": false,
+          "final_heading_error_GT_rad": -0.025092882401627215,
+          "heading_drift_rate_GT_rad_s": 0.0014867741049962237,
+          "final_lateral_GT_m": 0.05375547518670703
+        },
+        "longitudinal": {
+          "velocity_error_estimated_m_s": {
+            "mean": -0.08333862700596588,
+            "rms": 0.1657437745167524,
+            "peak_abs": 0.5556199938783455
+          },
+          "velocity_error_GT_m_s": {
+            "mean": -0.1261528830019625,
+            "rms": 0.1845154437055089,
+            "peak_abs": 0.5288878385458893
+          },
+          "pitch_peak_GT_deg": 26.79037447075689,
+          "pitch_terminal_RMS_GT_deg": 24.119603291479972,
+          "fell": false
+        },
+        "torque_allocation": {
+          "u_sum_nm": {
+            "mean": 0.1071140128867014,
+            "rms": 0.12156660814583135,
+            "peak_abs": 0.20789291058994283
+          },
+          "u_diff_request_nm": {
+            "mean": -0.0008857300080977647,
+            "rms": 0.003439062125845083,
+            "peak_abs": 0.044577748484905345
+          },
+          "u_diff_used_nm": {
+            "mean": -0.0008857300080977647,
+            "rms": 0.003439062125845083,
+            "peak_abs": 0.044577748484905345
+          },
+          "u_diff_first_difference_RMS_nm": 0.0033193902858777518,
+          "differential_clipping_fraction": 0.0,
+          "final_guard_clipping_fraction": 0.0,
+          "requested_wheel_peak_nm": 0.1233843855804915,
+          "actual_wheel_peak_nm": 0.1233843855804915,
+          "per_wheel_saturation_fraction": 0.0,
+          "yaw_feedback_opposes_longitudinal_feedback_fraction": 0.6401428571428571,
+          "combined_cancellation_fraction_diagnostic": -0.4511210031624888
+        },
+        "motor_mismatch": {
+          "enabled": false,
+          "model": "experiment-only exact-discrete first-order torque tracking lag",
+          "left_time_constant_s": 0.1,
+          "right_time_constant_s": 0.13,
+          "relative_difference": 0.3,
+          "production_default": false
+        },
+        "payload_posthoc": null,
+        "frozen_longitudinal": {
+          "A": [
+            [
+              0.9999999874412285,
+              0.00198358035996135,
+              -1.5730367580154398e-05,
+              7.626808015042417e-07
+            ],
+            [
+              -8.356067716638076e-06,
+              0.9890716954991472,
+              -0.010464775028843137,
+              0.0005042622337297176
+            ],
+            [
+              3.102639512161686e-07,
+              0.0004045470245279021,
+              1.00065512064526,
+              0.001981225150387709
+            ],
+            [
+              0.00020641684120603136,
+              0.2692501720320956,
+              0.4361986663022107,
+              0.9876179386454463
+            ]
+          ],
+          "B": [
+            [
+              0.00015433842091452972
+            ],
+            [
+              0.10272128406363928
+            ],
+            [
+              -0.0038026871955601557
+            ],
+            [
+              -2.5308968421621403
+            ]
+          ],
+          "K4": [
+            [
+              -2.960185163806781,
+              -4.940194755152595,
+              -8.661980390084155,
+              -0.4921046440134705
+            ]
+          ],
+          "lambda_ff": 0.6,
+          "reference_limits": {
+            "max_velocity_m_s": 0.6,
+            "max_acceleration_m_s2": 0.6
+          },
+          "max_jerk_m_s3": 1.0,
+          "Q_disturbance_rejection_enabled": false,
+          "transition_events": [
+            {
+              "command_time_s": 1.0000000000000007,
+              "target_velocity_m_s": 0.4,
+              "T_v_s": 1.268,
+              "T_full_s": 1.418,
+              "normalized_residual_rms": 0.01964013866150063
+            }
+          ],
+          "post_fade_HOLD_u_ff_strictly_zero": true
+        },
+        "finite": true,
+        "GT_runtime_dependency": false,
+        "simulation_termination": {
+          "terminated_early": false,
+          "reason": null,
+          "actual_duration_s": 13.99999999999768,
+          "requested_duration_s": 14.0
+        }
+      }
+    },
+    {
+      "angle_deg": -15.0,
+      "Q_state": "OFF",
+      "world": "models/minisegway/stage4/worlds/slope_m15.xml",
+      "history": "models/minisegway/stage4/results/history/slope_m15_q_off.json",
+      "imu_rng_seed": 16448,
+      "summary": {
+        "velocity_tracking": {
+          "error_GT_slope_including_transition_m_s": {
+            "mean": 0.11932328549758385,
+            "rms": 0.2077006024600661,
+            "peak_abs": 0.5479000982081569
+          },
+          "error_estimated_slope_including_transition_m_s": {
+            "mean": 0.11528833542867965,
+            "rms": 0.20573873885205746,
+            "peak_abs": 0.5461336860170638
+          },
+          "steady_error_GT_m_s": {
+            "mean": 0.055511471390374725,
+            "rms": 0.10246898441914322,
+            "peak_abs": 0.3704199139471548
+          },
+          "maximum_abs_error_GT_m_s": 0.5479000982081569
+        },
+        "pitch": {
+          "GT_world_slope_deg": {
+            "mean": -25.99366024124679,
+            "rms": 26.309195736616935,
+            "peak_abs": 29.82013152161248
+          },
+          "estimated_world_slope_deg": {
+            "mean": -25.33605679477703,
+            "rms": 25.622586163360562,
+            "peak_abs": 29.269447673993213
+          }
+        },
+        "control": {
+          "u_base_slope_nm": {
+            "mean": -0.054973818334304474,
+            "rms": 0.06098723413325903,
+            "peak_abs": 0.10175201523649821
+          },
+          "u_sum_final_slope_nm": {
+            "mean": -0.054973818334304474,
+            "rms": 0.06098723413325903,
+            "peak_abs": 0.10175201523649821
+          },
+          "per_wheel_actual_slope_nm": {
+            "mean": -0.027486909167152237,
+            "rms": 0.030587180824043686,
+            "peak_abs": 0.07478053715184069
+          },
+          "maximum_wheel_torque_nm": 0.07478053715184069,
+          "wheel_saturation_fraction": 0.0
+        },
+        "Q": {
+          "actuator_enabled": false,
+          "matched_disturbance_projected_nm": {
+            "mean": 0.03634696513554665,
+            "rms": 0.04645305480067333,
+            "peak_abs": 0.1537612552262299
+          },
+          "q_filter_estimate_nm": {
+            "mean": 0.036054048161851475,
+            "rms": 0.04328538276734934,
+            "peak_abs": 0.05800269752668955
+          },
+          "requested_u_dr_nm": {
+            "mean": -0.036046593064247116,
+            "rms": 0.04328088853008807,
+            "peak_abs": 0.05800269752668955
+          },
+          "authority_bounded_u_dr_nm": {
+            "mean": -0.036046593064247116,
+            "rms": 0.04328088853008807,
+            "peak_abs": 0.05800269752668955
+          },
+          "applied_u_dr_nm": {
+            "mean": 0.0,
+            "rms": 0.0,
+            "peak_abs": 0.0
+          },
+          "matched_residual_fraction": {
+            "mean": 0.8683263783819002,
+            "rms": 0.892877805565397,
+            "peak_abs": 0.9999992024648137
+          },
+          "projection_clipping_fraction": 0.0,
+          "authority_limiting_fraction": 0.0,
+          "observation_count": 7000,
+          "applied_after_sum_limit_slope_nm": {
+            "mean": 0.0,
+            "rms": 0.0,
+            "peak_abs": 0.0
+          },
+          "applied_transition_RMS_nm": 0.0,
+          "applied_steady_grade_RMS_nm": 0.0,
+          "matched_residual_fraction_slope": {
+            "mean": 0.9489791666932562,
+            "rms": 0.9507499912193919,
+            "peak_abs": 0.999946224886113
+          },
+          "projection_clipping_fraction_slope": 0.0,
+          "authority_limiting_fraction_slope": 0.0
+        },
+        "safety": {
+          "fall_or_instability": false,
+          "boundary_terminated": false,
+          "termination": {
+            "terminated_early": false,
+            "reason": null,
+            "actual_duration_s": 13.99999999999768,
+            "requested_duration_s": 14.0
+          },
+          "chassis_terrain_contact": false,
+          "pitch_instability": false,
+          "maximum_abs_pitch_error_deg": 27.449686602677712
+        },
+        "evaluation_windows": {
+          "slope_sample_count_50hz": 494,
+          "constant_grade_entry_s": 4.781999999999932,
+          "steady_grade_sample_count_50hz": 411
+        },
+        "acceptance": {
+          "passed": false,
+          "checks": {
+            "steady_grade_velocity_RMSE": false,
+            "steady_velocity_bias": false,
+            "peak_pitch": false,
+            "wheel_saturation": true,
+            "no_fall": true,
+            "no_boundary_termination": true,
+            "finite": true
+          },
+          "basis": "reuse applicable Stage 3 empty-platform limits; no composite score"
+        }
+      },
+      "frozen_stage3_runner_summary": {
+        "scenario": {
+          "name": "stage4a_slope_m15",
+          "duration_s": 14.0,
+          "linear_velocity_schedule": [
+            {
+              "time_s": 0.0,
+              "command": 0.0
+            },
+            {
+              "time_s": 1.0,
+              "command": 0.4
+            }
+          ],
+          "yaw_rate_schedule": [
+            {
+              "time_s": 0.0,
+              "command": 0.0
+            }
+          ]
+        },
+        "yaw_enabled": true,
+        "gains": {
+          "K_psi_nm_per_rad": 0.55,
+          "K_r_nm_per_rad_s": 0.2
+        },
+        "yaw_estimator": {
+          "source": "startup-bias-corrected realistic IMU gyro z only",
+          "integration": "new valid packet timestamps only; stale samples never reintegrated",
+          "control_time_extrapolation": "psi_measurement + r_hat * measurement_age when valid",
+          "encoder_magnetometer_GT_correction": false,
+          "psi_estimator_error_rad": {
+            "mean": -0.009137042341928607,
+            "rms": 0.010821099674796093,
+            "peak_abs": 0.020271361587563153
+          },
+          "r_estimator_error_rad_s": {
+            "mean": -0.0013277067187342656,
+            "rms": 0.011326728688857804,
+            "peak_abs": 0.09651859121522541
+          }
+        },
+        "yaw_tracking": {
+          "turning_yaw_rate_error_GT_rad_s": {
+            "mean": null,
+            "rms": null,
+            "peak_abs": null
+          },
+          "turning_yaw_rate_error_estimated_rad_s": {
+            "mean": null,
+            "rms": null,
+            "peak_abs": null
+          },
+          "heading_error_GT_rad": {
+            "mean": -0.008011796479739706,
+            "rms": 0.009862072007728059,
+            "peak_abs": 0.026108740387859708
+          },
+          "heading_error_estimated_rad": {
+            "mean": 0.0011252458621888097,
+            "rms": 0.0020472463574534236,
+            "peak_abs": 0.005968216162024476
+          },
+          "yaw_rate_overshoot_GT_rad_s": 0.0,
+          "stops": [],
+          "heading_terminal_RMS_GT_rad": 0.017017378435987652,
+          "sustained_yaw_oscillation": false,
+          "final_heading_error_GT_rad": -0.013741849542666884,
+          "heading_drift_rate_GT_rad_s": 0.001057690403842168,
+          "final_lateral_GT_m": 0.0514036748995228
+        },
+        "longitudinal": {
+          "velocity_error_estimated_m_s": {
+            "mean": 0.08161524005902092,
+            "rms": 0.17281534571189086,
+            "peak_abs": 0.5480812525207567
+          },
+          "velocity_error_GT_m_s": {
+            "mean": -0.005604700882033512,
+            "rms": 0.11093927754933507,
+            "peak_abs": 0.352032028683147
+          },
+          "pitch_peak_GT_deg": 27.449686602677712,
+          "pitch_terminal_RMS_GT_deg": 24.01899529584411,
+          "fell": false
+        },
+        "torque_allocation": {
+          "u_sum_nm": {
+            "mean": -0.02991083430049095,
+            "rms": 0.05667306215633824,
+            "peak_abs": 0.13264695762577036
+          },
+          "u_diff_request_nm": {
+            "mean": 0.0006872193669539549,
+            "rms": 0.0034609465281010402,
+            "peak_abs": 0.08385309711599832
+          },
+          "u_diff_used_nm": {
+            "mean": 0.0006872193669539549,
+            "rms": 0.0034609465281010402,
+            "peak_abs": 0.08385309711599832
+          },
+          "u_diff_first_difference_RMS_nm": 0.0033166390469248816,
+          "differential_clipping_fraction": 0.0,
+          "final_guard_clipping_fraction": 0.0,
+          "requested_wheel_peak_nm": 0.0810144594311484,
+          "actual_wheel_peak_nm": 0.0810144594311484,
+          "per_wheel_saturation_fraction": 0.0,
+          "yaw_feedback_opposes_longitudinal_feedback_fraction": 0.603,
+          "combined_cancellation_fraction_diagnostic": 0.020488001380725818
+        },
+        "motor_mismatch": {
+          "enabled": false,
+          "model": "experiment-only exact-discrete first-order torque tracking lag",
+          "left_time_constant_s": 0.1,
+          "right_time_constant_s": 0.13,
+          "relative_difference": 0.3,
+          "production_default": false
+        },
+        "payload_posthoc": null,
+        "frozen_longitudinal": {
+          "A": [
+            [
+              0.9999999874412285,
+              0.00198358035996135,
+              -1.5730367580154398e-05,
+              7.626808015042417e-07
+            ],
+            [
+              -8.356067716638076e-06,
+              0.9890716954991472,
+              -0.010464775028843137,
+              0.0005042622337297176
+            ],
+            [
+              3.102639512161686e-07,
+              0.0004045470245279021,
+              1.00065512064526,
+              0.001981225150387709
+            ],
+            [
+              0.00020641684120603136,
+              0.2692501720320956,
+              0.4361986663022107,
+              0.9876179386454463
+            ]
+          ],
+          "B": [
+            [
+              0.00015433842091452972
+            ],
+            [
+              0.10272128406363928
+            ],
+            [
+              -0.0038026871955601557
+            ],
+            [
+              -2.5308968421621403
+            ]
+          ],
+          "K4": [
+            [
+              -2.960185163806781,
+              -4.940194755152595,
+              -8.661980390084155,
+              -0.4921046440134705
+            ]
+          ],
+          "lambda_ff": 0.6,
+          "reference_limits": {
+            "max_velocity_m_s": 0.6,
+            "max_acceleration_m_s2": 0.6
+          },
+          "max_jerk_m_s3": 1.0,
+          "Q_disturbance_rejection_enabled": false,
+          "transition_events": [
+            {
+              "command_time_s": 1.0000000000000007,
+              "target_velocity_m_s": 0.4,
+              "T_v_s": 1.268,
+              "T_full_s": 1.418,
+              "normalized_residual_rms": 0.01964013866150063
+            }
+          ],
+          "post_fade_HOLD_u_ff_strictly_zero": true
+        },
+        "finite": true,
+        "GT_runtime_dependency": false,
+        "simulation_termination": {
+          "terminated_early": false,
+          "reason": null,
+          "actual_duration_s": 13.99999999999768,
+          "requested_duration_s": 14.0
+        }
+      }
+    },
+    {
+      "angle_deg": -15.0,
+      "Q_state": "ON",
+      "world": "models/minisegway/stage4/worlds/slope_m15.xml",
+      "history": "models/minisegway/stage4/results/history/slope_m15_q_on.json",
+      "imu_rng_seed": 16448,
+      "summary": {
+        "velocity_tracking": {
+          "error_GT_slope_including_transition_m_s": {
+            "mean": 0.1210180321991464,
+            "rms": 0.21037781361163535,
+            "peak_abs": 0.5570252656482343
+          },
+          "error_estimated_slope_including_transition_m_s": {
+            "mean": 0.11709053560995893,
+            "rms": 0.20866447837194166,
+            "peak_abs": 0.5634086081149029
+          },
+          "steady_error_GT_m_s": {
+            "mean": 0.056606932551459155,
+            "rms": 0.10453507782860931,
+            "peak_abs": 0.3781495218433585
+          },
+          "maximum_abs_error_GT_m_s": 0.5570252656482343
+        },
+        "pitch": {
+          "GT_world_slope_deg": {
+            "mean": -25.995298284319734,
+            "rms": 26.315271641046355,
+            "peak_abs": 29.86751716131738
+          },
+          "estimated_world_slope_deg": {
+            "mean": -25.33028612570039,
+            "rms": 25.622994254935644,
+            "peak_abs": 29.298109972042024
+          }
+        },
+        "control": {
+          "u_base_slope_nm": {
+            "mean": -0.003397565072040541,
+            "rms": 0.02686166447488812,
+            "peak_abs": 0.18739008464017007
+          },
+          "u_sum_final_slope_nm": {
+            "mean": -0.054744212523493214,
+            "rms": 0.06108699204101133,
+            "peak_abs": 0.12844780211486242
+          },
+          "per_wheel_actual_slope_nm": {
+            "mean": -0.02737210626174661,
+            "rms": 0.03060091110272454,
+            "peak_abs": 0.08783860941758141
+          },
+          "maximum_wheel_torque_nm": 0.08783860941758141,
+          "wheel_saturation_fraction": 0.0
+        },
+        "Q": {
+          "actuator_enabled": true,
+          "matched_disturbance_projected_nm": {
+            "mean": 0.03638642834051149,
+            "rms": 0.046480691594863316,
+            "peak_abs": 0.162249880013163
+          },
+          "q_filter_estimate_nm": {
+            "mean": 0.03609351659328196,
+            "rms": 0.04332237238957972,
+            "peak_abs": 0.058942282525307636
+          },
+          "requested_u_dr_nm": {
+            "mean": -0.03608606162869758,
+            "rms": 0.043317882150247594,
+            "peak_abs": 0.058942282525307636
+          },
+          "authority_bounded_u_dr_nm": {
+            "mean": -0.03608606162869758,
+            "rms": 0.043317882150247594,
+            "peak_abs": 0.058942282525307636
+          },
+          "applied_u_dr_nm": {
+            "mean": -0.03608606162869758,
+            "rms": 0.043317882150247594,
+            "peak_abs": 0.058942282525307636
+          },
+          "matched_residual_fraction": {
+            "mean": 0.8715200757404512,
+            "rms": 0.894719651056793,
+            "peak_abs": 0.9999895209211057
+          },
+          "projection_clipping_fraction": 0.0,
+          "authority_limiting_fraction": 0.0,
+          "observation_count": 7000,
+          "applied_after_sum_limit_slope_nm": {
+            "mean": -0.051346647451452676,
+            "rms": 0.05155006651811468,
+            "peak_abs": 0.05894228252530764
+          },
+          "applied_transition_RMS_nm": 0.04546338416380886,
+          "applied_steady_grade_RMS_nm": 0.05155419708041801,
+          "matched_residual_fraction_slope": {
+            "mean": 0.9511463042984775,
+            "rms": 0.9527981022434633,
+            "peak_abs": 0.9999661184123125
+          },
+          "projection_clipping_fraction_slope": 0.0,
+          "authority_limiting_fraction_slope": 0.0
+        },
+        "safety": {
+          "fall_or_instability": false,
+          "boundary_terminated": false,
+          "termination": {
+            "terminated_early": false,
+            "reason": null,
+            "actual_duration_s": 13.99999999999768,
+            "requested_duration_s": 14.0
+          },
+          "chassis_terrain_contact": false,
+          "pitch_instability": false,
+          "maximum_abs_pitch_error_deg": 27.499109178827943
+        },
+        "evaluation_windows": {
+          "slope_sample_count_50hz": 494,
+          "constant_grade_entry_s": 4.781999999999932,
+          "steady_grade_sample_count_50hz": 411
+        },
+        "acceptance": {
+          "passed": false,
+          "checks": {
+            "steady_grade_velocity_RMSE": false,
+            "steady_velocity_bias": false,
+            "peak_pitch": false,
+            "wheel_saturation": true,
+            "no_fall": true,
+            "no_boundary_termination": true,
+            "finite": true
+          },
+          "basis": "reuse applicable Stage 3 empty-platform limits; no composite score"
+        }
+      },
+      "frozen_stage3_runner_summary": {
+        "scenario": {
+          "name": "stage4a_slope_m15",
+          "duration_s": 14.0,
+          "linear_velocity_schedule": [
+            {
+              "time_s": 0.0,
+              "command": 0.0
+            },
+            {
+              "time_s": 1.0,
+              "command": 0.4
+            }
+          ],
+          "yaw_rate_schedule": [
+            {
+              "time_s": 0.0,
+              "command": 0.0
+            }
+          ]
+        },
+        "yaw_enabled": true,
+        "gains": {
+          "K_psi_nm_per_rad": 0.55,
+          "K_r_nm_per_rad_s": 0.2
+        },
+        "yaw_estimator": {
+          "source": "startup-bias-corrected realistic IMU gyro z only",
+          "integration": "new valid packet timestamps only; stale samples never reintegrated",
+          "control_time_extrapolation": "psi_measurement + r_hat * measurement_age when valid",
+          "encoder_magnetometer_GT_correction": false,
+          "psi_estimator_error_rad": {
+            "mean": -0.008939961005824034,
+            "rms": 0.010603845777475094,
+            "peak_abs": 0.019897888252651708
+          },
+          "r_estimator_error_rad_s": {
+            "mean": -0.0013160943144167945,
+            "rms": 0.011168499359540358,
+            "peak_abs": 0.11910103488537206
+          }
+        },
+        "yaw_tracking": {
+          "turning_yaw_rate_error_GT_rad_s": {
+            "mean": null,
+            "rms": null,
+            "peak_abs": null
+          },
+          "turning_yaw_rate_error_estimated_rad_s": {
+            "mean": null,
+            "rms": null,
+            "peak_abs": null
+          },
+          "heading_error_GT_rad": {
+            "mean": -0.007865286398656269,
+            "rms": 0.00969764340597032,
+            "peak_abs": 0.025734778968637073
+          },
+          "heading_error_estimated_rad": {
+            "mean": 0.0010746746071676717,
+            "rms": 0.0020531549928422287,
+            "peak_abs": 0.006055938534717864
+          },
+          "yaw_rate_overshoot_GT_rad_s": 0.0,
+          "stops": [],
+          "heading_terminal_RMS_GT_rad": 0.016443973217288032,
+          "sustained_yaw_oscillation": false,
+          "final_heading_error_GT_rad": -0.013856889488376822,
+          "heading_drift_rate_GT_rad_s": 0.0009892327892362116,
+          "final_lateral_GT_m": 0.05046078473721051
+        },
+        "longitudinal": {
+          "velocity_error_estimated_m_s": {
+            "mean": 0.08286654370446007,
+            "rms": 0.17527711379107003,
+            "peak_abs": 0.5677526010355092
+          },
+          "velocity_error_GT_m_s": {
+            "mean": -0.004738513088514119,
+            "rms": 0.11220262784438062,
+            "peak_abs": 0.3570896902912305
+          },
+          "pitch_peak_GT_deg": 27.499109178827943,
+          "pitch_terminal_RMS_GT_deg": 24.024199392103007,
+          "fell": false
+        },
+        "torque_allocation": {
+          "u_sum_nm": {
+            "mean": -0.029804334479503727,
+            "rms": 0.05664335163820925,
+            "peak_abs": 0.1802122176941603
+          },
+          "u_diff_request_nm": {
+            "mean": 0.0006554107875603455,
+            "rms": 0.003281981343476364,
+            "peak_abs": 0.06384993781725168
+          },
+          "u_diff_used_nm": {
+            "mean": 0.0006554107875603455,
+            "rms": 0.003281981343476364,
+            "peak_abs": 0.06384993781725168
+          },
+          "u_diff_first_difference_RMS_nm": 0.0032659325713481255,
+          "differential_clipping_fraction": 0.0,
+          "final_guard_clipping_fraction": 0.0,
+          "requested_wheel_peak_nm": 0.11465799563815054,
+          "actual_wheel_peak_nm": 0.11465799563815054,
+          "per_wheel_saturation_fraction": 0.0,
+          "yaw_feedback_opposes_longitudinal_feedback_fraction": 0.5438571428571428,
+          "combined_cancellation_fraction_diagnostic": -0.9915392488244377
+        },
+        "motor_mismatch": {
+          "enabled": false,
+          "model": "experiment-only exact-discrete first-order torque tracking lag",
+          "left_time_constant_s": 0.1,
+          "right_time_constant_s": 0.13,
+          "relative_difference": 0.3,
+          "production_default": false
+        },
+        "payload_posthoc": null,
+        "frozen_longitudinal": {
+          "A": [
+            [
+              0.9999999874412285,
+              0.00198358035996135,
+              -1.5730367580154398e-05,
+              7.626808015042417e-07
+            ],
+            [
+              -8.356067716638076e-06,
+              0.9890716954991472,
+              -0.010464775028843137,
+              0.0005042622337297176
+            ],
+            [
+              3.102639512161686e-07,
+              0.0004045470245279021,
+              1.00065512064526,
+              0.001981225150387709
+            ],
+            [
+              0.00020641684120603136,
+              0.2692501720320956,
+              0.4361986663022107,
+              0.9876179386454463
+            ]
+          ],
+          "B": [
+            [
+              0.00015433842091452972
+            ],
+            [
+              0.10272128406363928
+            ],
+            [
+              -0.0038026871955601557
+            ],
+            [
+              -2.5308968421621403
+            ]
+          ],
+          "K4": [
+            [
+              -2.960185163806781,
+              -4.940194755152595,
+              -8.661980390084155,
+              -0.4921046440134705
+            ]
+          ],
+          "lambda_ff": 0.6,
+          "reference_limits": {
+            "max_velocity_m_s": 0.6,
+            "max_acceleration_m_s2": 0.6
+          },
+          "max_jerk_m_s3": 1.0,
+          "Q_disturbance_rejection_enabled": false,
+          "transition_events": [
+            {
+              "command_time_s": 1.0000000000000007,
+              "target_velocity_m_s": 0.4,
+              "T_v_s": 1.268,
+              "T_full_s": 1.418,
+              "normalized_residual_rms": 0.01964013866150063
+            }
+          ],
+          "post_fade_HOLD_u_ff_strictly_zero": true
+        },
+        "finite": true,
+        "GT_runtime_dependency": false,
+        "simulation_termination": {
+          "terminated_early": false,
+          "reason": null,
+          "actual_duration_s": 13.99999999999768,
+          "requested_duration_s": 14.0
+        }
+      }
+    }
+  ],
+  "summary_rows": [
+    {
+      "angle_deg": -15.0,
+      "Q_state": "OFF",
+      "velocity_RMSE_m_s": 0.10246898441914322,
+      "transition_inclusive_velocity_RMSE_m_s": 0.2077006024600661,
+      "steady_velocity_bias_m_s": 0.055511471390374725,
+      "maximum_abs_velocity_error_m_s": 0.5479000982081569,
+      "pitch_RMS_deg": 26.309195736616935,
+      "peak_abs_pitch_deg": 29.82013152161248,
+      "per_wheel_torque_RMS_nm": 0.030587180824043686,
+      "maximum_wheel_torque_nm": 0.07478053715184069,
+      "torque_saturation_fraction": 0.0,
+      "Q_applied_mean_nm": 0.0,
+      "Q_applied_RMS_nm": 0.0,
+      "Q_applied_peak_nm": 0.0,
+      "Q_transition_RMS_nm": 0.0,
+      "Q_steady_grade_RMS_nm": 0.0,
+      "matched_residual_fraction_mean": 0.9489791666932562,
+      "projection_clipping_fraction": 0.0,
+      "authority_limiting_fraction": 0.0,
+      "boundary_terminated": false,
+      "fall_or_instability": false,
+      "pass": false
+    },
+    {
+      "angle_deg": -15.0,
+      "Q_state": "ON",
+      "velocity_RMSE_m_s": 0.10453507782860931,
+      "transition_inclusive_velocity_RMSE_m_s": 0.21037781361163535,
+      "steady_velocity_bias_m_s": 0.056606932551459155,
+      "maximum_abs_velocity_error_m_s": 0.5570252656482343,
+      "pitch_RMS_deg": 26.315271641046355,
+      "peak_abs_pitch_deg": 29.86751716131738,
+      "per_wheel_torque_RMS_nm": 0.03060091110272454,
+      "maximum_wheel_torque_nm": 0.08783860941758141,
+      "torque_saturation_fraction": 0.0,
+      "Q_applied_mean_nm": -0.051346647451452676,
+      "Q_applied_RMS_nm": 0.05155006651811468,
+      "Q_applied_peak_nm": 0.05894228252530764,
+      "Q_transition_RMS_nm": 0.04546338416380886,
+      "Q_steady_grade_RMS_nm": 0.05155419708041801,
+      "matched_residual_fraction_mean": 0.9511463042984775,
+      "projection_clipping_fraction": 0.0,
+      "authority_limiting_fraction": 0.0,
+      "boundary_terminated": false,
+      "fall_or_instability": false,
+      "pass": false
+    },
+    {
+      "angle_deg": -8.0,
+      "Q_state": "OFF",
+      "velocity_RMSE_m_s": 0.0468756201444851,
+      "transition_inclusive_velocity_RMSE_m_s": 0.10833865728458633,
+      "steady_velocity_bias_m_s": 0.02552168444361162,
+      "maximum_abs_velocity_error_m_s": 0.2938674311404734,
+      "pitch_RMS_deg": 14.815770121801823,
+      "peak_abs_pitch_deg": 16.58973714822936,
+      "per_wheel_torque_RMS_nm": 0.013412355072424189,
+      "maximum_wheel_torque_nm": 0.08260531576275842,
+      "torque_saturation_fraction": 0.0,
+      "Q_applied_mean_nm": 0.0,
+      "Q_applied_RMS_nm": 0.0,
+      "Q_applied_peak_nm": 0.0,
+      "Q_transition_RMS_nm": 0.0,
+      "Q_steady_grade_RMS_nm": 0.0,
+      "matched_residual_fraction_mean": 0.8366024646455366,
+      "projection_clipping_fraction": 0.0,
+      "authority_limiting_fraction": 0.0,
+      "boundary_terminated": false,
+      "fall_or_instability": false,
+      "pass": true
+    },
+    {
+      "angle_deg": -8.0,
+      "Q_state": "ON",
+      "velocity_RMSE_m_s": 0.048186998305338735,
+      "transition_inclusive_velocity_RMSE_m_s": 0.10962132513271601,
+      "steady_velocity_bias_m_s": 0.026303189240788567,
+      "maximum_abs_velocity_error_m_s": 0.296591120537521,
+      "pitch_RMS_deg": 14.815880667338984,
+      "peak_abs_pitch_deg": 16.585663614105354,
+      "per_wheel_torque_RMS_nm": 0.01333575805125893,
+      "maximum_wheel_torque_nm": 0.08756599665645938,
+      "torque_saturation_fraction": 0.0,
+      "Q_applied_mean_nm": -0.028126902494504818,
+      "Q_applied_RMS_nm": 0.02823052039739588,
+      "Q_applied_peak_nm": 0.03200386175375698,
+      "Q_transition_RMS_nm": 0.02654383679546451,
+      "Q_steady_grade_RMS_nm": 0.02817276507841768,
+      "matched_residual_fraction_mean": 0.8248998705152042,
+      "projection_clipping_fraction": 0.0,
+      "authority_limiting_fraction": 0.0,
+      "boundary_terminated": false,
+      "fall_or_instability": false,
+      "pass": true
+    },
+    {
+      "angle_deg": 8.0,
+      "Q_state": "OFF",
+      "velocity_RMSE_m_s": 0.014763182305276276,
+      "transition_inclusive_velocity_RMSE_m_s": 0.11175279471226723,
+      "steady_velocity_bias_m_s": -0.008621524271333187,
+      "maximum_abs_velocity_error_m_s": 0.2922332198750234,
+      "pitch_RMS_deg": 10.697222402877989,
+      "peak_abs_pitch_deg": 12.312550537767486,
+      "per_wheel_torque_RMS_nm": 0.04976352241675975,
+      "maximum_wheel_torque_nm": 0.08490520299930444,
+      "torque_saturation_fraction": 0.0,
+      "Q_applied_mean_nm": 0.0,
+      "Q_applied_RMS_nm": 0.0,
+      "Q_applied_peak_nm": 0.0,
+      "Q_transition_RMS_nm": 0.0,
+      "Q_steady_grade_RMS_nm": 0.0,
+      "matched_residual_fraction_mean": 0.828175848377402,
+      "projection_clipping_fraction": 0.0,
+      "authority_limiting_fraction": 0.0,
+      "boundary_terminated": false,
+      "fall_or_instability": false,
+      "pass": true
+    },
+    {
+      "angle_deg": 8.0,
+      "Q_state": "ON",
+      "velocity_RMSE_m_s": 0.014829739467567332,
+      "transition_inclusive_velocity_RMSE_m_s": 0.11344575275248986,
+      "steady_velocity_bias_m_s": -0.008641290822212572,
+      "maximum_abs_velocity_error_m_s": 0.29653185579126395,
+      "pitch_RMS_deg": 10.700888848474325,
+      "peak_abs_pitch_deg": 12.32321975113354,
+      "per_wheel_torque_RMS_nm": 0.04968974157448106,
+      "maximum_wheel_torque_nm": 0.08735285321411052,
+      "torque_saturation_fraction": 0.0,
+      "Q_applied_mean_nm": 0.027989571018094045,
+      "Q_applied_RMS_nm": 0.02805729854954981,
+      "Q_applied_peak_nm": 0.031148092374667858,
+      "Q_transition_RMS_nm": 0.02836267352659147,
+      "Q_steady_grade_RMS_nm": 0.027803942956060024,
+      "matched_residual_fraction_mean": 0.8256929520927113,
+      "projection_clipping_fraction": 0.0,
+      "authority_limiting_fraction": 0.0,
+      "boundary_terminated": false,
+      "fall_or_instability": false,
+      "pass": true
+    },
+    {
+      "angle_deg": 15.0,
+      "Q_state": "OFF",
+      "velocity_RMSE_m_s": 0.013077436332517359,
+      "transition_inclusive_velocity_RMSE_m_s": 0.18981163027231285,
+      "steady_velocity_bias_m_s": -0.010023497554106723,
+      "maximum_abs_velocity_error_m_s": 0.5500441781319685,
+      "pitch_RMS_deg": 21.7905768607559,
+      "peak_abs_pitch_deg": 24.365254085394252,
+      "per_wheel_torque_RMS_nm": 0.07143601786934071,
+      "maximum_wheel_torque_nm": 0.12453063882170369,
+      "torque_saturation_fraction": 0.0,
+      "Q_applied_mean_nm": 0.0,
+      "Q_applied_RMS_nm": 0.0,
+      "Q_applied_peak_nm": 0.0,
+      "Q_transition_RMS_nm": 0.0,
+      "Q_steady_grade_RMS_nm": 0.0,
+      "matched_residual_fraction_mean": 0.949359689398694,
+      "projection_clipping_fraction": 0.0,
+      "authority_limiting_fraction": 0.0,
+      "boundary_terminated": false,
+      "fall_or_instability": false,
+      "pass": false
+    },
+    {
+      "angle_deg": 15.0,
+      "Q_state": "ON",
+      "velocity_RMSE_m_s": 0.01275314484436255,
+      "transition_inclusive_velocity_RMSE_m_s": 0.191930694882944,
+      "steady_velocity_bias_m_s": -0.009756176568733097,
+      "maximum_abs_velocity_error_m_s": 0.5564976225632854,
+      "pitch_RMS_deg": 21.776179900098008,
+      "peak_abs_pitch_deg": 24.41580214038893,
+      "per_wheel_torque_RMS_nm": 0.07130928230004407,
+      "maximum_wheel_torque_nm": 0.10493177400750892,
+      "torque_saturation_fraction": 0.0,
+      "Q_applied_mean_nm": 0.050185769476083796,
+      "Q_applied_RMS_nm": 0.05031078959050712,
+      "Q_applied_peak_nm": 0.054560707983151546,
+      "Q_transition_RMS_nm": 0.04976660267062617,
+      "Q_steady_grade_RMS_nm": 0.05054399188798239,
+      "matched_residual_fraction_mean": 0.9478333690329236,
+      "projection_clipping_fraction": 0.0,
+      "authority_limiting_fraction": 0.0,
+      "boundary_terminated": false,
+      "fall_or_instability": false,
+      "pass": false
+    }
+  ],
+  "Q_OFF_vs_ON": [
+    {
+      "angle_deg": -15.0,
+      "velocity_RMSE_ON_over_OFF": 1.020163110049133,
+      "transition_inclusive_velocity_RMSE_ON_over_OFF": 1.012889761126639,
+      "abs_steady_bias_ON_over_OFF": 1.0197339600923345,
+      "pitch_RMS_ON_over_OFF": 1.000230942233668,
+      "torque_RMS_ON_over_OFF": 1.0004488899699464,
+      "saturation_fraction_delta": 0.0,
+      "Q_ON_applied_steady_RMS_nm": 0.05155419708041801,
+      "Q_ON_passed": false,
+      "Q_OFF_passed": false
+    },
+    {
+      "angle_deg": -8.0,
+      "velocity_RMSE_ON_over_OFF": 1.0279756973200902,
+      "transition_inclusive_velocity_RMSE_ON_over_OFF": 1.011839429066952,
+      "abs_steady_bias_ON_over_OFF": 1.0306212075814833,
+      "pitch_RMS_ON_over_OFF": 1.000007461342627,
+      "torque_RMS_ON_over_OFF": 0.994289069984231,
+      "saturation_fraction_delta": 0.0,
+      "Q_ON_applied_steady_RMS_nm": 0.02817276507841768,
+      "Q_ON_passed": true,
+      "Q_OFF_passed": true
+    },
+    {
+      "angle_deg": 8.0,
+      "velocity_RMSE_ON_over_OFF": 1.0045083208291257,
+      "transition_inclusive_velocity_RMSE_ON_over_OFF": 1.015149133805392,
+      "abs_steady_bias_ON_over_OFF": 1.00229269793337,
+      "pitch_RMS_ON_over_OFF": 1.0003427474402466,
+      "torque_RMS_ON_over_OFF": 0.9985173709838948,
+      "saturation_fraction_delta": 0.0,
+      "Q_ON_applied_steady_RMS_nm": 0.027803942956060024,
+      "Q_ON_passed": true,
+      "Q_OFF_passed": true
+    },
+    {
+      "angle_deg": 15.0,
+      "velocity_RMSE_ON_over_OFF": 0.9752022124284061,
+      "transition_inclusive_velocity_RMSE_ON_over_OFF": 1.0111640398830728,
+      "abs_steady_bias_ON_over_OFF": 0.9733305681045333,
+      "pitch_RMS_ON_over_OFF": 0.999339303371825,
+      "torque_RMS_ON_over_OFF": 0.9982258869814322,
+      "saturation_fraction_delta": 0.0,
+      "Q_ON_applied_steady_RMS_nm": 0.05054399188798239,
+      "Q_ON_passed": false,
+      "Q_OFF_passed": false
+    }
+  ],
+  "artifacts": {
+    "summary_csv": "models/minisegway/stage4/results/stage4a_summary.csv",
+    "plots": [
+      "models/minisegway/stage4/results/plots/slope_p08_q_comparison.svg",
+      "models/minisegway/stage4/results/plots/slope_m08_q_comparison.svg",
+      "models/minisegway/stage4/results/plots/slope_p15_q_comparison.svg",
+      "models/minisegway/stage4/results/plots/slope_m15_q_comparison.svg",
+      "models/minisegway/stage4/results/plots/stage4a_summary_table.svg"
+    ],
+    "report": "models/minisegway/stage4/results/STAGE4A_REPORT.md"
+  }
+}

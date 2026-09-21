@@ -1,0 +1,150 @@
+{
+  "stage": "Stage 4E-R — Minimal fixes only",
+  "passed": false,
+  "stop_reason": "payload_remove_failed",
+  "frozen_checks": {
+    "physics_dt_1ms": true,
+    "controller_dt_2ms": true,
+    "q_actuator_off": true,
+    "slip_detection_off": true,
+    "stage4c_ekf_unchanged": true,
+    "stage3_q_production_default_off": true
+  },
+  "fixes": {
+    "shadow_payload_rls_enabled": true,
+    "slope_entry_theta_dyn_epsilon_rad": 1e-12,
+    "slope_enter_error_deg_unchanged": 1.5,
+    "slope_enter_persistence_s_unchanged": 0.2
+  },
+  "reused_stage4e_calibration": {
+    "source": "flat-empty normal start/stop only",
+    "sample_count": 1350,
+    "percentile": 99.9,
+    "p99_9": 0.010940132993521548,
+    "margin_fraction": 0.1,
+    "threshold": 0.012034146292873703,
+    "force_p99_9": 0.2588760960304742,
+    "force_threshold": 0.2847637056335216,
+    "seeds": [
+      4800,
+      4801,
+      4802
+    ]
+  },
+  "qualification": {
+    "payload_add": {
+      "state_counts": {
+        "FLAT_NORMAL": 484,
+        "PAYLOAD_ID": 316,
+        "SLOPE_TRACK": 0
+      },
+      "transition_count": 2,
+      "transitions": [
+        {
+          "time_s": 8.012000000000999,
+          "from": "FLAT_NORMAL",
+          "to": "PAYLOAD_ID",
+          "reason": "persistent_payload_model_residual",
+          "theta_error_deg": -0.8363090349549924,
+          "alpha_hat_deg": 0.7233305449512832,
+          "payload_mass_hat_kg": 0.0
+        },
+        {
+          "time_s": 14.329999999997497,
+          "from": "PAYLOAD_ID",
+          "to": "FLAT_NORMAL",
+          "reason": "payload_model_valid",
+          "theta_error_deg": 0.09472539802853179,
+          "alpha_hat_deg": 0.12954259947050273,
+          "payload_mass_hat_kg": 0.284711321244435
+        }
+      ],
+      "false_slope": false,
+      "false_payload": false,
+      "entered_slope": false,
+      "slope_entry_terrain_segment_GT_posthoc": null,
+      "pre_slope_false_positive": false,
+      "entered_payload_id": true,
+      "returned_flat_after_slope": false,
+      "final_payload_mass_hat_kg": 0.2924258566255011,
+      "payload_mass_abs_error_kg": 0.04242585662550108,
+      "payload_model_valid": true,
+      "slope_alpha_mae_deg": null,
+      "slope_alpha_p95_abs_error_deg": null,
+      "rls_frozen_on_slope": true,
+      "wheel_saturation_fraction": 0.0,
+      "fallen": false,
+      "termination_reason": null,
+      "unsupported_payload_change_on_slope": false,
+      "payload_model_updates": [
+        {
+          "time_s": 14.327999999997498,
+          "source": "PAYLOAD_ID",
+          "payload_mass_kg": 0.2845680411938615,
+          "covariance": 0.005940936501239206,
+          "information": 168.28363042281492,
+          "residual_ratio": 0.8163967980312775,
+          "stability_range_kg": 0.04996364335196135
+        },
+        {
+          "time_s": 14.763999999997257,
+          "source": "SHADOW_FLAT",
+          "payload_mass_kg": 0.2924258566255011,
+          "covariance": 0.004771538904944385,
+          "information": 209.53599213196722,
+          "residual_ratio": 0.7122418647444132,
+          "stability_range_kg": 0.049768120986166564
+        }
+      ],
+      "failures": [],
+      "passed": true
+    },
+    "payload_remove": {
+      "state_counts": {
+        "FLAT_NORMAL": 800,
+        "PAYLOAD_ID": 0,
+        "SLOPE_TRACK": 0
+      },
+      "transition_count": 0,
+      "transitions": [],
+      "false_slope": false,
+      "false_payload": false,
+      "entered_slope": false,
+      "slope_entry_terrain_segment_GT_posthoc": null,
+      "pre_slope_false_positive": false,
+      "entered_payload_id": false,
+      "returned_flat_after_slope": false,
+      "final_payload_mass_hat_kg": 0.2924258566255011,
+      "payload_mass_abs_error_kg": 0.2924258566255011,
+      "payload_model_valid": true,
+      "slope_alpha_mae_deg": null,
+      "slope_alpha_p95_abs_error_deg": null,
+      "rls_frozen_on_slope": true,
+      "wheel_saturation_fraction": 0.0,
+      "fallen": false,
+      "termination_reason": null,
+      "unsupported_payload_change_on_slope": false,
+      "payload_model_updates": [],
+      "terminal_payload_rls_candidate": {
+        "mass_kg": 0.036555899632047,
+        "covariance": 0.00310797063676878,
+        "information": 321.713361556741,
+        "residual_ratio": 1.23621486118042,
+        "stability_range_kg": 0.0228250034684565,
+        "update_count": 2456
+      },
+      "failures": [
+        "payload_mass",
+        "no_valid_payload_model_update",
+        "no_shadow_flat_acceptance"
+      ],
+      "passed": false
+    }
+  },
+  "skipped_scenes": [
+    "identified_payload_flat_acceleration",
+    "payload_slope_m8",
+    "payload_slope_p8"
+  ],
+  "data_boundary": "terrain segment/angle and payload load events are post-hoc qualification data only"
+}

@@ -1,0 +1,58 @@
+{
+  "stage": "Stage 4A Slope / Grade Robustness",
+  "baseline_manifest": "../../stage3/config/baseline.json",
+  "angles_deg": [8.0, -8.0, 15.0, -15.0],
+  "terrain": {
+    "forward_axis_world": [0.0, -1.0, 0.0],
+    "flat_lead_in_length_m": 1.0,
+    "flat_back_margin_m": 2.0,
+    "transition_length_m": 0.5,
+    "constant_grade_length_m": 8.0,
+    "half_width_m": 1.5,
+    "half_thickness_m": 0.10,
+    "boundary_guard_margin_m": 0.75,
+    "model_basis": "finite analytic box geoms; no wall and no heightfield"
+  },
+  "command": {
+    "profile_source": "Stage 3B representative +0.4 m/s forward command",
+    "duration_s": 14.0,
+    "linear_velocity_schedule": [
+      {"time_s": 0.0, "command": 0.0},
+      {"time_s": 1.0, "command": 0.4}
+    ],
+    "yaw_rate_schedule": [
+      {"time_s": 0.0, "command": 0.0}
+    ],
+    "maximum_commanded_travel_m": 5.2,
+    "available_path_to_boundary_guard_m": 8.75,
+    "minimum_path_margin_m": 3.55
+  },
+  "ablation": {
+    "q_states": ["OFF", "ON"],
+    "same_initial_state": true,
+    "same_command_schedule": true,
+    "same_imu_rng_seed": true,
+    "same_terrain_per_angle": true,
+    "observer_runs_in_both_arms": true,
+    "q_on_semantics": "existing single-channel matched DOB Q-filter command enters the actuator sum path without an added gate or slew limiter"
+  },
+  "frozen_q_parameters": {
+    "q_filter_cutoff_hz": 2.0,
+    "innovation_projection_bound_nm": 0.35,
+    "augmentation_authority_bound_nm": 0.18,
+    "augmentation_slew_rate_nm_s": null
+  },
+  "metrics": {
+    "steady_grade_settle_after_transition_s": 1.0,
+    "acceptance_basis": "reuse applicable Stage 3 empty-platform limits; no composite score",
+    "velocity_RMSE_acceptance_window": "steady constant-grade after the declared 1.0 s transition settling interval",
+    "maximum_steady_grade_velocity_tracking_rmse_m_s": 0.06,
+    "maximum_abs_steady_velocity_bias_m_s": 0.03,
+    "maximum_abs_pitch_deg": 20.0,
+    "maximum_wheel_saturation_fraction": 0.01,
+    "require_no_fall": true,
+    "require_no_boundary_termination": true
+  },
+  "history_frequency_hz": 50.0,
+  "data_boundary": "terrain angle, terrain normal, world pose and along-track GT are evaluator/logger/termination-only and never controller inputs"
+}

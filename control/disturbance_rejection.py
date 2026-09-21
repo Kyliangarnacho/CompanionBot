@@ -101,6 +101,12 @@ class FilteredDisturbanceCompensator:
         ):
             raise ValueError("augmentation slew rate must be positive or disabled")
 
+        self._configure_model(model)
+        self._alpha_q = self._lowpass_alpha(config.q_filter_cutoff_hz)
+        self.reset()
+
+    def _configure_model(self, model: DiscreteStateSpaceModel) -> None:
+        self.model = model
         self._normalized_input_direction = (
             self.model.B[:, 0] * self.input_scale_nm / self.state_scales
         )
@@ -108,9 +114,11 @@ class FilteredDisturbanceCompensator:
             self._normalized_input_direction @ self._normalized_input_direction
         )
         if self._input_information <= np.finfo(float).eps:
-            raise ValueError("nominal B has no usable matched input direction")
-        self._alpha_q = self._lowpass_alpha(config.q_filter_cutoff_hz)
-        self.reset()
+            raise ValueError("model B has no usable matched input direction")
+
+    def update_model(self, model: DiscreteStateSpaceModel) -> None:
+        """Switch prediction to the accepted operating model without resetting Q."""
+        self._configure_model(model)
 
     def _lowpass_alpha(self, cutoff_hz: float) -> float:
         return 1.0 - math.exp(

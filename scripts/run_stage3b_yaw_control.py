@@ -213,6 +213,15 @@ def run_case(
     common_mode_augmentation=None,
     physics_step_callback=None,
     simulation_setup_callback=None,
+    command_source=None,
+    empty_model_path: Path | None = None,
+    model_path_override: Path | None = None,
+    history_diagnostic_callback=None,
+    termination_guard=None,
+    equilibrium_reference_callback=None,
+    equilibrium_input_callback=None,
+    control_observer=None,
+    motion_limit_scale_callback=None,
 ) -> dict:
     (
         manifest, config, dynamic_config, motion_config, offline,
@@ -238,9 +247,15 @@ def run_case(
     yaw_schedule = scenario["yaw_rate_schedule"]
     lifecycle.reset(0.0, float(linear_schedule[0]["command"]))
 
-    theta_eq = float(reduced["parameters"]["theta_eq_rad"])
+    nominal_theta_eq = float(reduced["parameters"]["theta_eq_rad"])
+    theta_eq = nominal_theta_eq
     sim, payload_setup, payload_recorder = build_sim(
-        payload_mode, int(motion_config["imu_rng_seed"]), theta_eq, dr_raw
+        payload_mode,
+        int(motion_config["imu_rng_seed"]),
+        nominal_theta_eq,
+        dr_raw,
+        empty_model_path=empty_model_path,
+        model_path_override=model_path_override,
     )
     if simulation_setup_callback is not None:
         setup_override = simulation_setup_callback(sim)
@@ -248,7 +263,12 @@ def run_case(
             **(payload_setup or {}),
             "mechanical_override": setup_override,
         }
-        if payload_setup.get("box") is not None and setup_override is not None:
+        if (
+            payload_setup.get("box") is not None
+            and setup_override is not None
+            and "payload_mass_kg" in setup_override
+            and "payload_diagonal_inertia_kg_m2" in setup_override
+        ):
             payload_setup["box"].update({
                 "mass_kg": setup_override["payload_mass_kg"],
                 "diagonal_inertia_kg_m2": setup_override[
@@ -308,7 +328,7 @@ def run_case(
     logs: dict[str, list] = {name: [] for name in (
         "time", "v_cmd", "r_cmd", "reference", "plant", "gt_long",
         "psi_ref", "psi_hat", "r_hat", "psi_gt", "r_gt", "lateral_gt",
-        "u_base", "u_sum_request", "u_sum", "u_ff", "u_fb", "u_diff_request",
+        "u_base", "u_eq", "u_sum_request", "u_sum", "u_ff", "u_fb", "u_diff_request",
         "u_diff_used", "u_left", "u_right", "actual_left", "actual_right",
         "diff_clipped", "guard_clipped", "ff_phase", "velocity_phase",
     )}
@@ -320,42 +340,119 @@ def run_case(
     payload_positions: list[np.ndarray] = []
     payload_contacts: list[bool] = []
     payload_forces: list[float] = []
+    termination_reason: str | None = None
+
+    def begin_velocity_transition(target_velocity_m_s: float, time_s: float) -> None:
+        transition_motion_config = copy.deepcopy(motion_config)
+        acceleration_scale = 1.0
+        if motion_limit_scale_callback is not None:
+            acceleration_scale = float(motion_limit_scale_callback({
+                "sim": sim,
+                "time_s": time_s,
+                "target_velocity_m_s": target_velocity_m_s,
+                "reference_state": lifecycle.reference_state.copy(),
+                "reference_acceleration_m_s2": lifecycle.reference_acceleration_m_s2,
+                "nominal_acceleration_limit_m_s2": float(
+                    motion_config["reference_limits"]["max_acceleration_m_s2"]
+                ),
+            }))
+            if not math.isfinite(acceleration_scale) or not 0.0 < acceleration_scale <= 1.0:
+                raise ValueError("motion limit scale must be finite in (0, 1]")
+            transition_motion_config["reference_limits"][
+                "max_acceleration_m_s2"
+            ] *= acceleration_scale
+        transition = longitudinal.build_velocity_transition_plan(
+            lifecycle.reference_state, target_velocity_m_s, dynamic_config,
+            transition_motion_config, A, B, state_scales, input_scale,
+            float(lifecycle_config["feedforward_rearm_threshold_s"]),
+            lifecycle_config["horizon_search"],
+            start_acceleration_m_s2=lifecycle.reference_acceleration_m_s2,
+        )
+        lifecycle.begin_transition(transition["plan"])
+        transition_events.append({
+            "command_time_s": time_s,
+            "target_velocity_m_s": target_velocity_m_s,
+            "acceleration_limit_scale": acceleration_scale,
+            "T_v_s": transition["planned_transient_duration_s"],
+            "T_full_s": transition["dynamic_nominal_horizon_s"],
+            "normalized_residual_rms": transition["normalized_residual_rms"],
+        })
 
     for interval in range(interval_count):
         control_time = float(sim.data.time)
-        if linear_index < len(linear_schedule) and control_time + 1e-12 >= float(
-            linear_schedule[linear_index]["time_s"]
-        ):
-            v_cmd = float(linear_schedule[linear_index]["command"])
-            transition = longitudinal.build_velocity_transition_plan(
-                lifecycle.reference_state, v_cmd, dynamic_config, motion_config,
-                A, B, state_scales, input_scale,
-                float(lifecycle_config["feedforward_rearm_threshold_s"]),
-                lifecycle_config["horizon_search"],
-                start_acceleration_m_s2=lifecycle.reference_acceleration_m_s2,
-            )
-            lifecycle.begin_transition(transition["plan"])
-            transition_events.append({
-                "command_time_s": control_time,
-                "target_velocity_m_s": v_cmd,
-                "T_v_s": transition["planned_transient_duration_s"],
-                "T_full_s": transition["dynamic_nominal_horizon_s"],
-                "normalized_residual_rms": transition["normalized_residual_rms"],
-            })
-            linear_index += 1
-        if yaw_index < len(yaw_schedule) and control_time + 1e-12 >= float(
-            yaw_schedule[yaw_index]["time_s"]
-        ):
-            r_cmd = float(yaw_schedule[yaw_index]["command"])
-            yaw_index += 1
+        if command_source is not None:
+            next_v_cmd, next_r_cmd = command_source(sim, control_time)
+            next_v_cmd = float(next_v_cmd)
+            next_r_cmd = float(next_r_cmd)
+            if not np.isfinite([next_v_cmd, next_r_cmd]).all():
+                raise ValueError("runtime v/w command source returned non-finite data")
+            if not math.isclose(next_v_cmd, v_cmd, abs_tol=1e-12):
+                # The frozen lifecycle does not accept mid-plan retargeting.
+                # A safety cap is queued until the active jerk-limited plan
+                # reaches HOLD; balance/reference continuity takes priority.
+                if not (
+                    motion_limit_scale_callback is not None
+                    and lifecycle.phase == VelocityLifecyclePhase.VELOCITY_TRANSIENT
+                ):
+                    v_cmd = next_v_cmd
+                    begin_velocity_transition(v_cmd, control_time)
+            if not math.isclose(next_r_cmd, r_cmd, abs_tol=1e-12):
+                r_cmd = next_r_cmd
+                yaw_schedule.append({"time_s": control_time, "command": r_cmd})
+        else:
+            if linear_index < len(linear_schedule) and control_time + 1e-12 >= float(
+                linear_schedule[linear_index]["time_s"]
+            ):
+                v_cmd = float(linear_schedule[linear_index]["command"])
+                begin_velocity_transition(v_cmd, control_time)
+                linear_index += 1
+            if yaw_index < len(yaw_schedule) and control_time + 1e-12 >= float(
+                yaw_schedule[yaw_index]["time_s"]
+            ):
+                r_cmd = float(yaw_schedule[yaw_index]["command"])
+                yaw_index += 1
 
-        x_plant = estimate.plant_state(theta_eq)
         lifecycle_command = lifecycle.command(control_time)
         x_ref = lifecycle_command.reference_state
+        observer_output = (
+            control_observer.output({
+                "sim": sim,
+                "time_s": control_time,
+                "estimate": estimate,
+                "reference_state": x_ref.copy(),
+                "nominal_theta_eq_rad": nominal_theta_eq,
+            })
+            if control_observer is not None else {}
+        )
+        if equilibrium_reference_callback is not None:
+            theta_eq = float(equilibrium_reference_callback({
+                "sim": sim,
+                "time_s": control_time,
+                "estimate": estimate,
+                "reference_state": x_ref.copy(),
+                "nominal_theta_eq_rad": nominal_theta_eq,
+                "control_observer_output": observer_output,
+            }))
+            if not math.isfinite(theta_eq):
+                raise ValueError("runtime equilibrium reference must be finite")
+        x_plant = estimate.plant_state(theta_eq)
         error = x_plant - x_ref
         u_fb = -float((K4 @ error).item())
         u_ff = lambda_ff * lifecycle_command.feedforward_nm
-        u_base = u_fb + u_ff
+        u_eq = 0.0
+        if equilibrium_input_callback is not None:
+            u_eq = float(equilibrium_input_callback({
+                "sim": sim,
+                "time_s": control_time,
+                "estimate": estimate,
+                "reference_state": x_ref.copy(),
+                "nominal_theta_eq_rad": nominal_theta_eq,
+                "theta_eq_rad": theta_eq,
+                "control_observer_output": observer_output,
+            }))
+            if not math.isfinite(u_eq):
+                raise ValueError("runtime equilibrium input must be finite")
+        u_base = u_eq + u_fb + u_ff
         augmentation_command = (
             common_mode_augmentation.command(u_base, control_time)
             if common_mode_augmentation is not None else {}
@@ -403,6 +500,7 @@ def run_case(
         assert next_gt_long is not None
         actual = np.mean(np.asarray(actual_wheels), axis=0)
 
+        estimate_before_step = estimate
         accel, gyro, measurement_age, extrapolation_allowed = sim.imu_estimator_input()
         estimate = estimator.update(
             accel, gyro, sim.wheel_encoder_counts(),
@@ -425,6 +523,26 @@ def run_case(
         r_gt = delta_gt_yaw / dt_s
         previous_gt_yaw = current_gt_yaw
         time_s = float(sim.data.time)
+        observer_observation = (
+            control_observer.observe({
+                "sim": sim,
+                "time_s": time_s,
+                "dt_s": dt_s,
+                "estimate_before": estimate_before_step,
+                "estimate_after": estimate,
+                "actual_wheels_nm": actual.copy(),
+                "requested_wheels_nm": requested_wheels.copy(),
+                "accelerometer_m_s2": np.asarray(accel, dtype=float).copy(),
+                "gyro_rad_s": np.asarray(gyro, dtype=float).copy(),
+                "saturated": bool(
+                    allocation.final_guard_clipped
+                    or abs(u_sum_request - u_sum) > 1e-12
+                ),
+                "reference_state": next_reference.copy(),
+                "nominal_theta_eq_rad": nominal_theta_eq,
+            })
+            if control_observer is not None else {}
+        )
         augmentation_observation = (
             common_mode_augmentation.observe(
                 x_plant,
@@ -450,6 +568,7 @@ def run_case(
             "r_gt": r_gt,
             "lateral_gt": root_lateral_position_m(sim),
             "u_base": u_base,
+            "u_eq": u_eq,
             "u_sum_request": u_sum_request,
             "u_sum": u_sum,
             "u_ff": u_ff,
@@ -480,6 +599,7 @@ def run_case(
                 "r_GT_rad_s": r_gt,
                 "u_sum_nm": u_sum,
                 "u_base_nm": u_base,
+                "u_eq_nm": u_eq,
                 "u_fb_nm": u_fb,
                 "u_ff_used_nm": u_ff,
                 "u_diff_request_nm": u_diff_request,
@@ -489,6 +609,9 @@ def run_case(
                 "actual_left_nm": float(actual[0]),
                 "actual_right_nm": float(actual[1]),
                 "actual_sum_nm": float(np.sum(actual)),
+                "sum_command_saturated": bool(abs(u_sum_request - u_sum) > 1e-12),
+                "allocator_guard_clipped": bool(allocation.final_guard_clipped),
+                "allocator_differential_clipped": bool(allocation.differential_clipped),
                 "p_ref_m": float(next_reference[0]),
                 "p_hat_m": float(estimate.position_hat_m),
                 "p_GT_m": float(next_gt_long[0]),
@@ -496,6 +619,7 @@ def run_case(
                 "v_hat_m_s": float(estimate.velocity_hat_m_s),
                 "v_GT_m_s": float(next_gt_long[1]),
                 "theta_ref_rad": float(next_reference[2]),
+                "theta_eq_used_rad": float(theta_eq),
                 "theta_hat_rad": float(estimate.theta_hat_rad),
                 "theta_GT_rad": float(next_gt_long[2]),
                 "theta_dot_ref_rad_s": float(next_reference[3]),
@@ -507,6 +631,13 @@ def run_case(
             if common_mode_augmentation is not None:
                 history[-1].update(augmentation_command)
                 history[-1].update(augmentation_observation)
+            if control_observer is not None:
+                history[-1].update(observer_output)
+                history[-1].update(observer_observation)
+            if history_diagnostic_callback is not None:
+                diagnostic = history_diagnostic_callback(sim)
+                if diagnostic is not None:
+                    history[-1].update(diagnostic)
             if payload_recorder is not None and payload_positions:
                 history[-1].update({
                     "payload_posthoc_relative_position_body_m": (
@@ -518,6 +649,12 @@ def run_case(
                     ),
                 })
 
+        if termination_guard is not None:
+            guard_result = termination_guard(sim)
+            if guard_result:
+                termination_reason = str(guard_result)
+                break
+
     arrays = {name: np.asarray(values) for name, values in logs.items()}
     heading_error_gt = np.asarray([
         wrap_to_pi(ref - gt)
@@ -528,7 +665,7 @@ def run_case(
         for ref, hat in zip(arrays["psi_ref"], arrays["psi_hat"])
     ])
     turning = np.abs(arrays["r_cmd"]) > 1e-9
-    terminal = arrays["time"] >= float(scenario["duration_s"]) - 1.0
+    terminal = arrays["time"] >= max(0.0, float(arrays["time"][-1]) - 1.0)
     yaw_stops = settling_after_yaw_stops(
         arrays["time"], arrays["r_cmd"], heading_error_gt,
         arrays["r_gt"], yaw_schedule,
@@ -705,6 +842,12 @@ def run_case(
             if np.issubdtype(value.dtype, np.number)
         )),
         "GT_runtime_dependency": False,
+        "simulation_termination": {
+            "terminated_early": termination_reason is not None,
+            "reason": termination_reason,
+            "actual_duration_s": float(arrays["time"][-1]),
+            "requested_duration_s": float(scenario["duration_s"]),
+        },
         "history_50hz": history,
     }
     return result

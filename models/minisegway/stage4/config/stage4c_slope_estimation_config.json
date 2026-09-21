@@ -1,0 +1,65 @@
+{
+  "stage": "Stage 4C — Physics-Based Slope Estimation",
+  "baseline_manifest": "../../stage3/config/baseline.json",
+  "friction_model_version": "wheel_and_terrain_v2",
+  "nominal_friction": 1.0,
+  "physics_dt_s": 0.001,
+  "controller_dt_s": 0.002,
+  "history_frequency_hz": 50.0,
+  "episode_duration_s": 12.0,
+  "episode_duration_by_speed_s": {"0.2": 20.0, "0.4": 12.0, "0.6": 12.0},
+  "seed": 4400,
+  "seeds_per_combination": 2,
+  "development_slopes_deg": [0.0, -4.0, 4.0, -8.0, 8.0, -12.0, 12.0, -15.0, 15.0],
+  "held_out_test_slopes_deg": [-3.0, 3.0, -6.0, 6.0, -10.0, 10.0, -14.0, 14.0],
+  "speeds_m_s": [0.2, 0.4, 0.6],
+  "oracle_angles_deg": [8.0, -8.0, 15.0, -15.0],
+  "terrain": {
+    "forward_axis_world": [0.0, -1.0, 0.0],
+    "flat_lead_in_length_m": 0.7,
+    "flat_back_margin_m": 2.0,
+    "transition_length_m": 0.4,
+    "constant_grade_length_m": 8.0,
+    "half_width_m": 1.5,
+    "half_thickness_m": 0.1,
+    "boundary_guard_margin_m": 0.6
+  },
+  "static_inverse": {
+    "maximum_abs_pitch_rate_rad_s": 0.1,
+    "maximum_abs_reference_acceleration_m_s2": 0.1,
+    "minimum_abs_velocity_m_s": 0.08,
+    "filter_time_constant_s": 0.2,
+    "maximum_abs_alpha_deg": 18.0
+  },
+  "twip_ekf": {
+    "update_period_s": 0.01,
+    "derivative_filter_time_constant_s": 0.08,
+    "alpha_process_std_deg_sqrt_s": 2.0,
+    "force_measurement_std_n": 0.22,
+    "steady_pitch_measurement_std_deg": 5.0,
+    "initial_std_deg": 5.0,
+    "maximum_abs_alpha_deg": 18.0,
+    "maximum_abs_pitch_rate_rad_s": 3.0,
+    "minimum_abs_velocity_m_s": 0.05,
+    "convergence_std_deg": 1.0
+  },
+  "gates": {
+    "maximum_online_mae_deg": 1.0,
+    "maximum_online_p95_abs_error_deg": 2.5,
+    "maximum_abs_steady_bias_deg": 0.5,
+    "target_convergence_s": 3.0,
+    "hard_maximum_convergence_s": 5.0,
+    "slip_ratio_threshold": 0.2,
+    "maximum_meaningful_slip_fraction": 0.01,
+    "maximum_steady_velocity_rmse_m_s": 0.06,
+    "maximum_abs_steady_velocity_bias_m_s": 0.03,
+    "maximum_wheel_saturation_fraction": 0.01
+  },
+  "fixed_payload_check": {
+    "angles_deg": [-8.0, 8.0, -14.0, 14.0],
+    "speed_m_s": 0.4,
+    "seeds": 2
+  },
+  "tuning_discipline": "one nominal tune plus one correction: steady pitch measurement std increased from 0.35 to 5.0 deg after development-only runs exposed seed-dependent production pitch bias; held-out test was rerun frozen after this correction",
+  "scope": "smooth, empty, nominal traction, yaw=0, no push, no rough/bump/slip; Q observer may log but Q actuator is OFF"
+}

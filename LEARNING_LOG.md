@@ -323,3 +323,18 @@
   runner；3-state Drive LQR、临时 A-column patch、FD Jacobian、GT-theta diagnostic、有限 Q/R 与
   lambda 扫描的结论仍由本日志保留，但不再属于可执行 baseline surface。
 - 本次只整理代码、配置、结果与文档路径，没有重跑实验、修改 controller 数学、commit 或 push。
+
+## Stage 4 closeout — rejected paths and artifact hygiene
+
+- Stage4B/B-R 曾尝试基于 proprioception 的 slope/slip/rough learning；修正 wheel/terrain
+  friction 一致性后仍未过 slope Gate，因此 learning 路线永久拒绝。配置、生成数据和报告从独立
+  `stage4b/` 归入 `stage4/stage4b/`，runner 仅为历史复现入口，不接 production controller。
+- Stage4E/E-R 曾使用 `PAYLOAD_ID` environment state、continuous/shadow scalar RLS、
+  candidate/accepted 双层 payload model、residual-improvement 与 information/covariance/stability
+  多重 gates；payload removal 和 slope transient 暴露出复杂 lifecycle 的脆弱性。
+- 最终实现删除上述逻辑，只保留 `FLAT/SLOPE`、`payload_id_pending/payload_id_active`、Q model-change
+  trigger 与一次短时 50 Hz natural-transient batch ID。Q actuator/slip control 均 OFF，Stage4C EKF
+  参数、LQR/FF/yaw/allocator、torque/friction baseline 冻结。
+- 旧 Stage4E/E-R runner 与配置已删除；失败/过渡结果和 world 移入
+  `stage4/reference/stage4e_legacy/`，仅供追溯，不再出现在现行 results/worlds 目录。
+- 本次仅整理路径、历史材料和阶段标签，没有新增算法、修改门限或重跑实验。

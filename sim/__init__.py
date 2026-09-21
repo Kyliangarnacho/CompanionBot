@@ -25,6 +25,11 @@ from .longitudinal_estimation import (
     PitchEstimate,
     load_longitudinal_estimator_config,
 )
+from .slip_estimation import (
+    LongitudinalSlipObserver,
+    SlipEstimate,
+    SlipObserverConfig,
+)
 from .virtual_imu import (
     ImuAxisNoiseParameters,
     ImuHardwareSample,
@@ -50,12 +55,15 @@ __all__ = [
     "LongitudinalEstimate",
     "LongitudinalEstimator",
     "LongitudinalEstimatorConfig",
+    "LongitudinalSlipObserver",
     "MiniSegwaySim",
     "PayloadConfig",
     "PitchEstimate",
     "QuadratureEncoderProfile",
     "RigidMassProperties",
     "SimSnapshot",
+    "SlipEstimate",
+    "SlipObserverConfig",
     "VirtualImuHardware",
     "VirtualImuHardwareConfig",
     "VirtualImuSensor",

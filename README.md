@@ -1,66 +1,91 @@
 # CompanionBot
 
-CompanionBot 是一个双轮自平衡机器人研究项目。Stage 3 已收口为一套可复现的 MuJoCo
-simulation baseline，覆盖 longitudinal commanded motion、并联 yaw control，以及机械整形后的
-free-moving payload 验证。它仍是仿真研究基线，不代表实机 torque/speed/payload 额定能力。
+CompanionBot 是一个双轮自平衡机器人 MuJoCo 研究项目。当前冻结 baseline 已经不只是“原地站住”：
+它能够完成速度/转向控制、上下坡、固定偏载运行，并从小型外力与单轮冲激中自行恢复。
 
-## 冻结的 Stage 3 baseline
+> 当前结论仅适用于仿真研究，不代表实机安全认证、额定载荷或最终硬件性能。
 
-- MuJoCo physics：1 kHz；controller/estimator：500 Hz。
-- 控制状态：`[p_hat, v_hat, pitch_error, pitch_rate_hat]`。
-- Longitudinal：new fixed A/B 用于 dynamic nominal/feedforward，反馈保留经挑战验证的 K_old。
-- Reference：jerk-limited S-curve；velocity transient 使用 dynamic lean reference 和
-  `lambda_ff=0.6`，到 `T_full` 后 0.15 s smooth fade，hold 阶段 feedforward 严格为零。
-- Estimator：acceleration-compensated complementary pitch filter；GT 只用于 post-hoc evaluator。
-- Yaw：并联 relative-heading/yaw-rate PD，`K_psi=0.55`、`K_r=0.20`；优先保护 longitudinal torque。
-- Q observer：保留连续 diagnostic，actuator augmentation 关闭。
-- Stage 3C-R payload：0.10 kg、64×32×32 mm，滑动摩擦 0.35，使用统一柔顺/阻尼壁面接触。
+## 当前抗扰动能力
 
-唯一 baseline manifest：
-[`models/minisegway/stage3/config/baseline.json`](models/minisegway/stage3/config/baseline.json)。
+| 场景 | 冻结 baseline 结果 | 少量关键数据 |
+|---|---|---|
+| 平滑恒坡 | **±8° 通过**，无摔倒、无轮端饱和 | +8° / −8° 稳态速度 RMSE：0.0148 / 0.0469 m/s |
+| 外力推扰 | **12/12 全部恢复** | 0.5 / 1.0 / 1.5 N × 0.10 s，静止/运动、双方向；最坏恢复 0.58 s，最大 pitch 11.76° |
+| 固定载荷偏置 | **0.25 kg、左右 ±10 mm 均稳定** | 无摔倒/饱和；最坏速度 RMS 0.0496 m/s，peak yaw 0.718° |
+| 单轮纵向冲激 | **左右轮均恢复** | 1 N × 0.10 s；最大 pitch 增量 1.344°，peak yaw 0.710°，最坏恢复 0.062 s |
+| 篮内自由载荷 | **机械整形后保持 contained** | 0.10 kg；无摔倒、无饱和、无大幅碰撞相关速度跌落 |
+
+这些结果使用同一套冻结 LQR、feedforward、yaw controller、allocator、torque limit 和 friction
+baseline；没有为了某个 smoke case 单独调控制器。
+
+详细结果：
+
+- [Stage 4 最终 baseline closeout](models/minisegway/stage4/results/final_baseline/STAGE4_FINAL_BASELINE.md)
+- [坡度 robustness](models/minisegway/stage4/results/STAGE4A_REPORT.md)
+- [外部扰动与 push 结果](models/minisegway/stage4/results/stage4d/STAGE4D_EXTERNAL_DISTURBANCE_REPORT.md)
+
+## 已知边界
+
+- **±15° 不属于已验收坡度范围**：压力测试没有摔倒或饱和，但 pitch/velocity 指标未过 Gate。
+- 现有 modest bump 会使车辆停在障碍前；rough surface 可通过，但不能据此声称具备普遍越障能力。
+- Slip observer 未达到 recall Gate，因此 slip detector/control 没有进入最终 runtime。
+- Fixed-payload ID 的前后位置估计准确，但本次 0.25 kg 真值被估为 0.3476 kg；该质量偏差被明确保留。
+- Q observer 仅用于 model-change diagnostic；Q actuator 永久 OFF。
+
+## 当前冻结 runtime
+
+- MuJoCo physics：1 kHz；main controller：500 Hz。
+- Longitudinal：fixed nominal ID-LQR + transient-only dynamic lean/feedforward。
+- Yaw：relative-heading / yaw-rate PD，allocator 优先保护 longitudinal common-mode torque。
+- Payload：Q change trigger → 下一次自然 transient → 50 Hz 短时 sagittal ID → 参数冻结。
+- Slope：两态 `FLAT/SLOPE` supervisor；Stage4C physics EKF 仅在 `SLOPE` 以 100 Hz 运行。
+- Production：Q actuator OFF，slip detector/control OFF。
+- Controller/estimator 不读取 terrain、payload 或姿态 GT；GT 只用于 post-hoc 验收。
+
+冻结配置：
+
+- [Stage 3 baseline manifest](models/minisegway/stage3/results/config/baseline.json)
+- [Stage 4 final baseline config](models/minisegway/stage4/config/stage4_final_baseline_config.json)
 
 ## 快速运行
 
 在项目根目录使用现有 Python 3.11 虚拟环境：
 
 ```powershell
-# Plant smoke / Stage 1 baselines
-.\.venv\Scripts\python.exe scripts\smoke_test_minisegway.py
-.\.venv\Scripts\python.exe scripts\run_fixed_lqr_headless.py
-.\.venv\Scripts\python.exe scripts\run_cascade_pid_headless.py
+# 最终 payload lifecycle + 偏载/单轮冲激 smoke tests
+.\.venv\Scripts\python.exe scripts\run_stage4_final_closeout.py
 
-# 冻结的 Stage 2 acceptance
-.\.venv\Scripts\python.exe scripts\run_moving_payload_collision_acceptance.py
+# 当前测试集
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
 
-# Stage 3 longitudinal / yaw / mechanically conditioned payload
-.\.venv\Scripts\python.exe scripts\run_stage3a_velocity_feedforward_handoff.py
-.\.venv\Scripts\python.exe scripts\run_stage3b_yaw_control.py --final-only
-.\.venv\Scripts\python.exe scripts\run_stage3c_mechanical_payload_q_revalidation.py
+# 无 payload 的交互式速度/转向 demo
+.\.venv\Scripts\python.exe scripts\view_stage3_baseline_demo.py --duration 30
 ```
 
-人工查看 Stage 3C-R 控制过程：
+Stage4A 坡面 viewer 可用于直观看车体进入 +8°、−8°、+15°、−15° 坡面：
 
 ```powershell
-.\.venv\Scripts\python.exe scripts\view_stage3c_dynamic_payload_q.py --arm q-off
+.\.venv\Scripts\python.exe scripts\view_stage4a_slope_demo.py
 ```
 
-Viewer 由用户亲自启动；关闭窗口即可停止。`q-on` 仅复现实验臂，不是 production baseline。
+该 viewer 保留的是 Stage4A Q-ON 可视化实验臂；最终 production baseline 仍为 Q actuator OFF。
+Viewer 由用户亲自启动并关闭。
 
-## 目录
+## 仓库结构
 
 ```text
-control/                         LQR、reference、feedforward、yaw 与 Q observer primitives
-sim/                             MuJoCo 仿真、sensor/estimator 与 payload runtime support
-models/minisegway/               共享 plant/sensor config 与 stage 分层 artifacts
-  stage1/results/                smoke、equilibrium、PID/LQR 基线
-  stage2/results/                full-state ID 与冻结 moving-payload acceptance
-  stage3/config/                 Stage 3 manifest 和专用配置
-  stage3/results/                Stage 3 最终结果及少量历史摘要
-scripts/                         保留的可复现 run/check/viewer 入口
-CURRENT_STATE.md                 当前冻结状态和边界
-LEARNING_LOG.md                  调试路线、负结果和最终决策
+control/                              冻结控制器、Q diagnostic 与 Stage 4 runtime
+sim/                                  MuJoCo、sensor/estimator 与 payload support
+models/minisegway/
+  stage3/results/config/              Stage 3 baseline manifest 与运行配置
+  stage4/config/                      当前 Stage 4 配置
+  stage4/results/final_baseline/      最终 metrics、history 与短报告
+  stage4/stage4b/                     已拒绝的 Stage4B/B-R 学习实验及复现材料
+  stage4/reference/                   旧 Stage4E/E-R 历史痕迹，不属于当前 runtime
+scripts/                              当前复现与 viewer 入口
+CURRENT_STATE.md                      冻结状态、指标和能力边界
+LEARNING_LOG.md                       调试路线、负结果与最终决策
 ```
 
-Plant 参数与 sensor semantics 见
-[`models/minisegway/README.md`](models/minisegway/README.md)，当前冻结结论见
-[`CURRENT_STATE.md`](CURRENT_STATE.md)。
+更完整的当前状态见 [CURRENT_STATE.md](CURRENT_STATE.md)，模型与传感器语义见
+[models/minisegway/README.md](models/minisegway/README.md)。

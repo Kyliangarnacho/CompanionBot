@@ -1,0 +1,91 @@
+{
+  "stage": "Stage 4 final baseline closeout",
+  "seed": 5400,
+  "physics_dt_s": 0.001,
+  "controller_dt_s": 0.002,
+  "history_frequency_hz": 50.0,
+  "q_actuator_enabled": false,
+  "slip_enabled": false,
+  "slope_supervisor": {
+    "enter_error_deg": 3.0,
+    "enter_persistence_s": 0.2,
+    "enter_minimum_abs_velocity_m_s": 0.08,
+    "theta_dyn_epsilon_rad": 1e-12,
+    "exit_abs_alpha_deg": 0.7,
+    "exit_abs_error_deg": 3.0,
+    "exit_persistence_s": 0.75,
+    "control_maximum_std_deg": 1.0
+  },
+  "q_change_trigger": {
+    "dt_s": 0.002,
+    "ewma_time_constant_s": 0.05,
+    "enter_abs_delta_q_nm": 0.01,
+    "exit_abs_delta_q_nm": 0.005,
+    "enter_persistence_s": 0.08,
+    "baseline_persistence_s": 0.25
+  },
+  "payload_id": {
+    "update_period_s": 0.02,
+    "minimum_updates": 30,
+    "maximum_updates": 100,
+    "minimum_abs_reference_acceleration_m_s2": 0.12,
+    "maximum_condition_number": 1000.0,
+    "minimum_mass_kg": 0.02,
+    "maximum_mass_kg": 0.5,
+    "minimum_forward_m": -0.03,
+    "maximum_forward_m": 0.03,
+    "known_basket_payload_height_m": 0.16
+  },
+  "fixed_payload": {
+    "mass_kg": 0.25,
+    "full_size_m": [0.08, 0.04, 0.04],
+    "forward_position_m": 0.015,
+    "height_m": 0.16,
+    "lateral_offsets_m": {
+      "centered": 0.0,
+      "left": -0.01,
+      "right": 0.01
+    },
+    "placement_basis": "Basket inner lateral half-width is 0.052 m; payload lateral half-size is 0.040 m, so +/-0.010 m leaves 0.002 m wall clearance. Forward 0.015 m is inside the 0.029 m center limit and z=0.160 m rests the 0.040 m-high payload on the basket floor."
+  },
+  "payload_id_episode": {
+    "duration_s": 4.4,
+    "payload_add_time_s": 2.0,
+    "linear_velocity_schedule": [
+      {"time_s": 0.0, "command": 0.0},
+      {"time_s": 3.0, "command": 0.2}
+    ]
+  },
+  "robustness_profile": {
+    "duration_s": 10.0,
+    "linear_velocity_schedule": [
+      {"time_s": 0.0, "command": 0.0},
+      {"time_s": 1.0, "command": 0.4},
+      {"time_s": 4.0, "command": 0.0},
+      {"time_s": 6.0, "command": -0.3},
+      {"time_s": 8.5, "command": 0.0}
+    ]
+  },
+  "single_wheel_impulse": {
+    "force_n": 1.0,
+    "duration_s": 0.1,
+    "start_time_s": 3.0,
+    "episode_duration_s": 8.0,
+    "linear_velocity_m_s": 0.3,
+    "settling_window_s": 0.5,
+    "settled_pitch_error_deg": 3.0,
+    "settled_yaw_error_deg": 3.0,
+    "settled_velocity_error_m_s": 0.05
+  },
+  "frozen_baseline": {
+    "main_control_hz": 500,
+    "payload_id_hz": 50,
+    "payload_id_mode": "short_session_only",
+    "slope_ekf_hz": 100,
+    "slope_ekf_mode": "SLOPE_only",
+    "q_actuator": "OFF",
+    "slip_detector_control": "OFF",
+    "lqr_ff_yaw_allocator": "frozen",
+    "torque_limits_friction": "frozen"
+  }
+}

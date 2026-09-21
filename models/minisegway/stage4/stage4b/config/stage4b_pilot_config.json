@@ -1,0 +1,65 @@
+{
+  "stage": "Stage 4B proprioceptive environment pilot",
+  "seed": 20260920,
+  "sample_frequency_hz": 100.0,
+  "window_seconds": 0.8,
+  "step_seconds": 0.4,
+  "episode_duration_s": 8.0,
+  "slip_ratio_threshold": 0.20,
+  "train_slopes_deg": [0, 4, -4, 8, -8, 12, -12, 15, -15],
+  "numeric_ood_slopes_deg": [3, -3, 6, -6, 10, -10, 14, -14],
+  "terrain": {
+    "flat_lead_in_length_m": 0.35,
+    "flat_back_margin_m": 1.5,
+    "transition_length_m": 0.30,
+    "constant_grade_length_m": 6.0,
+    "half_width_m": 1.5,
+    "half_thickness_m": 0.10,
+    "boundary_guard_margin_m": 0.50
+  },
+  "factor_levels": {
+    "friction": [1.0, 0.45, 0.12],
+    "payload": ["empty", "fixed", "free"],
+    "terrain": ["smooth", "rough", "bump"],
+    "speed_m_s": [0.25, 0.40, 0.55]
+  },
+  "rough_train": {"height_m": 0.006, "spacing_m": 0.32, "length_m": 0.055},
+  "bump_train": {"height_m": 0.014, "spacing_m": 1.0, "length_m": 0.09},
+  "closed_loop_angles_deg": [8.0, -8.0, 15.0, -15.0],
+  "gates": {
+    "slope_mae_deg": 1.0,
+    "slope_p95_deg": 2.5,
+    "counterfactual_drift_deg": 1.0,
+    "slip_recall": 0.90
+  },
+  "cnn": {
+    "epochs": 80,
+    "patience": 12,
+    "batch_size": 32,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "alpha_loss_weight": 5.0
+  },
+  "revision": {
+    "name": "Stage4B-R final proprioceptive qualification",
+    "episodes_per_train_slope": 12,
+    "episode_duration_s": 9.0,
+    "long_window_seconds": 2.4,
+    "label_tail_seconds": 0.2,
+    "friction_ranges": [[0.08, 0.25], [0.30, 0.65], [0.70, 1.05]],
+    "speed_range_m_s": [0.20, 0.60],
+    "free_payload_mass_scale_range": [0.75, 1.25],
+    "rough_height_range_m": [0.003, 0.010],
+    "rough_spacing_range_m": [0.20, 0.50],
+    "rough_length_range_m": [0.035, 0.080],
+    "bump_height_range_m": [0.007, 0.023],
+    "bump_length_range_m": [0.055, 0.140],
+    "maximum_residual_correction_deg": 3.0,
+    "event_epochs": 80,
+    "residual_epochs": 80,
+    "patience": 12,
+    "batch_size": 32,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001
+  }
+}

@@ -1,0 +1,103 @@
+<mujoco model="Stage4B ep_041_test_m10p0">
+  <compiler angle="radian" meshdir="../../../../assets/upstream_local" />
+  <option timestep="0.001" integrator="implicitfast" gravity="0 0 -9.81" />
+  <statistic center="0 0 0.10" extent="0.35" />
+  <default>
+    <default class="visual">
+      <geom contype="0" conaffinity="0" group="2" />
+    </default>
+    <default class="collision">
+      <geom group="3" rgba="0.85 0.35 0.12 0.25" solref="0.005 1" solimp="0.9 0.95 0.001" />
+    </default>
+  </default>
+  <asset>
+    <texture name="ground_tex" type="2d" builtin="checker" rgb1="0.22 0.25 0.28" rgb2="0.12 0.14 0.16" width="256" height="256" />
+    <material name="ground_mat" texture="ground_tex" texrepeat="4 4" reflectance="0.15" />
+    <mesh name="main_frame_mesh" file="main_frame.stl" scale="0.001 0.001 0.001" />
+    <mesh name="wheel_base_mesh" file="wheel_base.stl" scale="0.001 0.001 0.001" />
+    <mesh name="cover_mesh" file="cover.stl" scale="0.001 0.001 0.001" />
+    <mesh name="motor_left_mesh" file="motor_left.stl" scale="0.001 0.001 0.001" />
+    <mesh name="motor_right_mesh" file="motor_right.stl" scale="0.001 0.001 0.001" />
+    <mesh name="mc33926_mesh" file="mc33926.stl" scale="0.001 0.001 0.001" />
+    <mesh name="wheel_mesh" file="wheel.stl" scale="0.001 0.001 0.001" />
+    <mesh name="adapter_left_mesh" file="adapter_left.stl" scale="0.001 0.001 0.001" />
+    <mesh name="adapter_right_mesh" file="adapter_right.stl" scale="0.001 0.001 0.001" />
+  </asset>
+  <worldbody>
+    <light pos="0 -0.5 0.8" dir="0 0.6 -1" diffuse="0.8 0.8 0.8" />
+    <geom name="terrain_flat" type="box" pos="0 0.575 -0.1" size="1.5 0.925 0.1" material="ground_mat" friction="0.12 0.005 0.0001" condim="3" />
+    <geom name="terrain_transition" type="box" pos="0 -0.480356345185 -0.124528001951" euler="0.174532925199 0 0" size="1.5 0.15 0.1" material="ground_mat" friction="0.12 0.005 0.0001" condim="3" />
+    <geom name="terrain_constant_grade" type="box" pos="0 -3.58250076717 -0.671519761602" euler="0.174532925199 0 0" size="1.5 3 0.1" material="ground_mat" friction="0.12 0.005 0.0001" condim="3" />
+    <geom name="terrain_rough_00" type="box" pos="0 -1.08912675929 -0.127281709991" euler="0.174532925199 0 0" size="1.5 0.0275 0.003" material="ground_mat" friction="0.12 0.005 0.0001" condim="3" />
+    <geom name="terrain_rough_01" type="box" pos="0 -1.40426524026 -0.182849126845" euler="0.174532925199 0 0" size="1.5 0.0275 0.003" material="ground_mat" friction="0.12 0.005 0.0001" condim="3" />
+    <geom name="terrain_rough_02" type="box" pos="0 -1.71940372122 -0.238416543698" euler="0.174532925199 0 0" size="1.5 0.0275 0.003" material="ground_mat" friction="0.12 0.005 0.0001" condim="3" />
+    <geom name="terrain_rough_03" type="box" pos="0 -2.03454220218 -0.293983960551" euler="0.174532925199 0 0" size="1.5 0.0275 0.003" material="ground_mat" friction="0.12 0.005 0.0001" condim="3" />
+    <geom name="terrain_rough_04" type="box" pos="0 -2.34968068315 -0.349551377405" euler="0.174532925199 0 0" size="1.5 0.0275 0.003" material="ground_mat" friction="0.12 0.005 0.0001" condim="3" />
+    <geom name="terrain_rough_05" type="box" pos="0 -2.66481916411 -0.405118794258" euler="0.174532925199 0 0" size="1.5 0.0275 0.003" material="ground_mat" friction="0.12 0.005 0.0001" condim="3" />
+    <geom name="terrain_rough_06" type="box" pos="0 -2.97995764508 -0.460686211112" euler="0.174532925199 0 0" size="1.5 0.0275 0.003" material="ground_mat" friction="0.12 0.005 0.0001" condim="3" />
+    <geom name="terrain_rough_07" type="box" pos="0 -3.29509612604 -0.516253627965" euler="0.174532925199 0 0" size="1.5 0.0275 0.003" material="ground_mat" friction="0.12 0.005 0.0001" condim="3" />
+    <geom name="terrain_rough_08" type="box" pos="0 -3.610234607 -0.571821044819" euler="0.174532925199 0 0" size="1.5 0.0275 0.003" material="ground_mat" friction="0.12 0.005 0.0001" condim="3" />
+    <geom name="terrain_rough_09" type="box" pos="0 -3.92537308797 -0.627388461672" euler="0.174532925199 0 0" size="1.5 0.0275 0.003" material="ground_mat" friction="0.12 0.005 0.0001" condim="3" />
+    <geom name="terrain_rough_10" type="box" pos="0 -4.24051156893 -0.682955878525" euler="0.174532925199 0 0" size="1.5 0.0275 0.003" material="ground_mat" friction="0.12 0.005 0.0001" condim="3" />
+    <geom name="terrain_rough_11" type="box" pos="0 -4.5556500499 -0.738523295379" euler="0.174532925199 0 0" size="1.5 0.0275 0.003" material="ground_mat" friction="0.12 0.005 0.0001" condim="3" />
+    <geom name="terrain_rough_12" type="box" pos="0 -4.87078853086 -0.794090712232" euler="0.174532925199 0 0" size="1.5 0.0275 0.003" material="ground_mat" friction="0.12 0.005 0.0001" condim="3" />
+    <geom name="terrain_rough_13" type="box" pos="0 -5.18592701182 -0.849658129086" euler="0.174532925199 0 0" size="1.5 0.0275 0.003" material="ground_mat" friction="0.12 0.005 0.0001" condim="3" />
+    <geom name="terrain_rough_14" type="box" pos="0 -5.50106549279 -0.905225545939" euler="0.174532925199 0 0" size="1.5 0.0275 0.003" material="ground_mat" friction="0.12 0.005 0.0001" condim="3" />
+    <geom name="terrain_rough_15" type="box" pos="0 -5.81620397375 -0.960792962792" euler="0.174532925199 0 0" size="1.5 0.0275 0.003" material="ground_mat" friction="0.12 0.005 0.0001" condim="3" />
+    <geom name="terrain_rough_16" type="box" pos="0 -6.13134245471 -1.01636037965" euler="0.174532925199 0 0" size="1.5 0.0275 0.003" material="ground_mat" friction="0.12 0.005 0.0001" condim="3" />
+    <body name="chassis" pos="0 0 0.043">
+      <freejoint name="root" />
+      <inertial pos="0.0001592717873 -0.001394466535 0.03368627387" mass="0.8173706489" fullinertia="0.0009508052638 0.001636345835 0.0009938057434 -1.163464906e-07 -4.840496598e-06 3.454944565e-05" />
+      <geom name="main_frame_visual" class="visual" type="mesh" mesh="main_frame_mesh" rgba="0.12 0.42 0.72 1" />
+      <geom name="wheel_base_visual" class="visual" type="mesh" mesh="wheel_base_mesh" rgba="0.95 0.50 0.10 1" />
+      <geom name="cover_visual" class="visual" type="mesh" mesh="cover_mesh" rgba="0.18 0.72 0.32 0.72" />
+      <geom name="motor_left_visual" class="visual" type="mesh" mesh="motor_left_mesh" rgba="0.45 0.47 0.50 1" />
+      <geom name="motor_right_visual" class="visual" type="mesh" mesh="motor_right_mesh" rgba="0.45 0.47 0.50 1" />
+      <geom name="mc33926_visual" class="visual" type="mesh" mesh="mc33926_mesh" rgba="0.08 0.36 0.18 1" />
+      <geom name="battery_1_visual" class="visual" type="box" pos="0 -0.012 0.038" size="0.035 0.007 0.025" rgba="0.15 0.25 0.75 1" />
+      <geom name="battery_2_visual" class="visual" type="box" pos="0 0.012 0.038" size="0.035 0.007 0.025" rgba="0.15 0.25 0.75 1" />
+      <geom name="electronics_lump_visual" class="visual" type="box" pos="0 -0.024 0.067" size="0.035 0.006 0.0425" rgba="0.10 0.42 0.20 0.65" />
+      <geom name="wheel_base_collision" class="collision" type="box" pos="0 0.0005 0.0042" size="0.074 0.0201 0.0198" />
+      <geom name="lower_chassis_collision" class="collision" type="box" pos="0.001 -0.0015 0.038" size="0.0595 0.0325 0.038" />
+      <geom name="upper_chassis_collision" class="collision" type="capsule" fromto="-0.024 -0.0015 0.096 0.026 -0.0015 0.096" size="0.033" />
+      <geom name="basket_floor" class="collision" type="box" pos="0 0 0.137" size="0.055 0.052 0.003" friction="0.024 0.005 0.0001" rgba="0.18 0.30 0.48 0.65" />
+      <geom name="basket_front_wall" class="collision" type="box" pos="0 -0.052 0.170" size="0.055 0.003 0.033" friction="0.024 0.005 0.0001" rgba="0 0 0 0" />
+      <geom name="basket_rear_wall" class="collision" type="box" pos="0 0.052 0.170" size="0.055 0.003 0.033" friction="0.024 0.005 0.0001" rgba="0 0 0 0" />
+      <geom name="basket_left_wall" class="collision" type="box" pos="-0.055 0 0.170" size="0.003 0.052 0.033" friction="0.024 0.005 0.0001" rgba="0 0 0 0" />
+      <geom name="basket_right_wall" class="collision" type="box" pos="0.055 0 0.170" size="0.003 0.052 0.033" friction="0.024 0.005 0.0001" rgba="0 0 0 0" />
+      <site name="imu_site" type="box" pos="0 0 0.020" quat="1 0 0 0" size="0.004 0.003 0.001" rgba="1 0.15 0.05 1" />
+      <body name="left_wheel" pos="-0.0885 0 0">
+        <joint name="left_wheel_hinge" type="hinge" axis="1 0 0" damping="0.002" frictionloss="0.002" />
+        <inertial pos="0.001407549168 -2.310217342e-08 4.024972882e-05" mass="0.1051" fullinertia="8.559060347e-05 4.760138372e-05 4.763051958e-05 2.677568832e-11 -3.525425309e-08 -1.463149106e-11" />
+        <geom name="left_wheel_visual" class="visual" type="mesh" mesh="wheel_mesh" rgba="0.04 0.05 0.06 1" />
+        <geom name="left_adapter_visual" class="visual" type="mesh" mesh="adapter_left_mesh" rgba="0.12 0.48 0.82 1" />
+        <geom name="left_wheel_collision" class="collision" type="cylinder" size="0.042 0.012" quat="0.7071067812 0 0.7071067812 0" friction="1 0.005 0.0001" />
+      </body>
+      <body name="right_wheel" pos="0.0885 0 0">
+        <joint name="right_wheel_hinge" type="hinge" axis="1 0 0" damping="0.002" frictionloss="0.002" />
+        <inertial pos="-0.001407437868 -2.310217342e-08 -4.019113045e-05" mass="0.1051" fullinertia="8.559060397e-05 4.760141714e-05 4.763055251e-05 -2.601653908e-11 -3.526339188e-08 1.57007511e-11" />
+        <geom name="right_wheel_visual" class="visual" type="mesh" mesh="wheel_mesh" rgba="0.04 0.05 0.06 1" />
+        <geom name="right_adapter_visual" class="visual" type="mesh" mesh="adapter_right_mesh" rgba="0.12 0.48 0.82 1" />
+        <geom name="right_wheel_collision" class="collision" type="cylinder" size="0.042 0.012" quat="0.7071067812 0 0.7071067812 0" friction="1 0.005 0.0001" />
+      </body>
+    </body>
+    <body name="moving_payload" pos="0 0 0.204">
+      <freejoint name="moving_payload_free" />
+      <inertial pos="0 0 0" mass="0.20" diaginertia="0.0000533333333 0.0001333333333 0.0001333333333" />
+      <geom name="moving_payload_collision" class="collision" type="box" size="0.040 0.020 0.020" friction="0.024 0.005 0.0001" rgba="0.78 0.18 0.12 1" />
+    </body>
+  </worldbody>
+  <actuator>
+    <motor name="left_wheel_torque" joint="left_wheel_hinge" gear="1" ctrllimited="true" ctrlrange="-0.63 0.63" forcelimited="true" forcerange="-0.63 0.63" />
+    <motor name="right_wheel_torque" joint="right_wheel_hinge" gear="1" ctrllimited="true" ctrlrange="-0.63 0.63" forcelimited="true" forcerange="-0.63 0.63" />
+  </actuator>
+  <sensor>
+    <accelerometer name="imu_accelerometer" site="imu_site" />
+    <gyro name="imu_gyro" site="imu_site" />
+    <jointpos name="left_wheel_angle" joint="left_wheel_hinge" />
+    <jointpos name="right_wheel_angle" joint="right_wheel_hinge" />
+  </sensor>
+  <keyframe>
+    <key name="upright" qpos="0 0 0.043 1 0 0 0 0 0 0 0 0.204 1 0 0 0" />
+  </keyframe>
+</mujoco>
