@@ -1,0 +1,69 @@
+{
+  "metrics": {
+    "lsqr_500hz": {
+      "v_ref_minus_v_GT_rms_m_s": 0.055430825310559095,
+      "v_ref_minus_v_GT_peak_abs_m_s": 0.16733905128229493,
+      "theta_GT_tracking_rms_rad": 0.06058445863799127,
+      "theta_GT_tracking_peak_abs_rad": 0.15857267730095864,
+      "theta_hat_tracking_rms_rad": 0.04099084638305896,
+      "full_target_overshoot_peak_m_s": 0.012538124668422052,
+      "full_planning_wall_times_s": [
+        0.11671480000950396
+      ],
+      "full_post_interpolation_residuals": [
+        0.017503741934431036
+      ],
+      "quiet_snap_count": 1,
+      "fade_completion_count": 1,
+      "saturation_count": 0,
+      "fall": false,
+      "false_slope_count": 0,
+      "full_maneuver_count": 1
+    },
+    "cached_kkt_500hz": {
+      "v_ref_minus_v_GT_rms_m_s": 0.055430650740165344,
+      "v_ref_minus_v_GT_peak_abs_m_s": 0.16733905128229493,
+      "theta_GT_tracking_rms_rad": 0.06058496881251707,
+      "theta_GT_tracking_peak_abs_rad": 0.15857267730095864,
+      "theta_hat_tracking_rms_rad": 0.04099064542161704,
+      "full_target_overshoot_peak_m_s": 0.012538122804216456,
+      "full_planning_wall_times_s": [
+        0.011595299933105707
+      ],
+      "full_post_interpolation_residuals": [
+        0.017503741934430952
+      ],
+      "quiet_snap_count": 1,
+      "fade_completion_count": 1,
+      "saturation_count": 0,
+      "fall": false,
+      "false_slope_count": 0,
+      "full_maneuver_count": 1
+    },
+    "cached_kkt_250hz": {
+      "v_ref_minus_v_GT_rms_m_s": 0.05539831537432498,
+      "v_ref_minus_v_GT_peak_abs_m_s": 0.16733905128229493,
+      "theta_GT_tracking_rms_rad": 0.06060034084214317,
+      "theta_GT_tracking_peak_abs_rad": 0.15857267730095864,
+      "theta_hat_tracking_rms_rad": 0.040955401979309844,
+      "full_target_overshoot_peak_m_s": 0.011937749365279526,
+      "full_planning_wall_times_s": [
+        0.009938400005921721
+      ],
+      "full_post_interpolation_residuals": [
+        0.01775968720572743
+      ],
+      "quiet_snap_count": 1,
+      "fade_completion_count": 1,
+      "saturation_count": 0,
+      "fall": false,
+      "false_slope_count": 0,
+      "full_maneuver_count": 1
+    }
+  },
+  "csv_paths": {
+    "lsqr_500hz": "models/minisegway/stage5/results/stage5_v1_5_replay_lsqr_500hz.csv",
+    "cached_kkt_500hz": "models/minisegway/stage5/results/stage5_v1_5_replay_cached_kkt_500hz.csv",
+    "cached_kkt_250hz": "models/minisegway/stage5/results/stage5_v1_5_replay_cached_kkt_250hz.csv"
+  }
+}

@@ -61,6 +61,7 @@ class SlopeSupervisor:
         self, *, dt_s: float, theta_hat_rad: float, theta_eq_rad: float,
         theta_dyn_ref_rad: float, velocity_hat_m_s: float,
         alpha_hat_rad: float, alpha_std_deg: float,
+        slope_entry_allowed: bool = True,
     ) -> SlopeSupervisorOutput:
         dt = float(dt_s)
         previous = self.mode
@@ -69,7 +70,10 @@ class SlopeSupervisor:
             float(theta_hat_rad) - (float(theta_eq_rad) + float(theta_dyn_ref_rad))
         )
         if self.mode is EnvironmentMode.FLAT:
-            if abs(theta_dyn_ref_rad) > self.config.theta_dyn_epsilon_rad:
+            if (
+                not slope_entry_allowed
+                or abs(theta_dyn_ref_rad) > self.config.theta_dyn_epsilon_rad
+            ):
                 self.enter_timer_s = 0.0
             else:
                 evidence = (

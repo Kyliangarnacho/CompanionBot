@@ -1,4 +1,4 @@
-# CompanionBot Stage 3 frozen state
+# CompanionBot current frozen state — through Stage 5 V1.5
 
 Stage 3 已完成并冻结为 MuJoCo simulation baseline。权威索引是
 `models/minisegway/stage3/config/baseline.json`；生产配置未自动替换为调参过程中任何临时候选。
@@ -100,3 +100,21 @@ Stage 3 已完成并冻结为 MuJoCo simulation baseline。权威索引是
 最终记录：`models/minisegway/stage4/stage4b/results/STAGE4B-R_REPORT.md`。
 Stage 4C 记录：`models/minisegway/stage4/results/STAGE4C_SLOPE_REPORT.md`。
 Stage 4 最终记录：`models/minisegway/stage4/results/final_baseline/STAGE4_FINAL_BASELINE.md`。
+
+## Stage 5 V1.5 — 上层命令生命周期与 reference-block stream
+
+Stage 5 在 frozen Stage 3/4 runtime 上增加上层速度命令调度和参考流，不替换 LQR、estimator、yaw controller、allocator、torque limit、坡度/payload runtime 或 Stage 3/4 参数。
+
+- 当前配置：`models/minisegway/stage5/config/stage5_v1_5_pi_mcu_stream_config.json`；当前计算 runner：`scripts/run_stage5_v1_5_pi_mcu_stream.py`；人工试玩入口：`scripts/view_stage5_v1_5_manual_demo.py`。
+- 输入保持 20 Hz observation；candidate stable-window 后再 accept。小变化走 LIGHTWEIGHT，较大稳定变化走不可普通打断的 FULL_DYNAMIC；FULL 完成 quiet snap 与既有 FF fade 后再处理 pending command。
+- 当前控制时基仍为 2 ms，reference block 为 25 samples（50 ms）。FULL projection 在 250 Hz 规划，horizon 先取 50 ms bucket，再向上补齐到 4 ms 网格；selected backend 为 cached KKT。V1.5 不改 frozen Ruckig 速度/加速度/jerk limits、A/B、K、`lambda_ff=0.6` 或 fade 曲线。
+- 同一 V1.4 episode 的 cached-KKT 250 Hz replay：planning warm=3.75 ms、post-interpolation 500 Hz residual=0.01776、v error RMS/peak=0.05540/0.16734 m/s、pitch tracking RMS=0.06060 rad；无 saturation、无 fall。V1.5 参考流和 4 ms synthetic-delay check 均无 underrun、stale block 或 sequence gap。开发机耗时不是 Pi 5 实测承诺。
+- Stage 5 slope-entry evidence 仅在 `|a_ref|≤0.03 m/s²` 时累计，persistence=0.50 s；该约束只作用于 Stage 5 scheduler/runtime 接入，不改 Stage 3/4 默认行为。V1.5 验证 episode false SLOPE=0。
+- 本阶段结果：`models/minisegway/stage5/results/STAGE5_V1_5_SUMMARY.md`；完整 JSON/CSV 与图位于同一 `results/` 目录。V1.0–V1.4 的旧入口、旧门限配置和实验输出仅归档在 `models/minisegway/stage5/reference/`，不属于当前快速运行 surface。
+
+## 当前可试玩 demo
+
+- Stage 4 frozen slope compensation：`scripts/view_stage4_slope_compensation_demo.py`，依次展示 ±8°、±15°，Q actuator OFF；使用 Stage 4 controller/estimator 的在线坡度估计与 `theta_eq` 补偿。
+- Stage 5 V1.5 manual command：`scripts/view_stage5_v1_5_manual_demo.py`，slider raw `v_cmd` 走 candidate/scheduler、planner、50 ms stream 与 frozen controller，不直接改 `v_ref`。
+
+以上 demo 只用于仿真可视化，不表示额定实机坡度、安全或 Pi/STM32 性能认证。

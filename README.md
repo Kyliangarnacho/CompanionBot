@@ -47,6 +47,10 @@ baseline；没有为了某个 smoke case 单独调控制器。
 - [Stage 3 baseline manifest](models/minisegway/stage3/results/config/baseline.json)
 - [Stage 4 final baseline config](models/minisegway/stage4/config/stage4_final_baseline_config.json)
 
+Stage 5 V1.5 已在该 runtime 上接入一条可复用的上层速度命令链：20 Hz observation 经 candidate scheduler、LIGHTWEIGHT/FULL planner 后形成 50 ms reference blocks，再由现有 controller 消费。它不改变 Stage 3/4 冻结控制器或估计器。
+
+V1.5 的 synthetic replay 与 stream check 给出了当前阶段的量化边界：端到端 warm planning 为 3.94 ms（V1.4 为 108.92 ms，约 27.6× 加快），benchmark warm 为 3.75 ms；reference block underrun/stale/gap 均为 0。250 Hz cached-KKT replay 的 500 Hz residual 为 0.01776，velocity error RMS/peak 为 0.05540/0.16734 m/s，无饱和、无摔倒。规划使用 25×2 ms block，FULL horizon 先按 50 ms bucket，再向 4 ms 网格上取整。耗时是开发机仿真结果，不是 Raspberry Pi 5 实测或实机认证。详见 [Stage 5 V1.5 summary](models/minisegway/stage5/results/STAGE5_V1_5_SUMMARY.md)。
+
 ## 快速运行
 
 在项目根目录使用现有 Python 3.11 虚拟环境：
@@ -62,14 +66,19 @@ baseline；没有为了某个 smoke case 单独调控制器。
 .\.venv\Scripts\python.exe scripts\view_stage3_baseline_demo.py --duration 30
 ```
 
-Stage4A 坡面 viewer 可用于直观看车体进入 +8°、−8°、+15°、−15° 坡面：
+当前 Stage 4 frozen slope-compensation viewer 依次展示 +8°、−8°、+15°、−15° 坡面（Q actuator OFF）：
 
 ```powershell
-.\.venv\Scripts\python.exe scripts\view_stage4a_slope_demo.py
+.\.venv\Scripts\python.exe scripts\view_stage4_slope_compensation_demo.py
 ```
 
-该 viewer 保留的是 Stage4A Q-ON 可视化实验臂；最终 production baseline 仍为 Q actuator OFF。
-Viewer 由用户亲自启动并关闭。
+Stage 5 V1.5 提供完整 baseline 下的手动命令试玩。运行后拖动控制窗口中的 raw `v_cmd` slider（−0.6 至 +0.6 m/s），或点 `v_cmd = 0`；命令仍经过正常 candidate/scheduler 与 reference stream。
+
+```powershell
+.\.venv\Scripts\python.exe scripts\view_stage5_v1_5_manual_demo.py
+```
+
+两个 viewer 都由用户亲自启动/关闭。旧 Stage 5 V1.0–V1.4 runner/config/results 已移入 `models/minisegway/stage5/reference/`，不再列为当前快速运行入口。
 
 ## 仓库结构
 
@@ -82,6 +91,9 @@ models/minisegway/
   stage4/results/final_baseline/      最终 metrics、history 与短报告
   stage4/stage4b/                     已拒绝的 Stage4B/B-R 学习实验及复现材料
   stage4/reference/                   旧 Stage4E/E-R 历史痕迹，不属于当前 runtime
+  stage5/config/                      当前 Stage 5 V1.5 command-stream 配置
+  stage5/results/                     当前 Stage 5 V1.5 指标、history 与验收图
+  stage5/reference/                   V1.0–V1.4 调试历史，不属于当前 runtime surface
 scripts/                              当前复现与 viewer 入口
 CURRENT_STATE.md                      冻结状态、指标和能力边界
 LEARNING_LOG.md                       调试路线、负结果与最终决策

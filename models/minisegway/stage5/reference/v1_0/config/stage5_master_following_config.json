@@ -1,0 +1,56 @@
+{
+  "stage": "Stage 5 V1 rolling Master-following command chain",
+  "seed": 5500,
+  "episode_duration_s": 20.0,
+  "observation_frequency_hz": 20.0,
+  "reference_block": {
+    "dt_s": 0.002,
+    "sample_count": 25
+  },
+  "rolling_projection": {
+    "maximum_tail_s": 1.0
+  },
+  "follower": {
+    "desired_forward_distance_m": 1.2,
+    "linear_distance_gain_s_inv": 0.8,
+    "yaw_bearing_gain_s_inv": 1.5,
+    "maximum_abs_linear_velocity_m_s": 0.6,
+    "maximum_abs_yaw_rate_rad_s": 0.5
+  },
+  "test_master": {
+    "initial_forward_distance_m": 1.2,
+    "speed_schedule_m_s": [
+      {"time_s": 0.0, "value": 0.0},
+      {"time_s": 1.5, "value": 0.0},
+      {"time_s": 3.5, "value": 0.4},
+      {"time_s": 5.0, "value": 0.25},
+      {"time_s": 7.5, "value": 0.25},
+      {"time_s": 9.5, "value": 0.5},
+      {"time_s": 11.5, "value": 0.5},
+      {"time_s": 14.0, "value": 0.0},
+      {"time_s": 15.5, "value": 0.0},
+      {"time_s": 16.5, "value": 0.25},
+      {"time_s": 17.5, "value": 0.0},
+      {"time_s": 20.0, "value": 0.0}
+    ],
+    "yaw_rate_schedule_rad_s": [
+      {"time_s": 0.0, "value": 0.0},
+      {"time_s": 5.0, "value": 0.0},
+      {"time_s": 5.5, "value": -0.12},
+      {"time_s": 7.0, "value": -0.12},
+      {"time_s": 7.5, "value": 0.0},
+      {"time_s": 20.0, "value": 0.0}
+    ]
+  },
+  "upstream": {
+    "ruckig_version": "0.19.4",
+    "ruckig_control_interface": "Velocity",
+    "ruckig_duration_discretization": "Discrete",
+    "twip_projection": "existing project_hidden_reference_and_input with inherited start theta/theta_dot",
+    "frozen_limits": {
+      "maximum_abs_velocity_m_s": 0.6,
+      "maximum_abs_acceleration_m_s2": 0.6,
+      "maximum_abs_jerk_m_s3": 1.0
+    }
+  }
+}

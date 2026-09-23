@@ -256,6 +256,8 @@ class VelocityReferenceLifecycle:
         self._feedforward_exit_nm = 0.0
         self._hold_position_m = 0.0
         self._hold_velocity_m_s = 0.0
+        self._hold_acceleration_m_s2 = 0.0
+        self._hold_hidden_state = np.zeros(2, dtype=float)
 
     @property
     def phase(self) -> VelocityLifecyclePhase:
@@ -276,7 +278,12 @@ class VelocityReferenceLifecycle:
                 raise RuntimeError("velocity transition exceeded its scheduled segment")
             return self._plan.reference_states[self._interval_index].copy()
         return np.asarray(
-            [self._hold_position_m, self._hold_velocity_m_s, 0.0, 0.0],
+            [
+                self._hold_position_m,
+                self._hold_velocity_m_s,
+                self._hold_hidden_state[0],
+                self._hold_hidden_state[1],
+            ],
             dtype=float,
         )
 
@@ -288,7 +295,14 @@ class VelocityReferenceLifecycle:
             return float(
                 self._plan.reference_accelerations_m_s2[self._interval_index]
             )
-        return 0.0
+        return self._hold_acceleration_m_s2
+
+    @property
+    def remaining_interval_count(self) -> int:
+        if self._phase != VelocityLifecyclePhase.VELOCITY_TRANSIENT:
+            return 0
+        assert self._plan is not None
+        return len(self._plan.feedforward_inputs_nm) - self._interval_index
 
     def reset(
         self, position_reference_m: float = 0.0, velocity_reference_m_s: float = 0.0
@@ -305,6 +319,8 @@ class VelocityReferenceLifecycle:
         self._feedforward_exit_nm = 0.0
         self._hold_position_m = float(position_reference_m)
         self._hold_velocity_m_s = float(velocity_reference_m_s)
+        self._hold_acceleration_m_s2 = 0.0
+        self._hold_hidden_state = np.zeros(2, dtype=float)
 
     def begin_transition(self, plan: VelocityTransitionPlan) -> None:
         current = self.reference_state
@@ -316,6 +332,33 @@ class VelocityReferenceLifecycle:
         self._fade_start_time_s = None
         self._fade_completed = False
         self._feedforward_exit_nm = 0.0
+
+    def enter_quiet_hold(self, time_s: float) -> VelocityLifecycleCommand:
+        reference = self.reference_state
+        feedforward_before = self.raw_feedforward_nm
+        self._hold_position_m = float(reference[0])
+        self._hold_velocity_m_s = float(reference[1])
+        self._hold_acceleration_m_s2 = 0.0
+        self._hold_hidden_state = np.zeros(2, dtype=float)
+        self._phase = VelocityLifecyclePhase.VELOCITY_HOLD
+        self._fade_start_time_s = float(time_s)
+        self._fade_completed = False
+        self._feedforward_exit_nm = feedforward_before
+        return VelocityLifecycleCommand(
+            phase=self._phase,
+            reference_state=self.reference_state,
+            reference_acceleration_m_s2=0.0,
+            feedforward_nm=feedforward_before,
+            fade_active=True,
+            fade_alpha=1.0,
+            fade_started=True,
+            fade_start_time_s=float(time_s),
+            feedforward_exit_nm=feedforward_before,
+            dynamic_reference_before_fade=reference,
+            dynamic_acceleration_before_fade_m_s2=0.0,
+            feedforward_rearmed=True,
+            feedforward_phase="FADING",
+        )
 
     def _shaped_reference_reached(self) -> bool:
         if self._plan is None:
@@ -434,6 +477,8 @@ class VelocityReferenceLifecycle:
                 terminal = self._plan.reference_states[-1]
                 self._hold_position_m = float(terminal[0])
                 self._hold_velocity_m_s = float(self._plan.target_velocity_m_s)
+                self._hold_acceleration_m_s2 = 0.0
+                self._hold_hidden_state = np.zeros(2, dtype=float)
                 self._phase = VelocityLifecyclePhase.VELOCITY_HOLD
                 return True
         else:

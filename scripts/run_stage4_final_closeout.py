@@ -107,7 +107,11 @@ def payload_config(config: dict, lateral_m: float) -> PayloadConfig:
 
 
 class FinalRuntime:
-    def __init__(self, *, reduced: dict, config: dict, stage4c_config: dict, q_adapter) -> None:
+    def __init__(
+        self, *, reduced: dict, config: dict, stage4c_config: dict, q_adapter,
+        slope_enter_persistence_override_s: float | None = None,
+        slope_entry_acceleration_quiet_m_s2: float | None = None,
+    ) -> None:
         self.config = config
         self.q_adapter = q_adapter
         self.builder = PayloadPlantBuilder(
@@ -115,7 +119,26 @@ class FinalRuntime:
             np.asarray(config["fixed_payload"]["full_size_m"], dtype=float),
         )
         self.current_model = self.builder.empty()
-        self.supervisor = SlopeSupervisor(SlopeSupervisorConfig(**config["slope_supervisor"]))
+        supervisor_config = dict(config["slope_supervisor"])
+        if slope_enter_persistence_override_s is not None:
+            supervisor_config["enter_persistence_s"] = float(
+                slope_enter_persistence_override_s
+            )
+        self.supervisor = SlopeSupervisor(SlopeSupervisorConfig(**supervisor_config))
+        self.slope_entry_acceleration_quiet_m_s2 = (
+            None
+            if slope_entry_acceleration_quiet_m_s2 is None
+            else float(slope_entry_acceleration_quiet_m_s2)
+        )
+        if (
+            self.slope_entry_acceleration_quiet_m_s2 is not None
+            and (
+                not math.isfinite(self.slope_entry_acceleration_quiet_m_s2)
+                or self.slope_entry_acceleration_quiet_m_s2 < 0.0
+            )
+        ):
+            raise ValueError("slope entry acceleration quiet threshold is invalid")
+        self.slope_entry_allowed = True
         trigger = dict(config["q_change_trigger"])
         self.lifecycle = PayloadLifecycle(QChangeTriggerConfig(**trigger))
         id_raw = dict(config["payload_id"])
@@ -153,6 +176,15 @@ class FinalRuntime:
             reference_velocity - self.previous_reference_velocity
         ) / dt
         self.previous_reference_velocity = reference_velocity
+        gate_acceleration = float(context.get(
+            "reference_acceleration_m_s2",
+            self.latest_reference_acceleration,
+        ))
+        self.slope_entry_allowed = bool(
+            self.slope_entry_acceleration_quiet_m_s2 is None
+            or abs(gate_acceleration)
+            <= self.slope_entry_acceleration_quiet_m_s2 + 1e-12
+        )
         actual_sum = float(np.sum(context["actual_wheels_nm"]))
 
         if self.supervisor.mode is EnvironmentMode.SLOPE:
@@ -173,6 +205,7 @@ class FinalRuntime:
             theta_dyn_ref_rad=float(context["reference_state"][2]),
             velocity_hat_m_s=velocity, alpha_hat_rad=slope.alpha_hat_rad,
             alpha_std_deg=math.degrees(math.sqrt(slope.alpha_variance_rad2)),
+            slope_entry_allowed=self.slope_entry_allowed,
         )
         self.alpha_control_rad = supervisor.alpha_control_rad
         if supervisor.transition_reason is not None:
@@ -258,6 +291,7 @@ class FinalRuntime:
                 None if supervisor is None else supervisor.transition_reason
             ),
             "slope_enter_timer_s": self.supervisor.enter_timer_s,
+            "slope_entry_allowed": self.slope_entry_allowed,
             "slope_exit_timer_s": self.supervisor.exit_timer_s,
             "alpha_hat_ekf_deg": math.degrees(slope.alpha_hat_rad),
             "alpha_std_deg": math.degrees(math.sqrt(slope.alpha_variance_rad2)),

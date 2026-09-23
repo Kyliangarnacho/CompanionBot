@@ -1,0 +1,68 @@
+{
+  "stage": "Stage 5 V1.3 three observed bug fixes",
+  "seed": 5513,
+  "episode_duration_s": 34.0,
+  "observation_frequency_hz": 20.0,
+  "reference_block": {
+    "dt_s": 0.002,
+    "sample_count": 25
+  },
+  "scheduler": {
+    "T1_accept_delta_v_m_s": 0.12,
+    "TF_full_delta_v_m_s": 0.30,
+    "SF_full_slope_m_s2": 1.0,
+    "T3_persist_s": 0.20,
+    "initial_accepted_velocity_m_s": 0.0
+  },
+  "slope_entry": {
+    "acceleration_quiet_abs_m_s2": 0.03,
+    "enter_persistence_s": 0.50
+  },
+  "full_dynamic": {
+    "fixed_horizon_s": 1.5,
+    "diagnostic_residual_rms": 0.020,
+    "terminal_theta_abs_deg": 0.05,
+    "terminal_theta_dot_abs_deg_s": 1.0
+  },
+  "follower": {
+    "desired_forward_distance_m": 1.0,
+    "linear_distance_gain_s_inv": 2.0,
+    "yaw_bearing_gain_s_inv": 1.5,
+    "maximum_abs_linear_velocity_m_s": 0.6,
+    "maximum_abs_yaw_rate_rad_s": 0.5
+  },
+  "test_master": {
+    "initial_forward_distance_m": 1.0,
+    "speed_schedule_m_s": [
+      {"time_s": 0.0, "value": 0.0},
+      {"time_s": 1.0, "value": 0.0},
+      {"time_s": 5.0, "value": 0.25},
+      {"time_s": 9.0, "value": 0.25},
+      {"time_s": 9.10, "value": 0.55},
+      {"time_s": 16.0, "value": 0.55},
+      {"time_s": 16.10, "value": 0.05},
+      {"time_s": 21.0, "value": 0.05},
+      {"time_s": 24.0, "value": 0.22},
+      {"time_s": 27.0, "value": 0.22},
+      {"time_s": 27.40, "value": 0.0},
+      {"time_s": 34.0, "value": 0.0}
+    ],
+    "yaw_rate_schedule_rad_s": [
+      {"time_s": 0.0, "value": 0.0},
+      {"time_s": 11.0, "value": 0.0},
+      {"time_s": 11.5, "value": -0.08},
+      {"time_s": 13.5, "value": -0.08},
+      {"time_s": 14.0, "value": 0.0},
+      {"time_s": 34.0, "value": 0.0}
+    ]
+  },
+  "upstream": {
+    "ruckig_version": "0.19.4",
+    "projection": "existing sparse LSQR joint theta/theta_dot/u_ff with terminal zero",
+    "frozen_limits": {
+      "maximum_abs_velocity_m_s": 0.6,
+      "maximum_abs_acceleration_m_s2": 0.6,
+      "maximum_abs_jerk_m_s3": 1.0
+    }
+  }
+}

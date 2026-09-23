@@ -1,0 +1,54 @@
+{
+  "stage": "Stage 5 V1.4 candidate-based command lifecycle closeout",
+  "seed": 5514,
+  "episode_duration_s": 14.0,
+  "observation_frequency_hz": 20.0,
+  "reference_block": {
+    "dt_s": 0.002,
+    "sample_count": 25
+  },
+  "scheduler": {
+    "T_accept_delta_v_m_s": 0.12,
+    "T_full_delta_v_m_s": 0.35,
+    "candidate_stable_window_s": 0.20,
+    "candidate_stable_range_m_s": 0.03,
+    "initial_accepted_velocity_m_s": 0.0
+  },
+  "slope_entry": {
+    "acceleration_quiet_abs_m_s2": 0.03,
+    "enter_persistence_s": 0.50
+  },
+  "full_dynamic": {
+    "minimum_horizon_s": 1.50,
+    "dynamic_settle_margin_s": 0.30,
+    "diagnostic_residual_rms": 0.020,
+    "terminal_theta_abs_deg": 0.05,
+    "terminal_theta_dot_abs_deg_s": 1.0
+  },
+  "synthetic_raw_v_cmd_schedule_m_s": [
+    {"time_s": 0.0, "value": 0.0},
+    {"time_s": 1.0, "value": 0.0},
+    {"time_s": 1.8, "value": 0.22},
+    {"time_s": 2.05, "value": 0.22},
+    {"time_s": 2.15, "value": 0.22},
+    {"time_s": 2.30, "value": 0.38},
+    {"time_s": 4.8, "value": 0.38},
+    {"time_s": 5.2, "value": -0.10},
+    {"time_s": 5.6, "value": -0.10},
+    {"time_s": 5.9, "value": 0.18},
+    {"time_s": 9.5, "value": 0.18},
+    {"time_s": 10.2, "value": 0.0},
+    {"time_s": 14.0, "value": 0.0}
+  ],
+  "upstream": {
+    "ruckig_version": "0.19.4",
+    "full_projection": "existing sparse LSQR, one solve per FULL candidate",
+    "physics_dt_s": 0.001,
+    "controller_dt_s": 0.002,
+    "frozen_limits": {
+      "maximum_abs_velocity_m_s": 0.6,
+      "maximum_abs_acceleration_m_s2": 0.6,
+      "maximum_abs_jerk_m_s3": 1.0
+    }
+  }
+}

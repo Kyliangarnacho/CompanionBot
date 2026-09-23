@@ -30,6 +30,28 @@ class Stage4RuntimeTest(unittest.TestCase):
             )
         self.assertIs(out.mode, EnvironmentMode.SLOPE)
 
+    def test_optional_slope_entry_gate_resets_only_flat_enter_timer(self):
+        supervisor = SlopeSupervisor(SlopeSupervisorConfig(
+            enter_persistence_s=0.50
+        ))
+        for _ in range(250):
+            out = supervisor.update(
+                dt_s=0.002, theta_hat_rad=math.radians(5.0), theta_eq_rad=0.0,
+                theta_dyn_ref_rad=0.0, velocity_hat_m_s=0.2,
+                alpha_hat_rad=0.0, alpha_std_deg=5.0,
+                slope_entry_allowed=False,
+            )
+        self.assertIs(out.mode, EnvironmentMode.FLAT)
+        self.assertEqual(out.enter_timer_s, 0.0)
+        for _ in range(250):
+            out = supervisor.update(
+                dt_s=0.002, theta_hat_rad=math.radians(5.0), theta_eq_rad=0.0,
+                theta_dyn_ref_rad=0.0, velocity_hat_m_s=0.2,
+                alpha_hat_rad=0.0, alpha_std_deg=5.0,
+                slope_entry_allowed=True,
+            )
+        self.assertIs(out.mode, EnvironmentMode.SLOPE)
+
     def test_q_change_triggers_one_pending_then_next_transient(self):
         lifecycle = PayloadLifecycle(QChangeTriggerConfig(
             dt_s=0.01, enter_persistence_s=0.03,

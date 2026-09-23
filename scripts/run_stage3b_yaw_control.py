@@ -222,6 +222,7 @@ def run_case(
     equilibrium_input_callback=None,
     control_observer=None,
     motion_limit_scale_callback=None,
+    reference_source=None,
 ) -> dict:
     (
         manifest, config, dynamic_config, motion_config, offline,
@@ -246,6 +247,8 @@ def run_case(
     linear_schedule = scenario["linear_velocity_schedule"]
     yaw_schedule = scenario["yaw_rate_schedule"]
     lifecycle.reset(0.0, float(linear_schedule[0]["command"]))
+    if reference_source is not None and command_source is not None:
+        raise ValueError("reference_source and command_source are mutually exclusive")
 
     nominal_theta_eq = float(reduced["parameters"]["theta_eq_rad"])
     theta_eq = nominal_theta_eq
@@ -380,7 +383,17 @@ def run_case(
 
     for interval in range(interval_count):
         control_time = float(sim.data.time)
-        if command_source is not None:
+        rolling_reference_command = None
+        if reference_source is not None:
+            rolling_reference_command = reference_source.command(control_time)
+            v_cmd = float(
+                rolling_reference_command.linear_velocity_target_m_s
+            )
+            next_r_cmd = float(rolling_reference_command.yaw_rate_target_rad_s)
+            if not math.isclose(next_r_cmd, r_cmd, abs_tol=1e-12):
+                r_cmd = next_r_cmd
+                yaw_schedule.append({"time_s": control_time, "command": r_cmd})
+        elif command_source is not None:
             next_v_cmd, next_r_cmd = command_source(sim, control_time)
             next_v_cmd = float(next_v_cmd)
             next_r_cmd = float(next_r_cmd)
@@ -412,8 +425,21 @@ def run_case(
                 r_cmd = float(yaw_schedule[yaw_index]["command"])
                 yaw_index += 1
 
-        lifecycle_command = lifecycle.command(control_time)
-        x_ref = lifecycle_command.reference_state
+        if rolling_reference_command is not None:
+            x_ref = rolling_reference_command.reference_state
+            u_ff_raw = rolling_reference_command.u_ff_raw_nm
+            u_ff_after_lifecycle = (
+                rolling_reference_command.u_ff_after_lifecycle_nm
+            )
+            feedforward_phase = rolling_reference_command.feedforward_phase
+            velocity_phase = rolling_reference_command.velocity_phase
+        else:
+            lifecycle_command = lifecycle.command(control_time)
+            x_ref = lifecycle_command.reference_state
+            u_ff_raw = lifecycle.raw_feedforward_nm
+            u_ff_after_lifecycle = lifecycle_command.feedforward_nm
+            feedforward_phase = lifecycle_command.feedforward_phase
+            velocity_phase = lifecycle_command.phase.value
         observer_output = (
             control_observer.output({
                 "sim": sim,
@@ -438,7 +464,7 @@ def run_case(
         x_plant = estimate.plant_state(theta_eq)
         error = x_plant - x_ref
         u_fb = -float((K4 @ error).item())
-        u_ff = lambda_ff * lifecycle_command.feedforward_nm
+        u_ff = lambda_ff * u_ff_after_lifecycle
         u_eq = 0.0
         if equilibrium_input_callback is not None:
             u_eq = float(equilibrium_input_callback({
@@ -514,9 +540,14 @@ def run_case(
             valid_new_sample=not (readout.imu_invalid or readout.imu_stale),
             allow_extrapolation=extrapolation_allowed,
         )
-        lifecycle.advance()
+        if reference_source is None:
+            lifecycle.advance()
         psi_ref += r_cmd * dt_s
-        next_reference = lifecycle.reference_state
+        next_reference = (
+            lifecycle.reference_state
+            if reference_source is None
+            else reference_source.next_reference_state
+        )
         current_gt_yaw = root_yaw_rad(sim)
         delta_gt_yaw = wrap_to_pi(current_gt_yaw - previous_gt_yaw)
         gt_psi += delta_gt_yaw
@@ -539,6 +570,11 @@ def run_case(
                     or abs(u_sum_request - u_sum) > 1e-12
                 ),
                 "reference_state": next_reference.copy(),
+                "reference_acceleration_m_s2": float(
+                    lifecycle.reference_acceleration_m_s2
+                    if reference_source is None
+                    else reference_source.next_reference_acceleration_m_s2
+                ),
                 "nominal_theta_eq_rad": nominal_theta_eq,
             })
             if control_observer is not None else {}
@@ -581,8 +617,8 @@ def run_case(
             "actual_right": float(actual[1]),
             "diff_clipped": allocation.differential_clipped,
             "guard_clipped": allocation.final_guard_clipped,
-            "ff_phase": lifecycle_command.feedforward_phase,
-            "velocity_phase": lifecycle_command.phase.value,
+            "ff_phase": feedforward_phase,
+            "velocity_phase": velocity_phase,
         }
         for name, value in row.items():
             logs[name].append(value)
@@ -625,9 +661,77 @@ def run_case(
                 "theta_dot_ref_rad_s": float(next_reference[3]),
                 "theta_dot_hat_rad_s": float(estimate.theta_dot_hat_rad_s),
                 "lateral_GT_m": root_lateral_position_m(sim),
-                "feedforward_phase": lifecycle_command.feedforward_phase,
-                "velocity_lifecycle_phase": lifecycle_command.phase.value,
+                "feedforward_phase": feedforward_phase,
+                "velocity_lifecycle_phase": velocity_phase,
             })
+            if rolling_reference_command is not None:
+                history[-1].update({
+                    "raw_linear_velocity_cmd_m_s": float(
+                        rolling_reference_command.raw_linear_velocity_target_m_s
+                        if rolling_reference_command.raw_linear_velocity_target_m_s
+                        is not None
+                        else rolling_reference_command.linear_velocity_target_m_s
+                    ),
+                    "scheduler_mode": rolling_reference_command.scheduler_mode,
+                    "accepted_velocity_changed": bool(
+                        rolling_reference_command.accepted_velocity_changed
+                    ),
+                    "planning_path": rolling_reference_command.planning_path,
+                    "candidate_delta_v_m_s": float(
+                        rolling_reference_command.candidate_delta_v_m_s
+                    ),
+                    "candidate_target_m_s": (
+                        None
+                        if rolling_reference_command.candidate_target_m_s is None
+                        else float(rolling_reference_command.candidate_target_m_s)
+                    ),
+                    "candidate_stable": bool(
+                        rolling_reference_command.candidate_stable
+                    ),
+                    "latest_pending_raw_v_cmd_m_s": (
+                        rolling_reference_command.latest_pending_raw_v_cmd_m_s
+                    ),
+                    "pending_command_active": bool(
+                        rolling_reference_command.pending_command_active
+                    ),
+                    "rolling_p_ref_applied_m": float(
+                        rolling_reference_command.reference_state[0]
+                    ),
+                    "rolling_v_ref_applied_m_s": float(
+                        rolling_reference_command.reference_state[1]
+                    ),
+                    "rolling_a_ref_applied_m_s2": float(
+                        rolling_reference_command.reference_acceleration_m_s2
+                    ),
+                    "rolling_theta_ref_applied_rad": float(
+                        rolling_reference_command.reference_state[2]
+                    ),
+                    "rolling_theta_dot_ref_applied_rad_s": float(
+                        rolling_reference_command.reference_state[3]
+                    ),
+                    "rolling_u_ff_raw_nm": float(u_ff_raw),
+                    "rolling_u_ff_after_lifecycle_nm": float(
+                        u_ff_after_lifecycle
+                    ),
+                    "rolling_fade_alpha": float(
+                        rolling_reference_command.fade_alpha
+                    ),
+                    "reference_block_id": int(
+                        rolling_reference_command.block_id
+                    ),
+                    "reference_block_sample_index": int(
+                        rolling_reference_command.block_sample_index
+                    ),
+                    "reference_block_start_time_s": float(
+                        rolling_reference_command.block_start_time_s
+                    ),
+                    "intent_source_time_s": float(
+                        rolling_reference_command.intent_source_time_s
+                    ),
+                    "rolling_replanned": bool(
+                        rolling_reference_command.replanned
+                    ),
+                })
             if common_mode_augmentation is not None:
                 history[-1].update(augmentation_command)
                 history[-1].update(augmentation_observation)

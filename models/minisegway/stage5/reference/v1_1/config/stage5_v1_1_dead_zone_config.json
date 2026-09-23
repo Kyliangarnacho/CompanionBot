@@ -1,0 +1,68 @@
+{
+  "stage": "Stage 5 V1.1 dead-zone follow command and sparse replan",
+  "seed": 5500,
+  "episode_duration_s": 26.0,
+  "observation_frequency_hz": 20.0,
+  "reference_block": {
+    "dt_s": 0.002,
+    "sample_count": 25
+  },
+  "rolling_projection": {
+    "fixed_horizon_s": 1.0,
+    "terminal_hidden_penalty_weight": 0.01,
+    "normalized_residual_rms_max": 0.03
+  },
+  "fixed_horizon_regression_case": {
+    "p_ref_m": 4.123704283253438,
+    "v_ref_m_s": 0.3055154425698046,
+    "a_ref_m_s2": 0.118,
+    "theta_ref_rad": -0.0005059505694534794,
+    "theta_dot_ref_rad_s": -0.008482698514013808,
+    "v_cmd_m_s": 0.3260038197009474
+  },
+  "follower": {
+    "desired_forward_distance_m": 1.0,
+    "distance_dead_zone_m": [0.9, 1.1],
+    "initial_accepted_velocity_m_s": 0.0,
+    "linear_distance_gain_s_inv": 0.8,
+    "yaw_bearing_gain_s_inv": 1.5,
+    "maximum_abs_linear_velocity_m_s": 0.6,
+    "maximum_abs_yaw_rate_rad_s": 0.5
+  },
+  "test_master": {
+    "initial_forward_distance_m": 1.0,
+    "speed_schedule_m_s": [
+      {"time_s": 0.0, "value": 0.0},
+      {"time_s": 2.0, "value": 0.0},
+      {"time_s": 3.5, "value": 0.28},
+      {"time_s": 8.0, "value": 0.28},
+      {"time_s": 9.0, "value": 0.38},
+      {"time_s": 13.0, "value": 0.38},
+      {"time_s": 14.0, "value": 0.22},
+      {"time_s": 17.0, "value": 0.22},
+      {"time_s": 18.0, "value": 0.42},
+      {"time_s": 21.0, "value": 0.42},
+      {"time_s": 23.0, "value": 0.0},
+      {"time_s": 26.0, "value": 0.0}
+    ],
+    "yaw_rate_schedule_rad_s": [
+      {"time_s": 0.0, "value": 0.0},
+      {"time_s": 9.5, "value": 0.0},
+      {"time_s": 10.0, "value": -0.10},
+      {"time_s": 12.0, "value": -0.10},
+      {"time_s": 12.5, "value": 0.0},
+      {"time_s": 26.0, "value": 0.0}
+    ]
+  },
+  "upstream": {
+    "ruckig_version": "0.19.4",
+    "ruckig_control_interface": "Velocity",
+    "ruckig_duration_discretization": "Discrete",
+    "twip_projection": "existing project_hidden_reference_and_input with inherited start theta/theta_dot",
+    "frozen_limits": {
+      "maximum_abs_velocity_m_s": 0.6,
+      "maximum_abs_acceleration_m_s2": 0.6,
+      "maximum_abs_jerk_m_s3": 1.0
+    }
+  }
+}
