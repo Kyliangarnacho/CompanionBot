@@ -1,0 +1,72 @@
+{
+  "stage": "Stage 6.1 longitudinal relative-target following",
+  "seed": 5514,
+  "observation_frequency_hz": 20.0,
+  "governor": {
+    "desired_distance_m": 1.1,
+    "d1_m": 1.4,
+    "d2_m": 1.1,
+    "catch_time_s": 3.0,
+    "max_abs_velocity_m_s": 0.6,
+    "initial_velocity_m_s": 0.0
+  },
+  "follow_scheduler_gate_policy": {
+    "require_stable_candidate": false,
+    "minimum_delta_enabled": false,
+    "full_delta_v_m_s": "reuse frozen Stage 5 value"
+  },
+  "stage5_baseline": {
+    "config": "models/minisegway/stage5/config/stage5_v1_5_pi_mcu_stream_config.json",
+    "reference_block_dt_s": 0.002,
+    "reference_block_samples": 25,
+    "observation_semantics": "one governor intent sampled per 50 ms block",
+    "q_actuator_augmentation": false
+  },
+  "scenarios": [
+    {
+      "name": "stage6_1_01_static_at_target",
+      "duration_s": 4.0,
+      "initial_distance_m": 1.1,
+      "master_speed_schedule": [
+        {"time_s": 0.0, "value_m_s": 0.0}
+      ]
+    },
+    {
+      "name": "stage6_1_02_static_far_full",
+      "duration_s": 12.0,
+      "initial_distance_m": 2.3,
+      "master_speed_schedule": [
+        {"time_s": 0.0, "value_m_s": 0.0}
+      ]
+    },
+    {
+      "name": "stage6_1_03_constant_020",
+      "duration_s": 12.0,
+      "initial_distance_m": 1.1,
+      "master_speed_schedule": [
+        {"time_s": 0.0, "value_m_s": 0.2}
+      ]
+    },
+    {
+      "name": "stage6_1_04_move_then_stop",
+      "duration_s": 11.0,
+      "initial_distance_m": 1.1,
+      "master_speed_schedule": [
+        {"time_s": 0.0, "value_m_s": 0.2},
+        {"time_s": 2.3, "value_m_s": 0.0}
+      ]
+    },
+    {
+      "name": "stage6_1_05_speed_changes",
+      "duration_s": 14.0,
+      "initial_distance_m": 1.1,
+      "master_speed_schedule": [
+        {"time_s": 0.0, "value_m_s": 0.0},
+        {"time_s": 0.5, "value_m_s": 0.15},
+        {"time_s": 3.2, "value_m_s": 0.25},
+        {"time_s": 5.5, "value_m_s": 0.15},
+        {"time_s": 8.0, "value_m_s": 0.0}
+      ]
+    }
+  ]
+}

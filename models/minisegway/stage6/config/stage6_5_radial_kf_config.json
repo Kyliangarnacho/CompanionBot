@@ -1,0 +1,41 @@
+{
+  "stage": "Stage 6.5 radial velocity KF and Pi/MCU timestamp alignment",
+  "stage6_4_config": "models/minisegway/stage6/config/stage6_4_2d_follow_config.json",
+  "kf": {
+    "initial_distance_std": 0.05,
+    "initial_velocity_std": 0.6,
+    "measurement_distance_std": 0.03,
+    "master_accel_std": 0.8
+  },
+  "state_history_retention_s": 2.0,
+  "camera_processing_delay_s": 0.06,
+  "measurement_noise_std_m": 0.03,
+  "noise_seed": 20260924,
+  "cases": [
+    {"name": "noise_free_regression", "scenario": "curved_lateral", "noise_std_m": 0.0, "processing_delay_s": 0.06, "jitter_s": 0.0},
+    {"name": "noisy_turning", "scenario": "curved_lateral", "noise_std_m": 0.03, "processing_delay_s": 0.06, "jitter_s": 0.0},
+    {"name": "stop_restart_clean", "scenario": "stop_restart_turning", "noise_std_m": 0.0, "processing_delay_s": 0.06, "jitter_s": 0.0},
+    {"name": "stop_restart_noisy", "scenario": "stop_restart_turning", "noise_std_m": 0.03, "processing_delay_s": 0.06, "jitter_s": 0.0},
+    {"name": "delayed_jittered_packets", "scenario": "curved_lateral", "noise_std_m": 0.03, "processing_delay_s": 0.08, "jitter_s": 0.008}
+  ],
+  "stop_restart_scenario": {
+    "name": "stop_restart_turning",
+    "duration_s": 23.0,
+    "initial_distance_m": 1.1,
+    "master_speed_schedule": [
+      {"time_s": 0.0, "value_m_s": 0.18},
+      {"time_s": 4.0, "value_m_s": 0.32},
+      {"time_s": 8.0, "value_m_s": 0.0},
+      {"time_s": 12.0, "value_m_s": 0.34},
+      {"time_s": 17.0, "value_m_s": 0.12}
+    ],
+    "heading_offset_schedule": [
+      {"time_s": 0.0, "value_rad": 0.0},
+      {"time_s": 5.0, "value_rad": 0.0},
+      {"time_s": 9.0, "value_rad": 0.5},
+      {"time_s": 14.0, "value_rad": 0.2},
+      {"time_s": 20.0, "value_rad": -0.35},
+      {"time_s": 23.0, "value_rad": -0.35}
+    ]
+  }
+}

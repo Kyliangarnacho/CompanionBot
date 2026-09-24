@@ -35,4 +35,22 @@ CMakeCache.txt
 /models/minisegway/assets/upstream_local/
 
 # Stage 4B raw/generated pilot data and local training checkpoints.
-/models/minisegway/stage4b/generated/
+/models/minisegway/stage4/stage4b/generated/
+
+# Generated benchmark artifacts stay local; keep reports and source configs tracked.
+/models/minisegway/**/results/**/*.csv
+/models/minisegway/**/results/**/*.json
+/models/minisegway/**/results/**/*.npz
+/models/minisegway/**/results/**/*.png
+/models/minisegway/**/results/**/*.svg
+/models/minisegway/**/results/**/*.zip
+!/models/minisegway/stage3/results/config/*.json
+
+# Archived raw experiment traces stay local; historical reports and configs remain tracked.
+/models/minisegway/**/reference/**/*.csv
+/models/minisegway/**/reference/**/*.json
+/models/minisegway/**/reference/**/*.npz
+/models/minisegway/**/reference/**/*.png
+/models/minisegway/**/reference/**/*.svg
+/models/minisegway/**/reference/**/*.zip
+!/models/minisegway/**/reference/**/config/*.json

@@ -1,0 +1,101 @@
+{
+  "stage": "Stage 6.4 2D follow and split yaw/longitudinal authority",
+  "observation_frequency_hz": 20.0,
+  "governor": {
+    "desired_distance_m": 1.1,
+    "d1_m": 1.4,
+    "d2_m": 1.1,
+    "catch_time_s": 3.0,
+    "max_abs_velocity_m_s": 0.6,
+    "initial_velocity_m_s": 0.0,
+    "a_brake_effective_m_s2": 0.25,
+    "catch_retrigger_margin_m_s": 0.05,
+    "catch_retrigger_persistence_samples": 3,
+    "slowdown_velocity_deadband_m_s": 0.05
+  },
+  "follow_scheduler_gate_policy": {
+    "require_stable_candidate": false,
+    "minimum_delta_enabled": false,
+    "follow_force_full_dynamic": true,
+    "follow_defer_until_full_exit": true
+  },
+  "safety": {
+    "safe_max_deceleration_m_s2": 0.5,
+    "safe_max_jerk_m_s3": 0.8,
+    "hidden_reference_handoff_time_s": 1.0,
+    "heartbeat_timeout_s": 0.15,
+    "reference_starvation_margin_s": 0.012,
+    "transport_latency_s": 0.0
+  },
+  "yaw": {
+    "gain_s_inv": 1.0,
+    "max_rate_rad_s": 0.5,
+    "deadband_rad": 0.01,
+    "freshness_timeout_s": 0.2,
+    "decay_rate_rad_s2": 0.8
+  },
+  "scenarios": [
+    {
+      "name": "curved_lateral",
+      "duration_s": 18.0,
+      "initial_distance_m": 1.1,
+      "master_speed_schedule": [
+        {"time_s": 0.0, "value_m_s": 0.18},
+        {"time_s": 3.0, "value_m_s": 0.28},
+        {"time_s": 8.0, "value_m_s": 0.14},
+        {"time_s": 12.0, "value_m_s": 0.26},
+        {"time_s": 16.0, "value_m_s": 0.12}
+      ],
+      "heading_offset_schedule": [
+        {"time_s": 0.0, "value_rad": 0.0},
+        {"time_s": 4.0, "value_rad": 0.0},
+        {"time_s": 7.0, "value_rad": 0.55},
+        {"time_s": 10.0, "value_rad": 0.25},
+        {"time_s": 14.0, "value_rad": -0.45},
+        {"time_s": 18.0, "value_rad": -0.15}
+      ]
+    },
+    {
+      "name": "turnaround_pass_by",
+      "duration_s": 27.0,
+      "initial_distance_m": 1.1,
+      "master_speed_schedule": [
+        {"time_s": 0.0, "value_m_s": 0.28},
+        {"time_s": 4.0, "value_m_s": 0.12},
+        {"time_s": 6.0, "value_m_s": 0.24},
+        {"time_s": 8.0, "value_m_s": 0.40},
+        {"time_s": 17.0, "value_m_s": 0.34}
+      ],
+      "heading_offset_schedule": [
+        {"time_s": 0.0, "value_rad": 0.0},
+        {"time_s": 4.0, "value_rad": 0.0},
+        {"time_s": 7.0, "value_rad": 2.4},
+        {"time_s": 9.0, "value_rad": 2.9},
+        {"time_s": 17.0, "value_rad": 2.9},
+        {"time_s": 27.0, "value_rad": 2.9}
+      ]
+    },
+    {
+      "name": "asynchronous_safety",
+      "duration_s": 19.0,
+      "initial_distance_m": 1.1,
+      "hazard_time_s": 6.0,
+      "yaw_gap_start_s": 8.0,
+      "yaw_gap_end_s": 9.5,
+      "resume_time_s": 11.5,
+      "old_epoch_inject_s": 7.0,
+      "master_speed_schedule": [
+        {"time_s": 0.0, "value_m_s": 0.24},
+        {"time_s": 5.0, "value_m_s": 0.18},
+        {"time_s": 12.0, "value_m_s": 0.27}
+      ],
+      "heading_offset_schedule": [
+        {"time_s": 0.0, "value_rad": 0.0},
+        {"time_s": 3.0, "value_rad": 0.4},
+        {"time_s": 8.0, "value_rad": 0.8},
+        {"time_s": 12.0, "value_rad": 0.3},
+        {"time_s": 19.0, "value_rad": 0.6}
+      ]
+    }
+  ]
+}

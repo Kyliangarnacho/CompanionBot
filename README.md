@@ -51,6 +51,14 @@ Stage 5 V1.5 已在该 runtime 上接入一条可复用的上层速度命令链�
 
 V1.5 的 synthetic replay 与 stream check 给出了当前阶段的量化边界：端到端 warm planning 为 3.94 ms（V1.4 为 108.92 ms，约 27.6× 加快），benchmark warm 为 3.75 ms；reference block underrun/stale/gap 均为 0。250 Hz cached-KKT replay 的 500 Hz residual 为 0.01776，velocity error RMS/peak 为 0.05540/0.16734 m/s，无饱和、无摔倒。规划使用 25×2 ms block，FULL horizon 先按 50 ms bucket，再向 4 ms 网格上取整。耗时是开发机仿真结果，不是 Raspberry Pi 5 实测或实机认证。详见 [Stage 5 V1.5 summary](models/minisegway/stage5/results/STAGE5_V1_5_SUMMARY.md)。
 
+## Stage 6 — 二维目标跟随与 Pi/MCU 数据链
+
+Stage 6 在冻结 Stage 3/4 controller 与 Stage 5 planner/stream 上加入相对目标跟随。当前主链为 20 Hz `TargetObservationPacket(x_forward,y_left,capture_time)` → Pi 状态历史按 capture time 插值 → radial-velocity KF → 双窗口 Follow Governor → FULL longitudinal reference blocks 与独立 yaw command → MCU safety merge → MuJoCo。GT 只用于仿真显示和事后评估。
+
+Governor 在 CATCH_UP→CRUISE 时通常锁存最近 20 帧有效 KF 径向速度 median；若最近 5 帧 median 比 20 帧低超过既有速度 deadband，则采用 5 帧结果快速响应减速。Vx/Vy 各 0.40 m/s 的 60 s 稳态对照中，最终方案的 20–60 s Governor 事件 / FULL 计划均为 **0/0**（旧单帧为 9/9、10/10；仅 5 帧方案为 11/11、12/12）。距离标准差由 Vx 的 0.110 m、Vy 的 0.109 m 降至 0.029 m、0.014 m；两组都无 fall、轮饱和或 reference underrun。带噪转弯 KF 径向速度 RMSE 为 **0.056 m/s**，raw finite-difference shadow 为 **0.830 m/s**；相应 Governor 事件为 7 对 46。无噪声回归中 KF 速度响应较慢（RMSE 0.029 vs raw 0.015 m/s），这一代价和减速瞬态风险均保留。
+
+最近的直线变速检查显示，0.20→0.40 m/s 时 CATCH_UP 延续约 6.1–6.2 s 后才锁存约 0.40；0.40→0.20 m/s 时，20 帧历史在即时 transition 仍约 0.40，之后靠 Governor slowdown 更新在 0.85–3.65 s 收敛。没有观察到周期性 hunting，但一组减速曾让距离降到 0.759 m，因此双窗口不能视作瞬态距离安全保证。详见 [Stage 6 当前状态](CURRENT_STATE.md)、[Stage 6 学习日志](LEARNING_LOG.md)、[双窗口历史对照](models/minisegway/stage6/reference/viewer_cruise_median_diagnosis/REPORT.md) 和 [动态变速验证](models/minisegway/stage6/results/governor_dynamic_rate_validation/DYNAMIC_RATE_VALIDATION_REPORT.md)。
+
 ## 快速运行
 
 在项目根目录使用现有 Python 3.11 虚拟环境：
@@ -78,7 +86,13 @@ Stage 5 V1.5 提供完整 baseline 下的手动命令试玩。运行后拖动控
 .\.venv\Scripts\python.exe scripts\view_stage5_v1_5_manual_demo.py
 ```
 
-两个 viewer 都由用户亲自启动/关闭。旧 Stage 5 V1.0–V1.4 runner/config/results 已移入 `models/minisegway/stage5/reference/`，不再列为当前快速运行入口。
+Stage 6 当前 2D follow viewer 使用完整 synthetic observation、capture-time RobotState 对齐、KF、Governor、FULL/yaw、MCU safety 与 MuJoCo 链；独立控制窗口的 forward/lateral 速度范围为 ±0.50 m/s，步进 0.02 m/s。MuJoCo HUD 和右侧内置面板默认隐藏。
+
+```powershell
+.\.venv\Scripts\python.exe scripts\view_stage6_5_manual_2d_follow.py --duration 300 --realtime-factor 1.0
+```
+
+各 viewer 都由用户亲自启动/关闭。旧 Stage 5 V1.0–V1.4 runner/config/results 已移入 `models/minisegway/stage5/reference/`，不再列为当前快速运行入口。
 
 ## 仓库结构
 
@@ -94,6 +108,9 @@ models/minisegway/
   stage5/config/                      当前 Stage 5 V1.5 command-stream 配置
   stage5/results/                     当前 Stage 5 V1.5 指标、history 与验收图
   stage5/reference/                   V1.0–V1.4 调试历史，不属于当前 runtime surface
+  stage6/config/                      当前 2D follow 与 radial-KF 配置
+  stage6/results/                     Stage 6.2–6.5 验收及当前变速验证
+  stage6/reference/                   旧 follower、门限候选与 hunting 诊断历史
 scripts/                              当前复现与 viewer 入口
 CURRENT_STATE.md                      冻结状态、指标和能力边界
 LEARNING_LOG.md                       调试路线、负结果与最终决策

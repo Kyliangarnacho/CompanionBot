@@ -1,0 +1,76 @@
+{
+  "stage": "Stage 6.2 Safety and Pi/MCU packet decoupling",
+  "observation_frequency_hz": 20.0,
+  "governor": {
+    "desired_distance_m": 1.1,
+    "d1_m": 1.4,
+    "d2_m": 1.1,
+    "catch_time_s": 3.0,
+    "max_abs_velocity_m_s": 0.6,
+    "initial_velocity_m_s": 0.0,
+    "a_brake_effective_m_s2": 0.25,
+    "catch_retrigger_margin_m_s": 0.05,
+    "catch_retrigger_persistence_samples": 3
+  },
+  "follow_scheduler_gate_policy": {
+    "require_stable_candidate": false,
+    "minimum_delta_enabled": false,
+    "follow_force_full_dynamic": true,
+    "follow_defer_until_full_exit": true
+  },
+  "safety": {
+    "safe_max_deceleration_m_s2": 0.5,
+    "safe_max_jerk_m_s3": 0.8,
+    "hidden_reference_handoff_time_s": 1.0,
+    "heartbeat_timeout_s": 0.15,
+    "reference_starvation_margin_s": 0.012,
+    "transport_latency_s": 0.0
+  },
+  "stage5_baseline": "models/minisegway/stage5/config/stage5_v1_5_pi_mcu_stream_config.json",
+  "scenarios": [
+    {
+      "name": "stage6_2_01_retrigger_during_full",
+      "duration_s": 18.0,
+      "initial_distance_m": 1.1,
+      "master_speed_schedule": [
+        {"time_s": 0.0, "value_m_s": 0.0},
+        {"time_s": 0.5, "value_m_s": 0.15},
+        {"time_s": 2.85, "value_m_s": 0.4},
+        {"time_s": 3.4, "value_m_s": 0.58},
+        {"time_s": 4.1, "value_m_s": 0.35}
+      ]
+    },
+    {
+      "name": "stage6_2_02_walk_stop_walk",
+      "duration_s": 22.0,
+      "initial_distance_m": 1.1,
+      "master_speed_schedule": [
+        {"time_s": 0.0, "value_m_s": 0.0},
+        {"time_s": 0.5, "value_m_s": 0.18},
+        {"time_s": 5.5, "value_m_s": 0.0},
+        {"time_s": 9.0, "value_m_s": 0.25},
+        {"time_s": 13.5, "value_m_s": 0.12},
+        {"time_s": 17.5, "value_m_s": 0.0}
+      ]
+    },
+    {
+      "name": "stage6_2_03_pi_hazard_active_full",
+      "duration_s": 9.0,
+      "initial_distance_m": 2.3,
+      "hazard_time_s": 0.8,
+      "hazard_reason": "OBSTACLE",
+      "master_speed_schedule": [
+        {"time_s": 0.0, "value_m_s": 0.0}
+      ]
+    },
+    {
+      "name": "stage6_2_04_pi_loss_active_full",
+      "duration_s": 9.0,
+      "initial_distance_m": 2.3,
+      "pi_crash_time_s": 0.8,
+      "master_speed_schedule": [
+        {"time_s": 0.0, "value_m_s": 0.0}
+      ]
+    }
+  ]
+}

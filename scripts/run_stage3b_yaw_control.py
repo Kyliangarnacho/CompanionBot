@@ -223,6 +223,9 @@ def run_case(
     control_observer=None,
     motion_limit_scale_callback=None,
     reference_source=None,
+    reference_context_callback=None,
+    mcu_local_state_callback=None,
+    pre_reference_tick_callback=None,
 ) -> dict:
     (
         manifest, config, dynamic_config, motion_config, offline,
@@ -385,6 +388,12 @@ def run_case(
         control_time = float(sim.data.time)
         rolling_reference_command = None
         if reference_source is not None:
+            if mcu_local_state_callback is not None:
+                mcu_local_state_callback(control_time, estimate, yaw_estimate)
+            if pre_reference_tick_callback is not None:
+                pre_reference_tick_callback(control_time)
+            if reference_context_callback is not None:
+                reference_context_callback(control_time, estimate)
             rolling_reference_command = reference_source.command(control_time)
             v_cmd = float(
                 rolling_reference_command.linear_velocity_target_m_s

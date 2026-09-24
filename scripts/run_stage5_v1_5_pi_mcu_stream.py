@@ -137,6 +137,7 @@ def make_reference_source(
     *,
     follower,
     full_planner_override: RuckigFullHorizonVelocityPlanner | None = None,
+    scheduler_gate_overrides: dict | None = None,
 ) -> SparseTwoPathReferenceSource:
     _, runtime_config, dynamic_config, motion_config, offline, *_ = common
     fit = offline["fit"]
@@ -172,6 +173,21 @@ def make_reference_source(
         initial_accepted_velocity_m_s=float(
             scheduler_config["initial_accepted_velocity_m_s"]
         ),
+        require_stable_candidate=bool(
+            (scheduler_gate_overrides or {}).get(
+                "require_stable_candidate", True
+            )
+        ),
+        minimum_delta_enabled=bool(
+            (scheduler_gate_overrides or {}).get(
+                "minimum_delta_enabled", True
+            )
+        ),
+        force_full_dynamic=bool(
+            (scheduler_gate_overrides or {}).get(
+                "follow_force_full_dynamic", False
+            )
+        ),
     )
     block = config["reference_block"]
     if not math.isclose(
@@ -191,6 +207,9 @@ def make_reference_source(
         quiet_theta_rad=math.radians(float(full_config["terminal_theta_abs_deg"])),
         quiet_theta_dot_rad_s=math.radians(
             float(full_config["terminal_theta_dot_abs_deg_s"])
+        ),
+        defer_full_accept_until_observed_exit=bool(
+            (scheduler_gate_overrides or {}).get("follow_defer_until_full_exit", False)
         ),
     )
 

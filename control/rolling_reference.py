@@ -40,6 +40,24 @@ class TargetObservation:
     capture_time_s: float
     x_forward_m: float
     y_left_m: float
+    version: int = 1
+    sequence_id: int = 0
+    valid: bool = True
+    confidence: float = 1.0
+
+    def __post_init__(self) -> None:
+        values = (
+            float(self.capture_time_s),
+            float(self.x_forward_m),
+            float(self.y_left_m),
+            float(self.confidence),
+        )
+        if not np.isfinite(values).all():
+            raise ValueError("target observation values must be finite")
+        if int(self.version) < 1 or int(self.sequence_id) < 0:
+            raise ValueError("target observation version/sequence is invalid")
+        if not 0.0 <= float(self.confidence) <= 1.0:
+            raise ValueError("target observation confidence must be in [0, 1]")
 
 
 @dataclass(frozen=True)
@@ -510,12 +528,18 @@ class SparseVelocityCommandScheduler:
         stable_window_s: float,
         stable_range_m_s: float,
         initial_accepted_velocity_m_s: float = 0.0,
+        require_stable_candidate: bool = True,
+        minimum_delta_enabled: bool = True,
+        force_full_dynamic: bool = False,
     ) -> None:
         self.accept_delta_v_m_s = float(accept_delta_v_m_s)
         self.full_delta_v_m_s = float(full_delta_v_m_s)
         self.stable_window_s = float(stable_window_s)
         self.stable_range_m_s = float(stable_range_m_s)
         self.accepted_velocity_m_s = float(initial_accepted_velocity_m_s)
+        self.require_stable_candidate = bool(require_stable_candidate)
+        self.minimum_delta_enabled = bool(minimum_delta_enabled)
+        self.force_full_dynamic = bool(force_full_dynamic)
         if not all(math.isfinite(value) and value > 0.0 for value in (
             self.accept_delta_v_m_s, self.full_delta_v_m_s,
             self.stable_window_s, self.stable_range_m_s,
@@ -561,7 +585,24 @@ class SparseVelocityCommandScheduler:
             raise ValueError("scheduler input must be finite")
         self.latest_pending_velocity_m_s = raw
         delta = raw - self.accepted_velocity_m_s
-        if abs(delta) < self.accept_delta_v_m_s:
+        if abs(delta) <= 1e-12:
+            if self.candidate_active:
+                self.events.append({
+                    "time_s": now,
+                    "event": "candidate_cancelled",
+                    "raw_velocity_m_s": raw,
+                    "frozen_accepted_baseline_m_s": self._candidate_baseline_m_s,
+                    "reason": "returned_to_accepted_command",
+                })
+            self._clear_candidate()
+            return ScheduledVelocityCommand(
+                False, "HOLD", raw, self.accepted_velocity_m_s, 0.0,
+                False, None,
+            )
+        if (
+            self.minimum_delta_enabled
+            and abs(delta) < self.accept_delta_v_m_s
+        ):
             if self.candidate_active:
                 self.events.append({
                     "time_s": now,
@@ -598,12 +639,15 @@ class SparseVelocityCommandScheduler:
         values = [value for _, value in self._candidate_window]
         spread = max(values) - min(values)
         is_stable = (
-            elapsed + 1e-12 >= self.stable_window_s
-            and self._candidate_window[-1][0] - self._candidate_window[0][0]
-            + 1e-12 >= self.stable_window_s
-            and spread <= self.stable_range_m_s + 1e-12
+            not self.require_stable_candidate
+            or (
+                elapsed + 1e-12 >= self.stable_window_s
+                and self._candidate_window[-1][0] - self._candidate_window[0][0]
+                + 1e-12 >= self.stable_window_s
+                and spread <= self.stable_range_m_s + 1e-12
+            )
         )
-        if is_stable and not self._candidate_stable:
+        if self.require_stable_candidate and is_stable and not self._candidate_stable:
             self.events.append({
                 "time_s": now,
                 "event": "candidate_stable",
@@ -613,14 +657,14 @@ class SparseVelocityCommandScheduler:
                 "window_start_time_s": self._candidate_window[0][0],
                 "window_end_time_s": self._candidate_window[-1][0],
             })
-        if not is_stable and self._candidate_stable:
+        if self.require_stable_candidate and not is_stable and self._candidate_stable:
             self.events.append({
                 "time_s": now,
                 "event": "candidate_unstable",
                 "raw_velocity_m_s": raw,
                 "window_range_m_s": spread,
             })
-        self._candidate_stable = is_stable
+        self._candidate_stable = is_stable and self.require_stable_candidate
         candidate_target = raw if is_stable else None
         if not is_stable or not allow_accept:
             return ScheduledVelocityCommand(
@@ -629,13 +673,16 @@ class SparseVelocityCommandScheduler:
                 raw,
                 self.accepted_velocity_m_s,
                 delta,
-                is_stable,
+                self.require_stable_candidate and is_stable,
                 candidate_target,
             )
 
         assert self._candidate_baseline_m_s is not None
         candidate_delta = candidate_target - self.accepted_velocity_m_s
-        if abs(candidate_delta) < self.accept_delta_v_m_s:
+        if (
+            self.minimum_delta_enabled
+            and abs(candidate_delta) < self.accept_delta_v_m_s
+        ):
             self.events.append({
                 "time_s": now,
                 "event": "candidate_cancelled",
@@ -650,7 +697,7 @@ class SparseVelocityCommandScheduler:
             )
         mode = (
             "FULL_DYNAMIC"
-            if abs(candidate_delta) >= self.full_delta_v_m_s
+            if self.force_full_dynamic or abs(candidate_delta) >= self.full_delta_v_m_s
             else "LIGHTWEIGHT"
         )
         previous = self.accepted_velocity_m_s
@@ -667,11 +714,15 @@ class SparseVelocityCommandScheduler:
                 self._candidate_window[-1][0] - self._candidate_window[0][0]
             ),
             "candidate_window_range_m_s": spread,
+            "stable_candidate_gate_bypassed": not self.require_stable_candidate,
+            "minimum_delta_gate_bypassed": not self.minimum_delta_enabled,
+            "force_full_dynamic": self.force_full_dynamic,
         })
         self._clear_candidate()
         return ScheduledVelocityCommand(
             True, mode, raw, self.accepted_velocity_m_s,
-            candidate_delta, True, float(candidate_target),
+            candidate_delta, self.require_stable_candidate and is_stable,
+            float(candidate_target),
         )
 
 
@@ -749,6 +800,7 @@ class SparseTwoPathReferenceSource:
         follower: Callable[[TargetObservation], MotionIntent],
         quiet_theta_rad: float,
         quiet_theta_dot_rad_s: float,
+        defer_full_accept_until_observed_exit: bool = False,
     ) -> None:
         if block_samples < 1:
             raise ValueError("reference block must contain at least one sample")
@@ -770,6 +822,9 @@ class SparseTwoPathReferenceSource:
         self.follower = follower
         self.quiet_theta_rad = float(quiet_theta_rad)
         self.quiet_theta_dot_rad_s = float(quiet_theta_dot_rad_s)
+        self.defer_full_accept_until_observed_exit = bool(
+            defer_full_accept_until_observed_exit
+        )
         self._block: _TwoPathReferenceBlock | None = None
         self._next_index = 0
         self._block_count = 0
@@ -1243,8 +1298,18 @@ class SparseTwoPathReferenceSource(SparseTwoPathReferenceSource):
             intent = self._last_intent
         raw = float(intent.linear_velocity_target_m_s)
         if observe_command:
+            projected_exit_time_s = (
+                float(self.full_exit_events[-1]["time_s"])
+                if self.full_exit_events else None
+            )
+            full_exit_observed = (
+                not self.defer_full_accept_until_observed_exit
+                or projected_exit_time_s is None
+                or float(intent.source_time_s) + 1e-12 >= projected_exit_time_s
+            )
             scheduled = self.scheduler.update(
-                float(intent.source_time_s), raw, allow_accept=not self._full_locked
+                float(intent.source_time_s), raw,
+                allow_accept=not self._full_locked and full_exit_observed,
             )
         else:
             scheduled = ScheduledVelocityCommand(
