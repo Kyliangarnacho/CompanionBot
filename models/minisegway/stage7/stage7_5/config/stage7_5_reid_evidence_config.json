@@ -1,0 +1,59 @@
+{
+  "stage": "7.5",
+  "scope": "single-reference Master appearance evidence; diagnostics only",
+  "model": {
+    "upstream": "KaiyangZhou/deep-person-reid (TorchReID)",
+    "source_commit": "f8cd150fdf77e8d9e1ed143b7f308c2c609ded50",
+    "architecture": "OSNet x0.25",
+    "weights": "kaiyangzhou/osnet / osnet_x0_25_msmt17_combineall_256x128_amsgrad_ep150_stp60_lr0.0015_b64_fb10_softmax_labelsmooth_flip_jitter.pth",
+    "weight_repository_revision": "01af85e82a9db4f3a4f6ed3a72ed9150bd416d04",
+    "weight_sha256": "cf55163d78fc44c62c82f85ab62d39f10438679b5abe8c698ae08cfa84aa6e18",
+    "weight_url": "https://huggingface.co/kaiyangzhou/osnet/resolve/01af85e82a9db4f3a4f6ed3a72ed9150bd416d04/osnet_x0_25_msmt17_combineall_256x128_amsgrad_ep150_stp60_lr0.0015_b64_fb10_softmax_labelsmooth_flip_jitter.pth",
+    "inference_device": "CPU",
+    "input_width_px": 128,
+    "input_height_px": 256,
+    "input_color_after_crop": "RGB",
+    "normalization_mean": [0.485, 0.456, 0.406],
+    "normalization_std": [0.229, 0.224, 0.225],
+    "embedding_dimension": 512,
+    "embedding_normalization": "L2"
+  },
+  "crop": {
+    "source": "TrackedPerson.bbox_xyxy_px",
+    "coordinates": "original ColorFrame pixel coordinates; x right, y down",
+    "clipping": "clip to image bounds; floor left/top and ceil right/bottom",
+    "box_expansion": false,
+    "predicted_boxes": false
+  },
+  "frame_alignment": {
+    "required": "ColorFrame.sequence_id == PersonTrackingFrame.source_sequence_id",
+    "source_id_must_match": true,
+    "dimensions_must_match": true,
+    "history_buffer": false
+  },
+  "master_reference": {
+    "count": 1,
+    "created_on": "explicit manual selection/reselection from that same source frame",
+    "updated_while_locked": false,
+    "cleared_on_master_clear": true
+  },
+  "candidate_scoring": {
+    "master_state_required": "LOST",
+    "candidate_policy": "score each currently active temporary track ID at most once per LOST episode",
+    "score": "cosine similarity of L2-normalized embeddings",
+    "distance": "1 - cosine similarity",
+    "ranking_tie_break": "lower temporary track ID",
+    "probability_interpretation": false,
+    "automatic_master_rebind": false
+  },
+  "tracker_and_detector": {
+    "byte_track_changed": false,
+    "tracker_configuration_changed": false,
+    "detector_configuration_changed": false
+  },
+  "logging": {
+    "reference_creation": true,
+    "candidate_bbox_similarity_rank_margin_and_timing": true,
+    "full_embedding_vector": false
+  }
+}

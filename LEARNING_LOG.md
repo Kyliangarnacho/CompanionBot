@@ -1,4 +1,4 @@
-# Phase 0/1 学习记录
+# CompanionBot 学习记录
 
 ## 1. Legacy 与 upstream
 
@@ -363,3 +363,23 @@
 - **最终 5/20 双窗口：**CRUISE 默认锁存最近 20 个有效 KF Vm 的 median；仅当最近 5 帧 median 比长窗低超过现有 0.05 m/s deadband 时，才用短窗快速减速。CRUISE 仍是 latched command，没有变成 20 Hz 速度伺服。20–60 s 中 Vx/Vy Governor 事件与 FULL 都降到 0/0，距离 std 从 0.110/0.109 降到 0.029/0.014 m，无 fall/饱和/underrun。单帧 latch diagnostic shadow 只记录、不进 actuator。详细比较保存在 `reference/viewer_cruise_median_diagnosis/REPORT.md`。
 - **最后变速检验与限制：**零噪声、零配置延迟的直线阶跃试验里，observation 采样相位只为覆盖 20 Hz MCU 状态插值平移了 1 ms。加速后距离重新增大，CATCH_UP 持续 6.1–6.2 s，CRUISE 才锁到约 0.40；转 CRUISE 后 11 s 以上无周期事件。减速后 0.10–0.25 s 立即发生 CRUISE，20 帧仍约 0.401；短窗仅在最晚相位部分降低到 0.350。Governor 随后单调 slowdown，进入 0.20±0.05 m/s 要 0.85–3.65 s；最慢组期间距离降至 0.759 m。没有周期性 hunting，但减速时距超程仍是主要风险。本轮只记录，没有改 KF/Governor 参数或加滤波层。
 - **阶段整理：**旧 Stage 6.1 数据/配置、0.03 deadband trial、hunting trace 和 single/5/10/20/adaptive 候选均移入 `models/minisegway/stage6/reference/`。Stage 6.5 viewer 保留 KF 主链，但跳过只用于算法比较的 raw finite-difference Governor shadow；Stage 6.5 benchmark runner仍保留该 shadow 用于复现实验。Stage 3/4/5 baseline 参数、KF/Governor 算法与本轮之前的实验结果均未改写。
+
+## Stage 7 — 视觉底座与最终工程收尾
+
+Stage 7.1–7.7 的完整学习/试错记录已集中到
+[Stage 7 learning log](models/minisegway/stage7/LEARNING_LOG.md)，最终架构、配置与验收边界见
+[Stage 7 final report](models/minisegway/stage7/STAGE7_FINAL_REPORT.md)。
+
+本阶段从 MonoTeach 迁移最小 Camera/KD 底座，逐步完成 YOLO26n、latest-frame stream、ByteTrack、
+Master、OSNet 三帧 reference 与双阈值 reacquire、独立 depth、同帧 torso median 和 camera XYZ。
+最终收尾补上实际缺失的 ReID 接线、RGB-only preview 和 provisional camera→body→leveled robot observation。
+
+值得保留的修正包括：read-complete 与 exposure timestamp 的区别；第一次测试用错系统 Python 后统一到项目
+`.venv`；用户撤回的 camera timeout 诊断及精确回退要求；一次性 candidate score 导致无法重试；双阈值后
+summary 的旧变量 NameError；depth age 与 display staleness 的混淆；YOLO depth axial Z/range 尚未确认。
+这些问题及负结果没有被隐藏或用换模型、改控制参数解决。
+
+最终 active tests 为 150 passed。300 帧真实 C920 无 GUI smoke 产生 124 组同帧配对、104 条 robot observation，
+并执行了三帧 reference 和一次 ID 1→2 ReID reacquire；身份正确性和真实几何仍待独立验收。
+7 个阶段目录的 56 个原文件全部迁到 `models/minisegway/stage7/`，迁移 manifest 与历史 rollback patch 均保留。
+Stage 3–6 参数及控制运行逻辑未改变，也没有把 host receive time 冒充 capture time 接入 follower。

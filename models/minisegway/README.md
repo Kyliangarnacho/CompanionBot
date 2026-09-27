@@ -1,5 +1,9 @@
 # MiniSegway MuJoCo physics plant
 
+Stage 7 的视觉配置/结果集中在 [stage7/](stage7/STAGE7_FINAL_REPORT.md)，其中
+`stage7_1/`–`stage7_7/` 保留分阶段历史，`config/` 与 `results/` 保存最终 demo 配置和 smoke。
+视觉相对观测尚未连接这里的冻结控制链。
+
 `mini_segway.xml` 是 passive nominal plant；`mini_segway_moving_payload.xml`
 增加了简化载物篮和自由刚体 payload。模型使用 CAD-derived visual mesh、
 解析 collision proxy、显式 aggregate inertia 和两个自由 wheel hinge。
@@ -7,7 +11,7 @@ Actuator 是 `gear=1` 的直接 torque input，并保留 peak/stall hard limit�
 模型本身不包含 controller，balance mode 也不使用 ball caster。
 
 Artifact 按阶段分层：`stage1/results/` 保存 plant/PID/LQR 基线，`stage2/results/`
-保存 full-state ID 与冻结 moving-payload acceptance，`stage3/config/` 和
+保存 full-state ID 与冻结 moving-payload acceptance，`stage3/results/config/` 和
 `stage3/results/` 保存最终 commanded-motion/yaw/payload baseline。跨阶段仍直接使用的
 MJCF、plant、sensor、estimator 与 Q 配置留在本目录，避免复制出多份真值。
 

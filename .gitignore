@@ -15,6 +15,9 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
+# Locally cached official detector checkpoint; source/config/report files stay versionable.
+/yolo26n.pt
+
 # Build and generated outputs
 build/
 dist/

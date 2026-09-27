@@ -1,0 +1,59 @@
+{
+  "stage": "7.6",
+  "scope": "manual three-frame Master reference confirmation and thresholded LOST ReID auto reacquire",
+  "model": {
+    "upstream": "KaiyangZhou/deep-person-reid (TorchReID)",
+    "source_commit": "f8cd150fdf77e8d9e1ed143b7f308c2c609ded50",
+    "architecture": "OSNet x0.25",
+    "weight_repository_revision": "01af85e82a9db4f3a4f6ed3a72ed9150bd416d04",
+    "weight_sha256": "cf55163d78fc44c62c82f85ab62d39f10438679b5abe8c698ae08cfa84aa6e18",
+    "embedding_dimension": 512,
+    "embedding_normalization": "L2"
+  },
+  "frame_alignment": {
+    "required": "ColorFrame.sequence_id == PersonTrackingFrame.source_sequence_id",
+    "source_id_must_match": true,
+    "dimensions_must_match": true,
+    "host_receive_time_must_match": true
+  },
+  "master_reference": {
+    "state_during_confirmation": "PENDING_LOCK",
+    "pending_minimum_duration_s": 0.30,
+    "valid_embeddings_required": 3,
+    "sample_offsets_from_pending_start_s": [0.0, 0.15, 0.30],
+    "aggregation": "arithmetic mean of three L2-normalized embeddings followed by L2 normalization",
+    "reference_count": 1,
+    "gallery_or_reference_bank": false,
+    "cancel_if_selected_track_disappears": true
+  },
+  "auto_reacquire": {
+    "enabled_in_reid_demo": true,
+    "master_state_required": "LOST",
+    "score": "cosine similarity of L2-normalized OSNet embeddings",
+    "reid_accept_threshold": 0.68,
+    "reid_retry_threshold": 0.50,
+    "threshold_status": "both are provisional engineering thresholds; no different-person negative calibration has been performed",
+    "minimum_stable_tracker_updates": 3,
+    "retry_interval_s": 0.20,
+    "candidate_embedding_policy": "first current-frame score after three stable tracker updates; retry at the configured interval only while the latest score is in [reid_retry_threshold, reid_accept_threshold)",
+    "below_threshold_action": "remain LOST",
+    "below_retry_threshold_action": "remain LOST and stop retrying this candidate until it disappears",
+    "successful_event": "MASTER_REID_REACQUIRED",
+    "event_fields": ["old_track_id", "new_track_id", "similarity", "source_sequence_id"],
+    "margin_rule": false,
+    "probability_interpretation": false
+  },
+  "unchanged": {
+    "detector": true,
+    "bytetrack": true,
+    "track_buffer": true,
+    "osnet_model_and_crop_rule": true,
+    "stage3_to_stage6": true,
+    "controller_integration": false
+  },
+  "logging": {
+    "embedding_vectors_logged": false,
+    "reference_sample_sequence_ids_logged": true,
+    "reacquisition_event_logged": true
+  }
+}

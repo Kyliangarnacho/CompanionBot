@@ -1,0 +1,282 @@
+[
+  {
+    "old_path": "stage7_1\\results\\person_detection_preview.jpg",
+    "new_path": "stage7\\stage7_1\\results\\person_detection_preview.jpg",
+    "sha256_before_path_rewrite": "54123D9AA7BA2B8D76CB963B4E074E8302B7DE80D9CEC13B6A1BC425F68EF089"
+  },
+  {
+    "old_path": "stage7_1\\results\\STAGE7_1_DEMO_REPORT.md",
+    "new_path": "stage7\\stage7_1\\results\\STAGE7_1_DEMO_REPORT.md",
+    "sha256_before_path_rewrite": "4557E2DEA01652B19725CE6083103FF5AEBE07AEA751C69211ED4C4219E6A73F"
+  },
+  {
+    "old_path": "stage7_2\\results\\person_detection_stream.csv",
+    "new_path": "stage7\\stage7_2\\results\\person_detection_stream.csv",
+    "sha256_before_path_rewrite": "B14427829662CBE573CAD736F0137C3EBBDA67076ABBCFBB90D3A612299473A1"
+  },
+  {
+    "old_path": "stage7_2\\results\\stage7_2_stream_metrics.json",
+    "new_path": "stage7\\stage7_2\\results\\stage7_2_stream_metrics.json",
+    "sha256_before_path_rewrite": "42BEE838E07D62227E773E954FE1670D3CB10FE7AD7F04FDF42FE7AF4EDFBD27"
+  },
+  {
+    "old_path": "stage7_2\\results\\STAGE7_2_STREAM_REPORT.md",
+    "new_path": "stage7\\stage7_2\\results\\STAGE7_2_STREAM_REPORT.md",
+    "sha256_before_path_rewrite": "80EF568FD83F599B4741B61A95ABB747A2455A1B2E9A4559EB5A718813132FBE"
+  },
+  {
+    "old_path": "stage7_3\\results\\person_track_lifetimes.csv",
+    "new_path": "stage7\\stage7_3\\results\\person_track_lifetimes.csv",
+    "sha256_before_path_rewrite": "E257CA4823ACDECEDDA89F6A31F91616F68AA69C2F144CF280755B2E64894F9F"
+  },
+  {
+    "old_path": "stage7_3\\results\\person_tracking_frames.csv",
+    "new_path": "stage7\\stage7_3\\results\\person_tracking_frames.csv",
+    "sha256_before_path_rewrite": "C306777CE550EABF04E8815C76AC7EC89720C06371F80D0E5B34F33444407D29"
+  },
+  {
+    "old_path": "stage7_3\\results\\stage7_3_run_config.json",
+    "new_path": "stage7\\stage7_3\\results\\stage7_3_run_config.json",
+    "sha256_before_path_rewrite": "A037E6F6E2D75CB88E2360E9F1EFD2E7A7D4AB2C040E0A34D6E950185C62D6B5"
+  },
+  {
+    "old_path": "stage7_3\\results\\stage7_3_synthetic_tracker_benchmark.json",
+    "new_path": "stage7\\stage7_3\\results\\stage7_3_synthetic_tracker_benchmark.json",
+    "sha256_before_path_rewrite": "0F7E9F53D8E04E86A5B1A0CB0A8399E5A61F720718B7240157C9E42976B64F91"
+  },
+  {
+    "old_path": "stage7_3\\results\\STAGE7_3_SYNTHETIC_TRACKER_BENCHMARK.md",
+    "new_path": "stage7\\stage7_3\\results\\STAGE7_3_SYNTHETIC_TRACKER_BENCHMARK.md",
+    "sha256_before_path_rewrite": "0C3AF265B36AD3DEF76248A98AA040D40663BEC8CA225453349E5145B8AFF3B2"
+  },
+  {
+    "old_path": "stage7_3\\results\\stage7_3_tracking_metrics.json",
+    "new_path": "stage7\\stage7_3\\results\\stage7_3_tracking_metrics.json",
+    "sha256_before_path_rewrite": "1433730FCC9AB6667C419883D99C18A5A9A476AA45763A1DC00C819639566DC9"
+  },
+  {
+    "old_path": "stage7_3\\results\\STAGE7_3_TRACKING_REPORT.md",
+    "new_path": "stage7\\stage7_3\\results\\STAGE7_3_TRACKING_REPORT.md",
+    "sha256_before_path_rewrite": "C5AB91C21DA188687ED6B054EA0D4178DCB6F55B43F08D758DF56440E925FF86"
+  },
+  {
+    "old_path": "stage7_4\\results\\master_lifecycle_events.jsonl",
+    "new_path": "stage7\\stage7_4\\results\\master_lifecycle_events.jsonl",
+    "sha256_before_path_rewrite": "44F334C8123E61C1E1CA8F48AD03A8FF4F003C8E5DE4FCD13231329E7FD96C2C"
+  },
+  {
+    "old_path": "stage7_4\\results\\STAGE7_4_MASTER_LOCK_BASELINE.md",
+    "new_path": "stage7\\stage7_4\\results\\STAGE7_4_MASTER_LOCK_BASELINE.md",
+    "sha256_before_path_rewrite": "8FE7CA132A5BA84F5558C64F52335004668FC515B355CB9B8DBB8FBA906E1DA2"
+  },
+  {
+    "old_path": "stage7_4\\results\\STAGE7_4_MASTER_LOCK_RUN_REPORT.md",
+    "new_path": "stage7\\stage7_4\\results\\STAGE7_4_MASTER_LOCK_RUN_REPORT.md",
+    "sha256_before_path_rewrite": "CE8A90F33B372175C13427BABE619604BC2260923219ABB058106B88A6717474"
+  },
+  {
+    "old_path": "stage7_4\\results\\stage7_4_run_config.json",
+    "new_path": "stage7\\stage7_4\\results\\stage7_4_run_config.json",
+    "sha256_before_path_rewrite": "02B6805D542BF05AE87C6CEF4FAA73A13BA1F83E007A965EC01C3AB7286CF910"
+  },
+  {
+    "old_path": "stage7_5\\config\\stage7_5_reid_evidence_config.json",
+    "new_path": "stage7\\stage7_5\\config\\stage7_5_reid_evidence_config.json",
+    "sha256_before_path_rewrite": "355D19321EFA5DFE9124912AE031CBA11323081F6D01387E1DE33C77BEEFC67C"
+  },
+  {
+    "old_path": "stage7_5\\results\\master_lifecycle_events.jsonl",
+    "new_path": "stage7\\stage7_5\\results\\master_lifecycle_events.jsonl",
+    "sha256_before_path_rewrite": "6FE8FEC81923A8C4CE19B09F661BE6C1BFF9A8CAA24261FFACE9B762DB21B453"
+  },
+  {
+    "old_path": "stage7_5\\results\\master_reid_evidence.jsonl",
+    "new_path": "stage7\\stage7_5\\results\\master_reid_evidence.jsonl",
+    "sha256_before_path_rewrite": "A9DB03C843A5ACDB8835EA4102522616D891B1E5906851E2FBBB638237F8DED0"
+  },
+  {
+    "old_path": "stage7_5\\results\\master_reid_evidence.zip",
+    "new_path": "stage7\\stage7_5\\results\\master_reid_evidence.zip",
+    "sha256_before_path_rewrite": "29589FC562D8F08830AB534F044419BB0CE8B1747063744BAB8BFAB29B45C859"
+  },
+  {
+    "old_path": "stage7_5\\results\\reid_cpu_benchmark.json",
+    "new_path": "stage7\\stage7_5\\results\\reid_cpu_benchmark.json",
+    "sha256_before_path_rewrite": "CC6DC1380710DA143CF3B0C4CF727E7C6FDF59C0F70DA45C3E6912C1ED54A949"
+  },
+  {
+    "old_path": "stage7_5\\results\\STAGE7_5_MASTER_REID_EVIDENCE_REPORT.md",
+    "new_path": "stage7\\stage7_5\\results\\STAGE7_5_MASTER_REID_EVIDENCE_REPORT.md",
+    "sha256_before_path_rewrite": "B02371B8FFA719E5592ED639EDE41CE8AF841B3C2D3A42A31B6AFE0F128CE860"
+  },
+  {
+    "old_path": "stage7_5\\results\\STAGE7_5_MASTER_REID_RUN_REPORT.md",
+    "new_path": "stage7\\stage7_5\\results\\STAGE7_5_MASTER_REID_RUN_REPORT.md",
+    "sha256_before_path_rewrite": "55B270C9CD4451B43DB51BA3A686ADB66BD50AA42C8B601841CD2AEFFAA0B214"
+  },
+  {
+    "old_path": "stage7_5\\results\\stage7_5_run_config.json",
+    "new_path": "stage7\\stage7_5\\results\\stage7_5_run_config.json",
+    "sha256_before_path_rewrite": "28149341EF6F8E425B5E203B079BA11DAE4B7B9CD163143513D733386FCBA6DC"
+  },
+  {
+    "old_path": "stage7_6\\config\\stage7_6_reid_auto_reacquire_config.json",
+    "new_path": "stage7\\stage7_6\\config\\stage7_6_reid_auto_reacquire_config.json",
+    "sha256_before_path_rewrite": "01A5095472AF20AED36561C6B20ABB14E1DC7C5B62A73A7D087B290A9B551DE3"
+  },
+  {
+    "old_path": "stage7_6\\results\\master_lifecycle_events.jsonl",
+    "new_path": "stage7\\stage7_6\\results\\master_lifecycle_events.jsonl",
+    "sha256_before_path_rewrite": "FA8BB4E7D664B9CF092A880EC6CAC79922CB281B56A1718EF55B572A901235B8"
+  },
+  {
+    "old_path": "stage7_6\\results\\master_reid_evidence.jsonl",
+    "new_path": "stage7\\stage7_6\\results\\master_reid_evidence.jsonl",
+    "sha256_before_path_rewrite": "79383D6E8F0EB132C303BDEED1877C33672F555DD1487FF37CBAFA20A253EE5A"
+  },
+  {
+    "old_path": "stage7_6\\results\\STAGE7_6_MASTER_REID_RUN_REPORT.md",
+    "new_path": "stage7\\stage7_6\\results\\STAGE7_6_MASTER_REID_RUN_REPORT.md",
+    "sha256_before_path_rewrite": "21A26068A0201656C01559F9272725DBB8E16C351E4A24A28FFA3CC44A4DDA69"
+  },
+  {
+    "old_path": "stage7_6\\results\\STAGE7_6_REID_AUTO_REACQUIRE_REPORT.md",
+    "new_path": "stage7\\stage7_6\\results\\STAGE7_6_REID_AUTO_REACQUIRE_REPORT.md",
+    "sha256_before_path_rewrite": "43EC25A668F0619B8CE419843FDA0F6844B9DD91E9A02B9FAFF376DB25CA6EBB"
+  },
+  {
+    "old_path": "stage7_6\\results\\stage7_6_run_config.json",
+    "new_path": "stage7\\stage7_6\\results\\stage7_6_run_config.json",
+    "sha256_before_path_rewrite": "1FCC0AB006EE6570A8CFD01058A382C7EC71FE9128F01010939552324A3310C2"
+  },
+  {
+    "old_path": "stage7_7\\config\\c920e_camera_params_1280x720.npz",
+    "new_path": "stage7\\stage7_7\\config\\c920e_camera_params_1280x720.npz",
+    "sha256_before_path_rewrite": "253DBA67A99F9DD6B2BC8A2822C6483C654C8726ACA7E4A38935F1E30EF0B57C"
+  },
+  {
+    "old_path": "stage7_7\\config\\stage7_7_depth_baseline.json",
+    "new_path": "stage7\\stage7_7\\config\\stage7_7_depth_baseline.json",
+    "sha256_before_path_rewrite": "2B5471514136720D379D972F5D6C44E681A00F8B77D403B6345F710ED72522A1"
+  },
+  {
+    "old_path": "stage7_7\\results\\concurrent_depth_frames.csv",
+    "new_path": "stage7\\stage7_7\\results\\concurrent_depth_frames.csv",
+    "sha256_before_path_rewrite": "8FBFC253E5C9CB03C1436785F277AEDA93D433841FDFB91A6B6D0519519D574D"
+  },
+  {
+    "old_path": "stage7_7\\results\\concurrent_detector_frames.csv",
+    "new_path": "stage7\\stage7_7\\results\\concurrent_detector_frames.csv",
+    "sha256_before_path_rewrite": "D9F6722C05C1CB9D1FC9630A3C759C45F61B33F974395872A891081742A0DDB7"
+  },
+  {
+    "old_path": "stage7_7\\results\\concurrent_metrics.json",
+    "new_path": "stage7\\stage7_7\\results\\concurrent_metrics.json",
+    "sha256_before_path_rewrite": "72BD5F716536E4978A511AFFFB6A3A89E9A12D090C02022CBE6FC5E7FE59C610"
+  },
+  {
+    "old_path": "stage7_7\\results\\concurrent_report.md",
+    "new_path": "stage7\\stage7_7\\results\\concurrent_report.md",
+    "sha256_before_path_rewrite": "F17E55CA114AE3D69C73C4B8B110746A7E20CCA840D2558F5A61733FFB6545E1"
+  },
+  {
+    "old_path": "stage7_7\\results\\depth_detector_concurrent_1280_depth_frames.csv",
+    "new_path": "stage7\\stage7_7\\results\\depth_detector_concurrent_1280_depth_frames.csv",
+    "sha256_before_path_rewrite": "021CC3F27CFC76395C77C6E19B3050BD320A1DD9D4044D56552FB3DDB5094FBD"
+  },
+  {
+    "old_path": "stage7_7\\results\\depth_detector_concurrent_1280_detector_frames.csv",
+    "new_path": "stage7\\stage7_7\\results\\depth_detector_concurrent_1280_detector_frames.csv",
+    "sha256_before_path_rewrite": "E3E70EF0FE26C1FE7155321B70F381AEEF4FBDE4EF63BE88D182503683E6E279"
+  },
+  {
+    "old_path": "stage7_7\\results\\depth_detector_concurrent_1280_metrics.json",
+    "new_path": "stage7\\stage7_7\\results\\depth_detector_concurrent_1280_metrics.json",
+    "sha256_before_path_rewrite": "B9F758DC0F1DF59F22D8A43BB676CB1CC0465C4C445EEE5DB630ED1408CEA7B5"
+  },
+  {
+    "old_path": "stage7_7\\results\\depth_detector_concurrent_1280_report.md",
+    "new_path": "stage7\\stage7_7\\results\\depth_detector_concurrent_1280_report.md",
+    "sha256_before_path_rewrite": "26E535EA17EB5548382B00ADA60C99509B43DB373186367A47D335BFA6850A34"
+  },
+  {
+    "old_path": "stage7_7\\results\\depth_standalone_1280_depth_frames.csv",
+    "new_path": "stage7\\stage7_7\\results\\depth_standalone_1280_depth_frames.csv",
+    "sha256_before_path_rewrite": "78ED6242113A20CD168ABB16DE7EB74E7FF8A75279B076E68EF608D4BA08E73A"
+  },
+  {
+    "old_path": "stage7_7\\results\\depth_standalone_1280_metrics.json",
+    "new_path": "stage7\\stage7_7\\results\\depth_standalone_1280_metrics.json",
+    "sha256_before_path_rewrite": "B820D296C331627DB0CD953B8BBFADF8E369B7E13A90B04BB41A7BDFDA374B17"
+  },
+  {
+    "old_path": "stage7_7\\results\\depth_standalone_1280_report.md",
+    "new_path": "stage7\\stage7_7\\results\\depth_standalone_1280_report.md",
+    "sha256_before_path_rewrite": "CDDDC8B3E4EBD8D3CF117698E8F980487CA7E3073924A9E804FA007678A3C730"
+  },
+  {
+    "old_path": "stage7_7\\results\\detector_only_1280_detector_frames.csv",
+    "new_path": "stage7\\stage7_7\\results\\detector_only_1280_detector_frames.csv",
+    "sha256_before_path_rewrite": "C43B99AA5DB8373B3F26032199377BAF45F04BDB756367AAD10101C4E294E598"
+  },
+  {
+    "old_path": "stage7_7\\results\\detector_only_1280_metrics.json",
+    "new_path": "stage7\\stage7_7\\results\\detector_only_1280_metrics.json",
+    "sha256_before_path_rewrite": "42C9462118A4FA3867CC22B066D9CC8E24F4BEE1CC885BA38F73D9A394672617"
+  },
+  {
+    "old_path": "stage7_7\\results\\detector_only_1280_report.md",
+    "new_path": "stage7\\stage7_7\\results\\detector_only_1280_report.md",
+    "sha256_before_path_rewrite": "3D2C0EB7CED3820642EB1B1F757E47346B53B7DF26DC7577A112CA8901D659A6"
+  },
+  {
+    "old_path": "stage7_7\\results\\manual_master_camera_xyz_depth_frames.csv",
+    "new_path": "stage7\\stage7_7\\results\\manual_master_camera_xyz_depth_frames.csv",
+    "sha256_before_path_rewrite": "C973ECF6AD50720FCFAEC77CC5DFC05DAC51F8A336E64A30FB1ED2C72B2BCBB0"
+  },
+  {
+    "old_path": "stage7_7\\results\\manual_master_camera_xyz_detector_frames.csv",
+    "new_path": "stage7\\stage7_7\\results\\manual_master_camera_xyz_detector_frames.csv",
+    "sha256_before_path_rewrite": "23AD3ADEBD184D7384F277FF16A1E3A7FF80A4DE3A5233055EFC8545FE3E978F"
+  },
+  {
+    "old_path": "stage7_7\\results\\manual_master_camera_xyz_master_camera_points.csv",
+    "new_path": "stage7\\stage7_7\\results\\manual_master_camera_xyz_master_camera_points.csv",
+    "sha256_before_path_rewrite": "905459C99794F2425370583185B9309FB49917B51139BBDEA4775D966E018A70"
+  },
+  {
+    "old_path": "stage7_7\\results\\manual_master_camera_xyz_metrics.json",
+    "new_path": "stage7\\stage7_7\\results\\manual_master_camera_xyz_metrics.json",
+    "sha256_before_path_rewrite": "AAC7900227310ED1FE3528564B1F95A8216C36E4392601F6021B5F70A46EB167"
+  },
+  {
+    "old_path": "stage7_7\\results\\manual_master_camera_xyz_report.md",
+    "new_path": "stage7\\stage7_7\\results\\manual_master_camera_xyz_report.md",
+    "sha256_before_path_rewrite": "3A42006DB28DD8FE7DC3D9F75475B50A11FEEBC21060BAB9250F00EFD632AD99"
+  },
+  {
+    "old_path": "stage7_7\\results\\master_pairing_headless_smoke_depth_frames.csv",
+    "new_path": "stage7\\stage7_7\\results\\master_pairing_headless_smoke_depth_frames.csv",
+    "sha256_before_path_rewrite": "F1994425BFCD3B9086FCCE87FEA727B5E656811E010DCA9123E293A48EEA0408"
+  },
+  {
+    "old_path": "stage7_7\\results\\master_pairing_headless_smoke_detector_frames.csv",
+    "new_path": "stage7\\stage7_7\\results\\master_pairing_headless_smoke_detector_frames.csv",
+    "sha256_before_path_rewrite": "A156B09A1FAF7F7325CDF13A37601D7134AFEABAEC61937EF2F56C5091B7FAEC"
+  },
+  {
+    "old_path": "stage7_7\\results\\master_pairing_headless_smoke_metrics.json",
+    "new_path": "stage7\\stage7_7\\results\\master_pairing_headless_smoke_metrics.json",
+    "sha256_before_path_rewrite": "1D3AFDD578965F25E3AF0F9C30E5C355689CD11CB07F57958A31834D72A0A10E"
+  },
+  {
+    "old_path": "stage7_7\\results\\master_pairing_headless_smoke_report.md",
+    "new_path": "stage7\\stage7_7\\results\\master_pairing_headless_smoke_report.md",
+    "sha256_before_path_rewrite": "6E74062B236CADAB33FB055837A2D9B450545D7025E02C020E1D6DFF921F0A33"
+  },
+  {
+    "old_path": "stage7_7\\results\\STAGE7_7_DEPTH_BASELINE_REPORT.md",
+    "new_path": "stage7\\stage7_7\\results\\STAGE7_7_DEPTH_BASELINE_REPORT.md",
+    "sha256_before_path_rewrite": "FC9CD6ED32D20718E947E5C9A3CF0DDF5748959C9D7A730F1768E6DC9A3E2BDA"
+  }
+]

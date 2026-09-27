@@ -24,6 +24,14 @@
 - 第三方 upstream 和本地派生 CAD mesh 不进入本仓库；许可证和来源记录不得删除。
 - 不为了“显得完整”增加空目录、万能抽象或未验证模块。
 
+## Python 环境与执行
+
+- CompanionBot 的安装、测试、脚本运行和依赖检查统一优先使用仓库虚拟环境 `D:\project\CompanionBot\.venv`；不得因为虚拟环境缺包而切换到系统 Python。
+- 每次涉及依赖安装或测试前，先确认当前 Python 可执行文件路径、Python 版本，以及 `python -m pip --version` 显示的 pip 所属环境。
+- Windows 下优先显式调用 `D:\project\CompanionBot\.venv\Scripts\python.exe`，并用同一解释器执行 `-m pip`、`-m pytest`、脚本和依赖检查，确保安装环境、测试环境与运行环境一致。
+- 虚拟环境缺少所需包时，直接在该 `.venv` 中安装；禁止在一个环境安装、另一个环境验证。
+- 仅当 `.venv` 已损坏或存在明确兼容性问题时才考虑切换解释器，并在执行前说明具体原因和影响。
+
 ## Git 与交付
 
 - 用户检查前不要 commit、push、创建 GitHub repository 或添加 remote。

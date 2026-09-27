@@ -1,0 +1,3 @@
+{"source_id": "1", "source_sequence_id": 0, "source_time_s": 899296.5647279001, "old_track_id": null, "new_track_id": 1, "event": "MASTER_PENDING_LOCK_STARTED", "candidate_track_ids": [1], "click_x_px": null, "click_y_px": null, "similarity": null}
+{"source_id": "1", "source_sequence_id": 57, "source_time_s": 899299.2176984, "old_track_id": null, "new_track_id": 1, "event": "MASTER_SELECTED", "candidate_track_ids": [], "click_x_px": null, "click_y_px": null, "similarity": null}
+{"event": "MASTER_REFERENCE_CREATED", "source_id": "1", "source_sequence_id": 57, "sample_sequence_ids": [0, 56, 57], "embedding_dimension": 512}

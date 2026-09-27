@@ -1,0 +1,8 @@
+# Stage 7.1 person detection extends the validated color-camera environment.
+-r requirements-camera.txt
+# Official YOLO26 support is available in current Ultralytics 8.4.x releases.
+# PyTorch is installed by Ultralytics; choose its official CUDA/CPU wheel first
+# when a specific runtime is required for the host.
+ultralytics>=8.4.0,<9
+# Ultralytics ByteTrack's matching module requests this optional solver at import.
+lap>=0.5.12

@@ -1,0 +1,35 @@
+{
+  "stage": "7.7",
+  "camera_profile_for_this_experiment": {
+    "device_index_on_current_windows_host": 1,
+    "requested_width": 1280,
+    "requested_height": 720,
+    "requested_fps": 30,
+    "device_index_is_not_a_stable_hardware_identifier": true
+  },
+  "calibration": {
+    "asset": "c920e_camera_params_1280x720.npz",
+    "original_path": "D:\\project\\C920e_Calibration\\output\\camera_params.npz",
+    "heritage_reference": "D:\\project\\MonoTeach\\data\\calibrations\\workspace_2d\\workspace_2d_20260825T171007_064501Z.json",
+    "sha256": "253DBA67A99F9DD6B2BC8A2822C6483C654C8726ACA7E4A38935F1E30EF0B57C",
+    "metadata_width": 1280,
+    "metadata_height": 720,
+    "calibration_report_device": "Logitech C920e",
+    "camera_identity_match_to_current_device": "not independently verified",
+    "K_scaling": "forbidden"
+  },
+  "depth": {
+    "backend": "Ultralytics YOLO26 depth",
+    "model": "yolo26n-depth.pt",
+    "inference_imgsz": 768,
+    "public_unit": "metres",
+    "invalid_value": "NaN",
+    "output_shape": "exact source frame H x W"
+  },
+  "person_detector": {
+    "model": "yolo26n.pt",
+    "inference_imgsz": 640,
+    "tracker": "existing Ultralytics ByteTrack"
+  },
+  "scheduling": "single Stage 7.2 camera source, independent capacity-one latest-frame slots"
+}

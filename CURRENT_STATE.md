@@ -1,7 +1,39 @@
-# CompanionBot current frozen state — through Stage 6.5 2D follow
+# CompanionBot current state — Stage 7 perception closeout
+
+## Stage 7 当前状态
+
+- 最终入口：`scripts/demo_stage7_perception.py --camera-device 1 --preview`，RGB-only。
+  Camera → YOLO26n → ByteTrack → Master/OSNet ReID，与独立 YOLO26n-depth 按
+  source ID/sequence/time/resolution 配对 → torso median → camera XYZ → robot-relative observation。
+- Master/ReID 保留 Stage 7.6：三帧 reference 跨至少 0.30 s；LOST candidate 连续 3 次 tracker update，
+  ≥0.68 接受，0.50–0.68 间隔约 0.20 s retry，低于 0.50 停止本 track 重试。阈值未做 negative-person calibration。
+- Camera 为 BGR uint8；bbox/crop/depth 均用原始 source pixels。C920e K/D 为 1280×720，禁止自动缩放；
+  detector imgsz=640、depth imgsz=768 与采集分辨率独立。
+- 时间为 host read-complete / perf_counter，未宣称曝光时间。depth age 为 ready-source；pitch provider
+  必须使用同一 source time 和时钟语义，缺少 coverage 返回 unavailable。
+  Provider 可另外显式报告映射到 host clock 的曝光对齐 `pitch_time_s`；原始 source receipt 时间保持不变。
+- camera 坐标为 +X右/+Y下/+Z前；body/leveled robot 为 +X前/+Y左/+Z上，原点为轮轴中点。
+  `P_B=R_BC P_C+t_BC`，`P_L=R_y(theta) P_B`；theta 正值绕 +Y 右手旋转（nose down）。
+  模拟安装为前方 0.08 m、轮轴上方 0.35 m、下倾 10°；pitch 为 simulated constant 0°。
+  这些是 provisional 参数，YOLO depth 的 axial Z 解释也尚未最终确认。
+- 最终无 GUI C920 smoke：300 帧、124 组同帧配对、104 条 robot observation；创建一次 reference，
+  一次 ID 1→2 ReID reacquire（0.8963）。这是执行证据，未独立验证身份或物理距离。
+  depth 14.03 Hz，infer median/p95 68.59/85.04 ms；detector 主链 27.23 Hz。
+- 最终时间接口补完后的第二次 180 帧无 GUI 验证同样正常退出：56 组同帧配对、54 条 robot observation；
+  depth 12.04 Hz、infer median/p95 82.19/86.75 ms，detector 主链 25.60 Hz。两次原始结果均保留，未调参。
+- 当前完整 active tests：**150 passed**，统一在项目 `.venv`。最终 GUI 留待用户验收。
+- Stage 7 配置/结果统一在 `models/minisegway/stage7/`，下设 `stage7_1/` 至 `stage7_7/`。
+  最终配置为 `stage7/config/final_demo.json`。
+- **Stage 7 尚未接 Stage 6**。需确认设备物理身份、真实 T、depth convention/精度、pitch sign/clock/history、
+  相机 latency 与 stale/lost 接口策略，并测 Pi/MCU 实机时序。检测频率不要求固定 20 Hz。
+
+详见 [Stage 7 final report](models/minisegway/stage7/STAGE7_FINAL_REPORT.md) 与
+[Stage 7 learning log](models/minisegway/stage7/LEARNING_LOG.md)。
+
+## Stage 3–6 冻结控制与跟随状态
 
 Stage 3 已完成并冻结为 MuJoCo simulation baseline。权威索引是
-`models/minisegway/stage3/config/baseline.json`；生产配置未自动替换为调参过程中任何临时候选。
+`models/minisegway/stage3/results/config/baseline.json`；生产配置未自动替换为调参过程中任何临时候选。
 
 ## Plant、时序与数据边界
 
@@ -50,7 +82,7 @@ Stage 3 已完成并冻结为 MuJoCo simulation baseline。权威索引是
 ## 当前边界
 
 - 这是 nominal flat-ground MuJoCo research baseline，不是硬件安全认证或 payload rating。
-- 未解决项包括真实 motor torque-speed envelope、电池/驱动动态、地面变化、视觉/导航输入和实机验证。
+- 未解决项包括真实 motor torque-speed envelope、电池/驱动动态、地面变化、真实视觉跟随闭环/导航和实机验证。
 - 不应从已删除的 tuning artifacts 恢复临时 A patch、3-state Drive LQR、persistent cruise FF、
   GT-in-controller diagnostic 或 Q actuator augmentation。
 - 后续阶段若改变 plant、payload、timing、estimator、K/A/B 或 torque limit，应新建独立公平验证，
@@ -155,7 +187,7 @@ CATCH_UP→CRUISE 时保留最近 20 个有效 KF Master radial-velocity 样本�
 - 当前 2D viewer：`scripts/view_stage6_5_manual_2d_follow.py`；独立 Master 控制窗口以 forward/lateral 速度 slider 连续移动，范围 ±0.50 m/s、步进 0.02 m/s；MuJoCo HUD 与右侧内置面板默认隐藏。
 - 当前配置：`models/minisegway/stage6/config/stage6_4_2d_follow_config.json` 与 `stage6_5_radial_kf_config.json`。Stage6.2–6.5 的 packet/safety、wait/resume、2D/yaw 与 KF 验收产物留在 `stage6/results/`。
 - 早期 Stage6.1、旧 deadband、窗口候选和 hunting 诊断现已归档到 `models/minisegway/stage6/reference/`；当前 quick-start 只指向 Stage6.5 viewer。
-- 折返最近距离曾到 0.685 m，动态减速测试曾到 0.759 m；非倒车 follower 不提供固定 d2 安全保证。相机 detection/FOV、独立硬件时钟、真实 UART/USB transport 与 STM32 实测均未实现或认证。
+- 折返最近距离曾到 0.685 m，动态减速测试曾到 0.759 m；非倒车 follower 不提供固定 d2 安全保证。Stage 6 尚未连接 Stage 7 真实视觉；独立硬件时钟、真实 UART/USB transport 与 STM32 实测仍待实现或验证。
 
 ## 当前可试玩 demo
 

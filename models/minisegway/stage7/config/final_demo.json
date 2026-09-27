@@ -1,0 +1,28 @@
+{
+  "calibration_asset": "../stage7_7/config/c920e_camera_params_1280x720.npz",
+  "reid_policy_asset": "../stage7_6/config/stage7_6_reid_auto_reacquire_config.json",
+  "depth_convention": "axial_z",
+  "depth_convention_status": "provisional assumption; released YOLO26 depth checkpoint convention not conclusively documented",
+  "camera_extrinsic": {
+    "rotation_body_camera": [[0.0, -0.17364817766693033, 0.984807753012208], [-1.0, 0.0, 0.0], [0.0, -0.984807753012208, -0.17364817766693033]],
+    "translation_body_camera_m": [0.08, 0.0, 0.35],
+    "provisional": true,
+    "description": "Simulated mount: 8 cm forward and 35 cm above wheel axle midpoint; camera looks 10 degrees down; actual mount unmeasured",
+    "equation": "P_body = R_body_camera @ P_camera + t_body_camera_m"
+  },
+  "pitch": {
+    "provider": "constant_simulated",
+    "theta_deg": 0.0,
+    "provisional": true,
+    "positive_direction": "right-handed about body +Y left, nose down",
+    "time_semantics": "host_read_complete",
+    "clock_domain": "host_perf_counter"
+  },
+  "robot_observation": {
+    "frame": "robot_leveled_axle",
+    "origin": "wheel axle midpoint, shared with body frame",
+    "axes": "+X forward, +Y left, +Z up",
+    "equation": "P_leveled = R_y(theta_at_source_time) @ P_body",
+    "stage6_connected": false
+  }
+}
