@@ -34,6 +34,15 @@ CMakeCache.txt
 *.tmp
 *.swp
 
+# Agent credentials and optional offline speech assets remain local.
+.env
+.env.*
+!.env.example
+/models/minisegway/stage8/results/**/*.jsonl
+/models/minisegway/stage8/results/**/*.wav
+/models/minisegway/stage8/results/**/*.avi
+/models/minisegway/stage8/results/**/*.py
+
 # Locally derived from third-party MiniSegway CAD; regenerate, do not publish.
 /models/minisegway/assets/upstream_local/
 

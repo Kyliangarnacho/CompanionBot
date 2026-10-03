@@ -60,15 +60,29 @@ FINAL_CONFIG = ROOT / "models" / "minisegway" / "stage7" / "config" / "final_dem
 class _FrameFanout:
     """Offer the same source frame to independent latest-frame slots."""
 
-    def __init__(self, slots: tuple[LatestFrameSlot, ...], calibration=None):
+    def __init__(self, slots: tuple[LatestFrameSlot, ...], calibration=None, frame_observer=None):
         self.slots = slots
         self.calibration = calibration
+        self.frame_observer = frame_observer
+        self.observer_calls = 0
+        self.observer_failures = 0
+        self.observer_wall_ms = deque(maxlen=4096)
 
     def put(self, frame: ColorFrame) -> None:
         if self.calibration is not None:
             validate_calibration_resolution(self.calibration, frame.width, frame.height)
         for slot in self.slots:
             slot.put(frame)
+        if self.frame_observer is not None:
+            started = time.perf_counter()
+            self.observer_calls += 1
+            try:
+                self.frame_observer(frame)
+            except Exception:
+                # An optional question-answering consumer must not stop tracking/depth.
+                self.observer_failures += 1
+            finally:
+                self.observer_wall_ms.append(1000 * (time.perf_counter() - started))
 
     def close(self) -> None:
         for slot in self.slots:
@@ -392,12 +406,15 @@ def _write_csv(path: Path, rows: list[dict]) -> None:
         writer.writerows(rows)
 
 
-def main(argv: Sequence[str] | None = None, *, pitch_provider_override=None) -> int:
+def main(argv: Sequence[str] | None = None, *, pitch_provider_override=None,
+         frame_observer=None, shutdown_event=None, on_key=None, write_report=True,
+         log_progress=True, perception_observer=None, preview_status=None, perception_status=None) -> int:
     parser = _parser()
     args = parser.parse_args(argv)
     if args.video is not None and not args.video.is_file():
         parser.error(f"video does not exist: {args.video}")
-    if args.video is None and args.max_source_frames is None and not args.preview:
+    if (args.video is None and args.max_source_frames is None and not args.preview
+            and shutdown_event is None):
         parser.error("headless camera run needs --max-source-frames")
     if (args.width is None) != (args.height is None):
         parser.error("--width and --height must be supplied together")
@@ -453,6 +470,8 @@ def main(argv: Sequence[str] | None = None, *, pitch_provider_override=None) -> 
     os.environ.setdefault("YOLO_CONFIG_DIR", str(ROOT / ".venv"))
 
     depth_adapter = None
+    if perception_status:
+        perception_status("MODELS_LOADING · Detector / Depth / ReID 权重加载中")
     if args.mode in ("depth", "concurrent", "full"):
         if args.depth_model == DEFAULT_DEPTH_MODEL:
             DEFAULT_DEPTH_MODEL.parent.mkdir(parents=True, exist_ok=True)
@@ -476,13 +495,16 @@ def main(argv: Sequence[str] | None = None, *, pitch_provider_override=None) -> 
             stable_updates=reid_policy["minimum_stable_tracker_updates"],
         )
 
+    if perception_status:
+        perception_status("MODELS_LOADED · 权重已加载，等待相机首帧与首次推理")
+    inference_ready = False
     depth_channel = _Channel(LatestFrameSlot()) if depth_adapter is not None else None
     detector_channel = _Channel(LatestFrameSlot()) if detector is not None else None
     preview_slot = LatestFrameSlot()
     active_channels = [channel for channel in (depth_channel, detector_channel)
                        if channel is not None]
     fanout = _FrameFanout(tuple([preview_slot] + [c.slot for c in active_channels]),
-                          calibration)
+                          calibration, frame_observer)
     runtime = source_stream._SourceRuntime.create(fanout)
     workers = []
     if depth_channel is not None:
@@ -580,6 +602,9 @@ def main(argv: Sequence[str] | None = None, *, pitch_provider_override=None) -> 
             if detector_channel is not None:
                 cv2.setMouseCallback("CompanionBot Stage 7 RGB", _on_click)
         while True:
+            if shutdown_event is not None and shutdown_event.is_set():
+                runtime.stop.set()
+                break
             frame = preview_slot.get(timeout_s=0.05)
             if frame is not None:
                 latest_rgb = frame
@@ -587,6 +612,11 @@ def main(argv: Sequence[str] | None = None, *, pitch_provider_override=None) -> 
                                       if depth_channel else (None, []))
             detector_pair, detector_rows = (detector_channel.snapshot()
                                             if detector_channel else (None, []))
+            if (not inference_ready and (depth_channel is None or depth_pair is not None)
+                    and (detector_channel is None or detector_pair is not None)):
+                inference_ready = True
+                if perception_status:
+                    perception_status("PERCEPTION_READY · Detector / ByteTrack / Depth 已产出结果，ReID 按 Master 生命周期运行")
             if detector_channel is not None:
                 for tracked_color, tracked_result, _ in detector_channel.completed_after(
                         last_detector_seq):
@@ -600,6 +630,8 @@ def main(argv: Sequence[str] | None = None, *, pitch_provider_override=None) -> 
                         current_master = master_manager.result(tracked_result)
                     _accept_pair(pairer.add_tracking(
                         tracked_color, current_tracking, current_master))
+                    if perception_observer is not None:
+                        perception_observer(current_master)
             while click_requests:
                 click, displayed = click_requests.popleft()
                 if current_tracking is not None:
@@ -619,7 +651,7 @@ def main(argv: Sequence[str] | None = None, *, pitch_provider_override=None) -> 
                 depth_frame = depth_pair[1]
                 if depth_frame.source_sequence_id != last_depth_seq:
                     last_depth_seq = depth_frame.source_sequence_id
-                    if len(depth_rows) == 1 or len(depth_rows) % 10 == 0:
+                    if log_progress and (len(depth_rows) == 1 or len(depth_rows) % 10 == 0):
                         row = depth_rows[-1]
                         print(f"depth seq={last_depth_seq} "
                               f"infer={row['inference_adapter_wall_ms']:.1f}ms "
@@ -666,14 +698,29 @@ def main(argv: Sequence[str] | None = None, *, pitch_provider_override=None) -> 
                                 lines += _depth_preview_lines(depth_pair[1], depth_rows[-1], _rate(depth_rows))
                         last_preview_image = _overlay(rgb_image, lines)
                 last_preview_key = preview_key
-                cv2.imshow("CompanionBot Stage 7 RGB", last_preview_image)
+                displayed_image = last_preview_image
+                if preview_status is not None:
+                    displayed_image = last_preview_image.copy()
+                    cv2.putText(displayed_image, preview_status(),
+                                (12, displayed_image.shape[0] - 18),
+                                cv2.FONT_HERSHEY_SIMPLEX, .6, (255, 255, 255), 2)
+                cv2.imshow("CompanionBot Stage 7 RGB", displayed_image)
                 key = cv2.waitKey(1) & 0xFF
+                if on_key is not None and key != 255:
+                    on_key(key)
                 if key == ord("c") and current_tracking is not None:
                     if reid_session is not None:
                         reid_session.clear(current_tracking.source_id)
+                        if perception_observer is not None:
+                            from dataclasses import replace
+                            from perception.master_selection import MasterState
+                            perception_observer(replace(current_master, state=MasterState.UNSELECTED,
+                                                        bound_track_id=None, master_track=None))
                     else:
                         master_manager.clear(current_tracking)
                         current_master = master_manager.result(current_tracking)
+                        if perception_observer is not None:
+                            perception_observer(current_master)
                     latest_paired = None
                     last_preview_key = None
                 if key in (ord("q"), 27):
@@ -792,7 +839,17 @@ def main(argv: Sequence[str] | None = None, *, pitch_provider_override=None) -> 
                 - baseline["detector_tracker"]["result_age_ms_median"]),
         }
     metrics_path = args.output_dir / f"{run_name}_metrics.json"
+    if frame_observer is not None:
+        metrics["frame_observer"] = {
+            "calls": fanout.observer_calls, "failures": fanout.observer_failures,
+            "wall_ms_median": statistics.median(fanout.observer_wall_ms) if fanout.observer_wall_ms else None,
+            "wall_ms_max": max(fanout.observer_wall_ms, default=None),
+            "timing_window": "last 4096 source frames",
+        }
     metrics_path.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
+    if not write_report:
+        print(f"metrics: {metrics_path.resolve()}")
+        return 0
     report_path = args.output_dir / f"{run_name}_report.md"
     report_path.write_text(
         f"# Stage 7.7 {run_name}\n\n"

@@ -383,3 +383,13 @@ summary 的旧变量 NameError；depth age 与 display staleness 的混淆；YOL
 并执行了三帧 reference 和一次 ID 1→2 ReID reacquire；身份正确性和真实几何仍待独立验收。
 7 个阶段目录的 56 个原文件全部迁到 `models/minisegway/stage7/`，迁移 manifest 与历史 rollback patch 均保留。
 Stage 3–6 参数及控制运行逻辑未改变，也没有把 host receive time 冒充 capture time 接入 follower。
+
+## Stage 8 — 独立 Agent、真实交互与阶段收口
+
+- 单一PydanticAI Slim + Qwen Agent完成问答、原生多模态工具、结构化休眠和高层行为请求；不迁入旧agent-core，不扩建MCP/多Agent平台。真实C920复用Stage7唯一capture owner，VLM仅按需问答。
+- 首次401来自含点密钥被截断；Windows CLI编码、取消重复记录、两路ASR整句匹配、键盘/语音拒绝混淆和缺少accept反馈逐步修正，失败证据没有删掉。视觉关键词hint最终退出，采用同一Agent的capture_view。
+- 用户实测唤醒低分/问句错字推动有限同音容错和本地SenseVoice/Silero升级；缺confidence显式为空。Streaming+SAPI支持生成/播放重叠、受限口头取消、按钮/文字确定性打断，idle30秒单次提示。无AEC或商场准确率认证。
+- 真实Qwen语义smoke6 requests、8392 input/191 output tokens；该次自然视觉首文本2.070 s、首SAPI提交2.340 s。用户基本功能通过；运动/导航始终Fake，Stage7→6时钟/几何/pitch/transport尚未闭环。
+- 收口把当前最终报告与调试历史分开，退休hint/旧名字专用映射和早期设备smoke移入Stage8 reference；当前config、原结果和Stage3–7冻结工程保留。active260项通过，另11项历史断言单独通过；未增加算法、改门限或commit/push。
+
+完整问题与验证过程见[Stage8 Learning Log](models/minisegway/stage8/LEARNING_LOG.md)，当前架构/接口边界见[最终报告](models/minisegway/stage8/STAGE8_REPORT.md)，启动见[RUNNING.md](models/minisegway/stage8/RUNNING.md)。

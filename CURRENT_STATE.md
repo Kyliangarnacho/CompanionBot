@@ -1,4 +1,21 @@
-# CompanionBot current state — Stage 7 perception closeout
+# CompanionBot current state — Stage 8 finalized baseline
+
+## Stage 8 已完成：独立 Agent 与真实交互
+
+- 正式单入口：`scripts/demo_stage8_interaction.py --camera-device 1`，交互窗口 + 原Stage7预览，保留Master点击选择；首帧之后初始化本地TTS/麦克风，模型加载与首次推理就绪另有提示。唯一camera capture owner，Agent SLEEP时感知与frame tap持续，零Agent读帧/模型请求。
+- PydanticAI Slim2.53.0（OpenAI extra）+ Qwen `qwen3.8-flash` non-thinking；官方async/events/streaming/usage/cancellation。简单问答通常1 request，自然视觉通常2 requests；无第二个分类Agent、旧agent-core或MCP。
+- 唯一逻辑唤醒词“你好小柒”，本地Vosk保留“你好小”前缀并容忍qi同音名字；普通唤醒句级0.35，严格控制/行为保留更严门控。ACTIVE为SenseVoice int8 + Silero VAD，16kHz mono s16le，停顿0.9s整句提交；缺confidence显式null/unavailable，无confidence语音行为需名字前缀。
+- 内置Realtek按实际设备名称选取，保留CLI override，失败不回退C920麦克风；设备/ASR原文/RMS、输入来源与具体ACCEPT/REJECT/IGNORED可见。ASR原文、真人PCM和图像不写交互日志。
+- Streaming窗口 + 中文句段SAPI FIFO；行为轮等Supervisor ACK和最终结果再播。文字/按钮/预览空格可取消generation、清队列、停当前播放；口头仅允许完整名字+明确打断口令，并保留自身TTS文本veto。无可靠AEC或任意语音Barge-in。
+- ACTIVE空闲30s本地休眠并只提示一次“小柒先走啦”；生成、播放、VAD用户语音保护计时。自然缄默由typed `enter_sleep {action:SLEEP}`直接结束，不告别；引用负例正常回答，休眠清历史/epoch并取消活动任务。
+- 按需`capture_view`复用非消费式FrameProvider，source/sequence/host read-complete、BGR uint8、同帧原像素ROI、源尺寸与JPEG尺寸分开；编码后freshness复核、历史移除图片。图片轮不能执行行为或授权休眠；VLM不参与Master tracking。自然capture当前整帧，ROI由显式入口提供。
+- 高层工具覆盖本地知识、真实Master、robot/task状态、FOLLOW/WAIT/STOP_REQUEST/GUIDE_TO与取消。FOLLOW执行前要求新鲜LOCKED/visible Master；Supervisor为真实确定性实现，Robot/Navigation仍fake，`hardware_execution_ready=False`。GUIDE_TO保留destination ID、task ID、status、cancel，无SLAM/地图/实际运动。
+- 已有真实Qwen语义smoke：6 requests/6 attempts、8392 input/191 output tokens，0重试/异常；自然视觉首事件0.916s、首文本2.070s、首SAPI提交2.340s、生成结束2.410s。首语音是命令提交而非声学起声，有限测试不是普遍性能承诺。
+- 对应真实C920 full：1256帧、28.74Hz，tap1256/0failure，detector27.99Hz、depth14.76Hz。新ASR相同8条合成PCM对照CER Vosk1/71、SenseVoice0/71，median decode0.844/0.093s；用户基本功能通过，但真人固定语料、环境误漏唤醒率、回声与听感未作量化认证。
+- 收口active测试**260 passed**（冻结工程150 + Agent54 + interaction56），pip check通过；历史helper断言另11项通过。视觉关键词hint和旧名字专用映射退出Runtime，早期设备smoke移入`stage8/reference/`；当前门限/config、依赖和原结果保留，没有新增算法、commit/push或GUI自动操作。
+- 接口已预留FrameProvider、RobotBackend、NavigationBackend，尚缺完整分布式契约：RobotSnapshot时钟字段、稳定source/epoch、destination→map pose、ROS Action进度/取消终态、真实ACK deadline/幂等/ID匹配、重连恢复和资源上界；HTTP发送前未再次验证图像年龄。Stage7→6真实geometry/pitch/latency/transport仍需独立验收，不能自动开启实体execution_ready。
+
+当前权威文档：[最终报告与白盒图](models/minisegway/stage8/STAGE8_REPORT.md)、[运行与验收](models/minisegway/stage8/RUNNING.md)、[Learning Log](models/minisegway/stage8/LEARNING_LOG.md)。历史仅在reference和原results追溯；Stage3–7冻结边界见下文。
 
 ## Stage 7 当前状态
 

@@ -1,0 +1,23 @@
+{
+  "model": "qwen3.8-flash",
+  "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+  "wake_phrase": "你好小柒",
+  "wake_asr_phrase": null,
+  "idle_timeout_s": 30,
+  "idle_sleep_message": "小柒先走啦。",
+  "wake_fuzzy": true,
+  "run_timeout_s": 30,
+  "frame_max_age_s": 1,
+  "robot_max_age_s": 0.5,
+  "request_limit": 3,
+  "tool_calls_limit": 4,
+  "total_tokens_limit": 12000,
+  "max_output_tokens": 512,
+  "max_history_turns": 4,
+  "audio_confidence_min": 0.85,
+  "audio_question_confidence_min": 0.60,
+  "audio_wake_confidence_min": 0.35,
+  "audio_interrupt_confidence_min": 0.50,
+  "asr_silence_s": 0.9,
+  "echo_guard_s": 0.6
+}

@@ -1,0 +1,8 @@
+{
+  "notice": "仅用于 Stage 8 软件验证的虚构场馆/商品，不是真实展品或实时库存。",
+  "destinations": {"service_desk": "服务台", "robot_exhibit": "机器人展区"},
+  "items": [
+    {"id": "robot_exhibit", "name": "机器人展区", "description": "演示数据：介绍双轮自平衡机器人，包含感知、规划与平衡控制三部分。"},
+    {"id": "demo_cup", "name": "纪念杯", "description": "虚构商品：300 毫升陶瓷杯，售价 39 元。此数据不代表真实库存。"}
+  ]
+}
