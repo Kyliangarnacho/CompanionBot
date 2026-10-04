@@ -12,16 +12,28 @@ import threading
 
 @dataclass
 class DemoBridge:
-    commands: queue.Queue = field(default_factory=queue.Queue)
-    updates: queue.Queue = field(default_factory=queue.Queue)
+    commands: queue.Queue = field(default_factory=lambda: queue.Queue(maxsize=64))
+    updates: queue.Queue = field(default_factory=lambda: queue.Queue(maxsize=512))
     preview_line: str = "Agent SLEEP | camera starting | execution=fake"
 
     def submit(self, text: str):
         if text.strip():
-            self.commands.put(text.strip())
+            self._put_latest(self.commands, text.strip())
 
     def emit(self, kind: str, data):
-        self.updates.put((kind, data))
+        self._put_latest(self.updates, (kind, data))
+
+    @staticmethod
+    def _put_latest(target, value):
+        while True:
+            try:
+                target.put_nowait(value)
+                return
+            except queue.Full:
+                try:
+                    target.get_nowait()
+                except queue.Empty:
+                    pass
 
 
 def input_feedback(text: str, *, state: str, valid_voice=True,
@@ -121,6 +133,8 @@ def launch_panel(bridge: DemoBridge, run_worker):
     def append(text):
         output.configure(state="normal")
         output.insert("end", text)
+        if int(output.index("end-1c").split(".")[0]) > 1000:
+            output.delete("1.0", "200.0")
         output.see("end")
         output.configure(state="disabled")
     def poll():

@@ -1,21 +1,21 @@
-# CompanionBot current state — Stage 8 finalized baseline
+# CompanionBot current state — Stage 8.2 baseline
 
-## Stage 8 已完成：独立 Agent 与真实交互
+## Stage 8 当前状态（2026-10-05）
 
-- 正式单入口：`scripts/demo_stage8_interaction.py --camera-device 1`，交互窗口 + 原Stage7预览，保留Master点击选择；首帧之后初始化本地TTS/麦克风，模型加载与首次推理就绪另有提示。唯一camera capture owner，Agent SLEEP时感知与frame tap持续，零Agent读帧/模型请求。
-- PydanticAI Slim2.53.0（OpenAI extra）+ Qwen `qwen3.8-flash` non-thinking；官方async/events/streaming/usage/cancellation。简单问答通常1 request，自然视觉通常2 requests；无第二个分类Agent、旧agent-core或MCP。
-- 唯一逻辑唤醒词“你好小柒”，本地Vosk保留“你好小”前缀并容忍qi同音名字；普通唤醒句级0.35，严格控制/行为保留更严门控。ACTIVE为SenseVoice int8 + Silero VAD，16kHz mono s16le，停顿0.9s整句提交；缺confidence显式null/unavailable，无confidence语音行为需名字前缀。
-- 内置Realtek按实际设备名称选取，保留CLI override，失败不回退C920麦克风；设备/ASR原文/RMS、输入来源与具体ACCEPT/REJECT/IGNORED可见。ASR原文、真人PCM和图像不写交互日志。
-- Streaming窗口 + 中文句段SAPI FIFO；行为轮等Supervisor ACK和最终结果再播。文字/按钮/预览空格可取消generation、清队列、停当前播放；口头仅允许完整名字+明确打断口令，并保留自身TTS文本veto。无可靠AEC或任意语音Barge-in。
-- ACTIVE空闲30s本地休眠并只提示一次“小柒先走啦”；生成、播放、VAD用户语音保护计时。自然缄默由typed `enter_sleep {action:SLEEP}`直接结束，不告别；引用负例正常回答，休眠清历史/epoch并取消活动任务。
-- 按需`capture_view`复用非消费式FrameProvider，source/sequence/host read-complete、BGR uint8、同帧原像素ROI、源尺寸与JPEG尺寸分开；编码后freshness复核、历史移除图片。图片轮不能执行行为或授权休眠；VLM不参与Master tracking。自然capture当前整帧，ROI由显式入口提供。
-- 高层工具覆盖本地知识、真实Master、robot/task状态、FOLLOW/WAIT/STOP_REQUEST/GUIDE_TO与取消。FOLLOW执行前要求新鲜LOCKED/visible Master；Supervisor为真实确定性实现，Robot/Navigation仍fake，`hardware_execution_ready=False`。GUIDE_TO保留destination ID、task ID、status、cancel，无SLAM/地图/实际运动。
-- 已有真实Qwen语义smoke：6 requests/6 attempts、8392 input/191 output tokens，0重试/异常；自然视觉首事件0.916s、首文本2.070s、首SAPI提交2.340s、生成结束2.410s。首语音是命令提交而非声学起声，有限测试不是普遍性能承诺。
-- 对应真实C920 full：1256帧、28.74Hz，tap1256/0failure，detector27.99Hz、depth14.76Hz。新ASR相同8条合成PCM对照CER Vosk1/71、SenseVoice0/71，median decode0.844/0.093s；用户基本功能通过，但真人固定语料、环境误漏唤醒率、回声与听感未作量化认证。
-- 收口active测试**260 passed**（冻结工程150 + Agent54 + interaction56），pip check通过；历史helper断言另11项通过。视觉关键词hint和旧名字专用映射退出Runtime，早期设备smoke移入`stage8/reference/`；当前门限/config、依赖和原结果保留，没有新增算法、commit/push或GUI自动操作。
-- 接口已预留FrameProvider、RobotBackend、NavigationBackend，尚缺完整分布式契约：RobotSnapshot时钟字段、稳定source/epoch、destination→map pose、ROS Action进度/取消终态、真实ACK deadline/幂等/ID匹配、重连恢复和资源上界；HTTP发送前未再次验证图像年龄。Stage7→6真实geometry/pitch/latency/transport仍需独立验收，不能自动开启实体execution_ready。
+- 唯一正式交互入口：`scripts/demo_stage8_interaction.py --camera-device 1`，交互窗口＋Stage7预览；`run_stage8_agent.py`是无设备文字诊断，`verify_stage82.py`是自动验收，不是另一套正式Demo。
+- PydanticAI Slim2.53.0＋现有Qwen `qwen3.8-flash`，单Agent，保留C920唯一采集owner、Realtek、Vosk唤醒“你好小柒”、SenseVoice/Silero、Streaming与SAPI。睡眠零模型请求/零Agent问答取帧，感知继续运行。
+- CatalogQuery/lookup_knowledge新增可选query_variants（最多3个，默认空）。首次Qwen Tool Call完成当前语义扩展；同一次Provider检索融合/去重，返回有界真实候选、query_index命中来源和截断计数。去掉预置待测口语alias，不引入词库、第二Agent或独立改写请求。
+- 虚构目录为12件商品/展品、5品牌、8分类、7目的地，包含同品牌面食/饮料、同名不同包装及跨货架果汁；商品、分类和可导航destination稳定ID分离，没有地图坐标或真实库存。
+- Resolver持有单个pending与当前turn的resolution，TTL120s、revision和候选交集；补充条件先重新检索，品类专区与具体商品歧义区分。GUIDE_TO须使用本轮真实destination_id/resolution_id；错误编号、失效候选和模型编造凭据不会获准。
+- Supervisor、Robot/Navigation异步契约沿用：ACCEPT不等于完成，RUNNING/progress、CANCEL_REQUESTED/CANCEL、UNKNOWN、任务ID/回合关联、2s Backend deadline、300s task deadline、幂等和迟到反馈校验；任务由独立callback/0.5s poll继续反馈，模型回答结束不代表任务结束。内存队列/历史有界。
+- Frame/Master/ASR与Robot/Feedback adapter已有source/epoch、sequence、接收与可选产生时间及clock域；Stage7原始ColorFrame/host_read_complete不是曝光时间。跨机时钟显式映射、destination→map pose和持久化重连协调仍待未来Adapter。
+- 自然视觉按需capture_view，不参与Master tracking或运动控制；图片轮不能授权行为。FOLLOW仍要求新鲜LOCKED/visible Master。Robot/Navigation仍Fake，hardware_execution_ready=false，尚未接ROS2/SLAM或实际运动。
+- Streaming/SAPI、本地优先STOP/WAIT/取消/打断与30s idle休眠保留。含行为权限的首响应可能延后显示，ACK后与取图后继续流式。无可靠AEC/远场噪声认证；无confidence语音执行行为须名字前缀。
+- 本轮最终全仓302项通过（13.02s），pip check通过；真实Qwen最后语义11/11、行为/取消5/5、休眠与本地睡眠零请求3/3，合计32请求。当前检索对照与全部失败批次见[交付证据](models/minisegway/stage8/results/semantic_refinement_delivery.json)。扩展OFF/ON使用同一目录和过滤条件，不增加模型请求。模型仍可能填错凭据/工具名并耗尽既有预算，失败及取消必须如实保留，不能当作成功或未执行。
+- 10-04 Realtek只读采集、合成音频SenseVoice及SAPI曾通过；10-05相机索引1首次打开失败，用户重新连接后正式入口headless复验通过：1280×720、自然capture_view、2请求、3.400s、Streaming正常。原失败保留；本次麦克风/TTS关闭，真人音频/AEC不作新认证，没有GUI自动操作。
+- 收尾清理限于有明确范围的缓存/过时重复测试输出；原始模型、硬件失败与冻结实验成果保留。README只描述能力/限制和启动命令，阶段状态放本文件；规则已写入AGENTS。未commit/push。
 
-当前权威文档：[最终报告与白盒图](models/minisegway/stage8/STAGE8_REPORT.md)、[运行与验收](models/minisegway/stage8/RUNNING.md)、[Learning Log](models/minisegway/stage8/LEARNING_LOG.md)。历史仅在reference和原results追溯；Stage3–7冻结边界见下文。
+当前权威文档：[最终架构与接口](models/minisegway/stage8/STAGE8_REPORT.md)、[运行与验收](models/minisegway/stage8/RUNNING.md)、[设计/失败/修复记录](models/minisegway/stage8/LEARNING_LOG.md)。Stage3–7冻结边界见下文。
 
 ## Stage 7 当前状态
 

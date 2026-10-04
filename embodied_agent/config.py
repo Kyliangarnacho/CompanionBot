@@ -25,11 +25,12 @@ class AgentConfig(BaseModel):
     run_timeout_s: float = Field(default=30, gt=0, le=120)
     frame_max_age_s: float = Field(default=1, gt=0, le=5)
     robot_max_age_s: float = Field(default=0.5, gt=0, le=2)
-    request_limit: int = Field(default=3, ge=1, le=6)
+    request_limit: int = Field(default=4, ge=1, le=6)
     tool_calls_limit: int = Field(default=4, ge=1, le=8)
     total_tokens_limit: int = Field(default=12000, ge=100, le=50000)
     max_output_tokens: int = Field(default=512, ge=32, le=2048)
     max_history_turns: int = Field(default=4, ge=0, le=20)
+    catalog_pending_ttl_s: float = Field(default=120, gt=0, le=600)
     audio_confidence_min: float = Field(default=0.85, ge=0, le=1)
     # Additive scores: legacy confidence remains minimum word confidence.
     audio_question_confidence_min: float = Field(default=0.60, ge=0, le=1)

@@ -32,7 +32,7 @@ def no_network(monkeypatch):
 def setup(config=None, model=None, clock=None):
     clock = clock or (lambda: 10.0)
     robot = FakeRobotBackend(clock)
-    nav = FakeNavigationBackend({"service_desk", "robot_exhibit"})
+    nav = FakeNavigationBackend({"service_desk", "robot_exhibit"}, clock=clock)
     supervisor = BehaviorSupervisor(robot, nav, clock=clock)
     runtime = AgentRuntime(model or fake_model(), supervisor, config or AgentConfig())
     session = AgentSession(runtime, clock=clock)
@@ -269,7 +269,7 @@ def test_backend_ack_failure_is_uncertain_not_claimed_rejected():
             raise RuntimeError("acknowledgement lost")
         robot.request = unknown
         result = await supervisor.submit(BehaviorRequest(intent="FOLLOW"))
-        assert result.status == "FAILED" and result.reason == "backend_ack_unavailable"
+        assert result.status == "UNKNOWN" and result.reason == "backend_ack_unavailable"
         assert supervisor.active_task == result.task_id
     asyncio.run(run())
 

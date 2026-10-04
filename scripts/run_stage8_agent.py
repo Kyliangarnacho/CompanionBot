@@ -21,6 +21,7 @@ from embodied_agent.frames import Stage7FrameBuffer
 from embodied_agent.interaction import AgentSession, normalized, CONTROLS
 from embodied_agent.runtime import AgentRuntime, fake_model, qwen_runtime
 from embodied_agent.ui import input_feedback
+from embodied_agent.catalog import JsonCatalogProvider
 
 
 async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
@@ -28,18 +29,18 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
     config = AgentConfig.load(args.config)
     if getattr(args, "idle_timeout", None) is not None:
         config = AgentConfig.model_validate(config.model_dump() | {"idle_timeout_s": args.idle_timeout})
-    knowledge = json.loads((STAGE_DIR / "config/knowledge.json").read_text("utf-8"))
+    catalog = JsonCatalogProvider.load(STAGE_DIR / "config/knowledge.json")
     if master_status:
         from embodied_agent.perception import PerceptionAwareFakeRobot
         robot = PerceptionAwareFakeRobot(master_status)
     else:
         robot = FakeRobotBackend()
-    navigation = FakeNavigationBackend(set(knowledge["destinations"]))
+    navigation = FakeNavigationBackend(catalog.destination_ids())
     supervisor = BehaviorSupervisor(robot, navigation, max_state_age_s=config.robot_max_age_s)
     run_id = "interaction_" + uuid4().hex
     telemetry = STAGE_DIR / "results" / (run_id + ".jsonl")
-    runtime = (AgentRuntime(fake_model(), supervisor, config, telemetry=telemetry, master_status=master_status) if args.fake
-               else qwen_runtime(supervisor, config, telemetry=telemetry, master_status=master_status))
+    runtime = (AgentRuntime(fake_model(), supervisor, config, telemetry=telemetry, master_status=master_status, catalog=catalog) if args.fake
+               else qwen_runtime(supervisor, config, telemetry=telemetry, master_status=master_status, catalog=catalog))
 
     def emit(kind, data):
         if ui:
@@ -54,6 +55,7 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
 
     def feedback(result):
         runtime.record_event("behavior", result.model_dump(mode="json"))
+        print("\n[任务事件] " + result.model_dump_json(), flush=True)
         emit("feedback", "Supervisor · " + result.model_dump_json())
     supervisor.on_feedback = feedback
 
@@ -83,7 +85,8 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
         return {"first_speech_s": spoken_turn.first_speech_s if spoken_turn else None}
 
     async def finish_speech(turn, outcome):
-        timing = await turn.finish(outcome.status == "COMPLETED" and not outcome.metrics.get("interaction_action"))
+        timing = await turn.finish((outcome.status == "COMPLETED" or outcome.metrics.get("answer_source") == "local_catalog_fallback")
+                                   and not outcome.metrics.get("interaction_action"))
         timing.update(model_wall_s=outcome.metrics["wall_s"], status=outcome.status,
                       turn_id=outcome.metrics["turn_id"],
                       interaction_action=outcome.metrics.get("interaction_action"),
@@ -108,10 +111,11 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
                 print("TTS 失败；回答保留在文字输出中。")
 
     def complete(outcome):
-        print("\n" + outcome.text if outcome.status != "COMPLETED" else "")
+        failed_without_fallback = outcome.status != "COMPLETED" and outcome.metrics.get("answer_source") != "local_catalog_fallback"
+        print("\n" + outcome.text if failed_without_fallback else "")
         print(json.dumps(outcome.metrics, ensure_ascii=False))
         emit("metrics", {"phase": "model_complete", "data": outcome.metrics})
-        if outcome.status != "COMPLETED":
+        if failed_without_fallback:
             emit("response", outcome.text)
         if outcome.metrics.get("interaction_action") == "SLEEP":
             emit("response", 'Agent 指令 {"action":"SLEEP"} 已执行；停止播报、清空历史并休眠。')
@@ -124,22 +128,36 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
     session = AgentSession(runtime, frames=buffer,
                            on_text=text, on_complete=complete, on_speech=speech_fragment,
                            on_run_start=begin_turn, speech_metrics=speech_metrics,
-                           strict_behavior_intent=True, preempt_on_input=True,
+                           preempt_on_input=True,
                            on_silence=lambda: speech.interrupt() if speech else None)
     print(f"SLEEP | 唤醒短语：{config.wake_phrase} | robot/navigation=fake")
     print("/interrupt /cancel /stop /wait /sleep /status /complete /look 问题 /quit")
     print("自然视觉问题自动选帧；/look 问题；/look-roi x1 y1 x2 y2 问题（原图坐标）。")
     print("播放中可说“" + config.wake_phrase + "，打断回答”；只接收明确打断口令，没有 AEC。文字/空格始终可用。")
     emit("response", "C920 持续感知；Agent SLEEP。麦克风仅本地唤醒监听，执行后端为 fake。")
-    queue = asyncio.Queue()
+    queue = asyncio.Queue(maxsize=64)
     consumed = threading.Event()
     input_stop = threading.Event()
     camera_stop = threading.Event()
     loop = asyncio.get_running_loop()
 
     def enqueue(item):
+        def put():
+            text = item[0] if isinstance(item, tuple) else item
+            command = normalized(text)
+            prefix = normalized(config.wake_phrase)
+            if command.startswith(prefix):
+                command = command[len(prefix):]
+            if command in {normalized(key) for key in CONTROLS} or command == normalized("/quit"):
+                while not queue.empty():
+                    queue.get_nowait()
+            if queue.full():
+                # New input supersedes queued old intent; keep a bounded inbox.
+                queue.get_nowait()
+                runtime.record_event("input_queue", {"reason": "oldest_dropped_capacity", "capacity": 64})
+            queue.put_nowait(item)
         try:
-            loop.call_soon_threadsafe(queue.put_nowait, item)
+            loop.call_soon_threadsafe(put)
         except RuntimeError:
             pass
 
@@ -155,7 +173,7 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
             consumed.clear()
 
     async def voice_callback(text, **kwargs):
-        await queue.put((text, kwargs))
+        enqueue((text, kwargs))
 
     reader = threading.Thread(target=read_text, name="agent-console-input", daemon=True)
     audio = None
@@ -164,6 +182,11 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
     input_device = "本地麦克风初始化中"
     audio_level = ""
     last_status = None
+    async def monitor_tasks():
+        while True:
+            await supervisor.poll()
+            await asyncio.sleep(0.5)
+    monitor = asyncio.create_task(monitor_tasks())
     def show_status():
         nonlocal last_status
         generating = bool(session.task and not session.task.done())
@@ -369,13 +392,15 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
                 previous = session.task
                 if not voice and speech and session.state.value != "SLEEP":
                     speech.interrupt()
-                response = await session.receive(line, vision=vision, roi_xyxy=roi, **kwargs)
+                input_id = uuid4().hex
+                response = await session.receive(line, vision=vision, roi_xyxy=roi, input_id=input_id, **kwargs)
                 valid_voice = session.last_decision != "voice_rejected"
                 decision = input_feedback(line, state=session.state.value, valid_voice=valid_voice,
                                           new_turn=session.task is not previous, response=response,
                                           local=session.last_decision == "local_control",
                                           source="voice" if voice else "text", gate=session.last_gate)
-                decision["input_id"] = uuid4().hex
+                decision["input_id"] = input_id
+                decision["turn_id"] = session.last_gate.get("turn_id")
                 print("\n[输入] " + decision["status"] + " · " + decision["reason"])
                 emit("input", decision)
                 if session.task is not previous:
@@ -394,6 +419,8 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
             if not voice:
                 consumed.set()
     finally:
+        monitor.cancel()
+        await asyncio.gather(monitor, return_exceptions=True)
         input_stop.set()
         consumed.set()
         camera_stop.set()

@@ -1,4 +1,4 @@
-# Stage 8 最终交互 Demo 运行与验收
+# Stage 8.2 Final Demo 运行与验收
 
 正式入口继续使用 `scripts/demo_stage8_interaction.py`。当前机器的依赖、Vosk 模型和 Stage 7 权重已安装。直接在 PowerShell 复制执行：
 
@@ -7,6 +7,52 @@
 ```
 
 默认打开交互窗口和 Stage 7 原有 C920 预览。先取得相机有效首帧，再初始化 SAPI、检查内置麦克风并加载本地 Vosk 唤醒及 SenseVoice/Silero 问句识别。相机在 SLEEP 中继续检测、ByteTrack、Master/ReID 和 Depth；Agent 此时零云端请求、零关键帧读取，不主动回答。只有自动空闲休眠会本地播报一次“小柒先走啦”，用户明确要求缄默时不告别。麦克风必须本地监听才能检测 **你好小柒**；现在允许同音名字变体，唤醒后才接收 Agent 问句。无需启动另一个相机程序。
+
+
+## Stage 8.2 最终链路演示
+
+正式窗口继续使用上方同一个启动命令；由用户亲自打开/操作。Agent 不依赖用户说出固定带路关键词。开发验收使用了真实 Qwen 和 Fake Robot/Navigation，未启动桌面 GUI。
+
+1. 唤醒“你好小柒”，输入“带我找一下快食面。”：Qwen 首次 lookup_knowledge 保留原词，并自主提交少量 query_variants。目录没有预存这个别名；Provider 本地融合后解析方便面专区，再 GUIDE_TO，反馈须为合法 `instant_noodle_zone` 和 task_id。
+2. `/cancel` 后问“意大利面在哪里？”：回答专区位置，不自动提交导航；多种意面都在 `pasta_zone`，不必追问直面/斜管面。
+3. “我想买康师傅那个红烧牛肉味的，帮我领过去。”：应问袋装/桶装；只补“袋装的。”即可继续筛选并提交合法 destination_id，不必重说完整问题。
+4. `/cancel` 后说“我只想去摆红烧牛肉面的货架看看，不挑品牌和规格。”：多品牌同目的地，可以直接解析方便面区域。
+5. `/cancel` 后说“带我去买苹果汁。”：两品牌在不同区域，先澄清；补“演示乙的，五百毫升。”应解析 `drinks_b`。
+6. `/cancel` 后说“领我过去看看那个机器人展品。”：自主检索后 GUIDE_TO `robot_exhibit`。`/status` 在回答结束后仍可查询任务；`/complete` 注入 Fake 到达，Supervisor 独立显示 COMPLETED，没有新模型请求。
+7. “领我去找量子芒果干。”或错误 SKU：如实 NO_MATCH，不派发任务。pending 默认120s；休眠/取消或数据版本改变会清除候选，过期后只说“袋装的”不能沿用旧目标。
+8. “小柒，在我后面陪我走一段。”：Qwen可提出 FOLLOW，正式入口仍要求实际 Stage7 Master LOCKED。Fake许可不代替点击选择/新鲜度检查。
+
+可再问“我想找那种开水泡几分钟就能吃的面”“找康师傅红烧牛肉面袋装”“我想找康师傅的饮料”，检查功能描述扩展、结构化条件保留及同品牌跨品类检索。扩展词不是用户确认的条件；真实歧义仍需要澄清，不会通过不存在的SKU或错误凭据。
+
+没有相机/不操作窗口时，也可以用同一Runtime的文字入口：
+
+```powershell
+& D:\project\CompanionBot\.venv\Scripts\python.exe D:\project\CompanionBot\scripts\run_stage8_agent.py
+```
+
+完整自动验收/演示（真实 Qwen + 虚构商品 fixture + Fake Backend，无相机/麦克风/GUI）：
+
+```powershell
+& D:\project\CompanionBot\.venv\Scripts\python.exe D:\project\CompanionBot\scripts\verify_stage82.py --case all
+```
+
+它保存 `results/stage82_qwen_<UUID>/transcript.json`、summary.json、requests.jsonl，展示自由表达、澄清、补充、合法 ID、异步进度/完成、取消中→取消 ACK 和睡眠零请求。Master仅在这个无硬件验收脚本中明确使用 synthetic fixture。真实API需要既有 `DASHSCOPE_API_KEY` 或本机配置密钥文件，脚本不输出密钥。
+
+只跑本轮语义检索与扩展OFF对照，使用已有自动验收脚本（不是第二个正式Demo）：
+
+```powershell
+& D:\project\CompanionBot\.venv\Scripts\python.exe D:\project\CompanionBot\scripts\verify_stage82.py --case semantic
+```
+
+11个固定用例保留首次框架Tool Call原始参数（raw_args/args、model_request_index）、实际 queries/matches、有界候选、最终凭据/任务、请求/Token/时延和失败。对照关闭同一个首次调用的扩展词，保留同一目录revision和过滤条件，不增加模型请求；两条口语/功能表达另存原表达的无扩展结果。首调用schema不合法会单独记录，并使用实际修正后的合法调用做检索对照，不冒充首次成功。每次执行保留完整批次，不能只摘成功样本；模型错误凭据与预算失败不能算应用通过。
+
+2026-10-05首次无GUI复验camera-device1打开失败（MSMF），未进入云端请求，原输出保留。用户重新接上摄像头后，使用同一正式入口、同一索引的headless/no-preview/no-mic/no-tts有限运行通过：1280×720、Qwen自主capture_view、2模型请求、3.400s。证据 `results/semantic_refinement_camera_reconnected.txt` 和 interaction_187d648c44444ba3a4d3efe577205f94日志；没有操作桌面GUI，没有改用其他相机。真人音频和GUI体验仍由用户按上方完整命令验收。
+
+默认每轮最多4个模型请求、4次工具调用；lookup参数可由框架修正一次，通常链路仍2–3次请求。若模型解释失败，应用可基于真实目录结果给出固定拒绝/澄清，日志保留 `status=FAILED`、error_type、`answer_source=local_catalog_fallback` 和不完整usage；不能把它计作模型成功。
+
+ACK 不代表任务完成；UNKNOWN代表后端结果未知；CANCEL_REQUESTED仍未确认取消。默认Backend deadline2s、任务deadline300s，过期请求取消后仍等待真实终态。正式入口后台0.5s查询/转发任务事件，Agent回答完成不取消独立活动任务。LLM语义仍可能误判，所有ID/权限/状态由应用复核。
+
+新机安装时必须使用仓库`.venv`：先确认 `sys.executable`、Python版本与 `python -m pip --version`，再执行同一解释器 `-m pip install -r requirements-agent.txt`。本轮仅新增RapidFuzz3.14.3，未安装ROS2/SLAM。
 
 ## 先确认设备
 
@@ -53,17 +99,17 @@ CLI 可显式覆盖设备，如 `--audio-device "Realtek MME"`，名称同时匹
 
 ## Streaming、播放保护与日志
 
-LLM 使用 PydanticAI 官方 `Agent.run(event_stream_handler=...)`，千问流式 usage 由 provider 报告。稳定中文句子/较长短语进入独立 SAPI 队列，同一 generation 按序播放。普通/视觉问答允许生成与播报重叠；行为轮次等待 Agent graph 完成及实际 Supervisor 反馈后才展示/播报最终答复，避免提前说执行成功。普通轮次不暴露副作用工具；本地保守意图许可可能漏掉少见表达，可换成明确指令。
+LLM 使用 PydanticAI 官方 `Agent.run(event_stream_handler=...)`，千问流式 usage 由 provider 报告。稳定中文句子/较长短语进入独立 SAPI 队列，同一 generation 按序播放。取图后的视觉问答与明确只读权限轮可生成/播报重叠；行为回答须等实际 Supervisor ACK，避免提前说执行成功。本轮由 Qwen 语义选择行为工具，正式入口不使用自然语言关键词 gate。含行为权限的响应在工具选择明确前暂存；ACK 后与取图后的最终回答仍流式输出，普通纯文字首响应可能在该次模型响应结束后才展示。
 
 **普通问答仍有播放保护，新增受限的口头打断，没有 AEC。** 播放期间及结束后 0.6 秒，录音只用于本地完整打断口令匹配，不把其他内容送入 Agent。默认 SenseVoice/Silero 在这条通道识别语音，必须是名字前缀 + “打断回答/停止回答/停一下/别说了”的完整短句；不靠音量或任意人声触发。与最近播报文本相符的候选被 veto。该文本保护不是声学回声消除：扬声器与用户声音重叠时可能漏识别，机器人刚说过相同口令也可能导致用户重复被拒绝。建议先用耳机；`--no-voice-interrupt` 可恢复严格半双工，按钮/文字始终可靠。
 
 默认唯一逻辑唤醒短语仍是“你好小柒”；用户要求的模糊匹配在音频边界接受 qi 的常见字面/声调变体（含七/琪/棋/琦/祺/奇/齐/其/启/起/气）。必须是“你好小…”前缀，不接受“小伴”或任意人声。通用 Vosk 的匹配可独立走本地 baseline；受限解码不能单独强制唤醒。wake/sleep 和播放模式切换重置识别状态；旧 epoch/过期录音不进入新状态。
 
-Vosk 的 `confidence` 继续是最低词，`utterance_confidence` 为持续时间加权均值，非校准概率。唤醒句级初版 0.35；显式 `--asr-backend vosk` 的 ACTIVE 普通问句仍为 0.60，行为最低词仍 0.85，受限打断句级 0.50。默认 SenseVoice 不报告置信度，新增 `asr_backend=sensevoice / confidence_kind=unavailable / confidence=null / vad_validated=true`，须有有效 VAD 段与音频校验；不伪造高分、不改旧字段含义。无 confidence 的机器人行为请求须带唤醒前缀，例如“你好小柒，请跟随我”，并经过原 Supervisor 最新状态复核。阈值与名字容错待真人噪声复验；文字不走语音门控。
+Vosk 的 `confidence` 继续是最低词，`utterance_confidence` 为持续时间加权均值，非校准概率。唤醒句级初版 0.35；显式 `--asr-backend vosk` 的 ACTIVE 普通问句仍为 0.60，行为最低词仍 0.85，受限打断句级 0.50。默认 SenseVoice 不报告置信度，新增 `asr_backend=sensevoice / confidence_kind=unavailable / confidence=null / vad_validated=true`，须有有效 VAD 段与音频校验；不伪造高分、不改旧字段含义。无 confidence 的普通语音问句仍可理解；执行行为须带唤醒前缀，例如“你好小柒，在我后面陪我走一段”，由当前回合权限和 Supervisor 最新状态复核。这个执行门槛对所有自然表达生效，不靠行为关键词。阈值与名字容错待真人噪声复验；文字不走语音门控。
 
 全部结果集中在 `models/minisegway/stage8/results/`。同一 `interaction_<UUID>` 保存 Agent JSONL、Stage 7 CSV/metrics/ReID/resolved-config 和 `_microphone.json`；不生成新 Markdown 报告，不存密钥、用户原文、原始 PCM 或图片。`model_run` 与 `interaction_complete` 用 `turn_id` 关联，记录请求/network attempts、token、首 Token/文本/显示/语音、生成/播报完成、异常及帧元数据。
 
-`first_token_s` 是 Pydantic 首 content/tool 事件代理，非网络逐 token 时间；`first_speech_s` 是 SAPI async 命令提交，非声学起声。短单句可能生成结束才稳定，不能保证每轮重叠。最新真实自然视觉轮次 2 次请求，首事件 0.916 s、首文本 2.070 s、首 SAPI 2.340 s、生成结束 2.410 s；同一 Agent 先选工具再接收真实图像。3 次自然休眠各一次请求、零文本/语音段。详见 [最终报告](STAGE8_REPORT.md)；调试经过见 [Learning Log](LEARNING_LOG.md)。
+`first_token_s` 是 Pydantic 首 content/tool 事件代理，非网络逐 token 时间；`first_speech_s` 是 SAPI async 命令提交，非声学起声。短单句可能生成结束才稳定，不能保证每轮重叠。Stage8.1历史真实自然视觉轮次为2次请求、生成2.410s；本轮Stage8.2无GUI C920自然视觉为2次请求、生成3.202s（关闭TTS），原生SAPI另测3.082s且pending=0；这些有限smoke不能混作通用延迟保证。自然休眠仍为一次请求、无告别。详见 [最终报告](STAGE8_REPORT.md)；调试经过见 [Learning Log](LEARNING_LOG.md)。
 
 ## 数据契约与后续接线
 
@@ -80,11 +126,11 @@ Stage 7 消费式 detector/depth slots 先接收帧，Agent 接收非消费式 `
 | ASR 事件 | Unicode str、bool final、原 Vosk confidence 最低词/句级，或 SenseVoice null + 明确 backend/kind/VAD 标志；可选 int recognition_epoch、受限 playback_control。captured_at_s 仍为 callback receipt perf_counter，非 ADC clock；解码耗时单独记录，不能换成识别完成时间 |
 | 任务 | FOLLOW、WAIT、STOP_REQUEST、GUIDE_TO 高层意图；GUIDE_TO 的 destination ID / task ID / status / cancel 独立于未来 SLAM + Navigation |
 
-Supervisor 执行前重新校验 RobotSnapshot，处理 ACCEPT、REJECT、CANCEL、FAILED 和完成反馈。当前 `hardware_execution_ready=False`；Fake 的软件许可不授权实体 actuator。Stage 7→6 的相机延迟、曝光/host/pitch 时钟、真实外参/depth convention、stale/lost 策略和 Pi/MCU transport 尚未验证。未来 Pi/MCU/ROS2 必须在独立 adapter 转换格式/时钟，提供幂等任务和有限执行/取消 deadline，不改字段含义。
+Supervisor执行前重新校验RobotSnapshot，处理ACCEPT、RUNNING/progress、CANCEL_REQUESTED、UNKNOWN及确认的取消/成功/失败终态。当前 `hardware_execution_ready=False`；Fake 的软件许可不授权实体 actuator。Stage 7→6 的相机延迟、曝光/host/pitch 时钟、真实外参/depth convention、stale/lost 策略和 Pi/MCU transport 尚未验证。未来 Pi/MCU/ROS2 必须在独立 adapter 转换格式/时钟，提供幂等任务和有限执行/取消 deadline，不改字段含义。
 
 ## 白盒：Agent loop、系统框图与状态机
 
-完整数据流、图旁参数表、SLAM／ROS adapter 接入路线及数据兼容性缺口见[最终报告](STAGE8_REPORT.md#stage8-dataflow-audit)。下面保留快速验收视图；跨机接口尚未完整实现。
+完整数据流、图旁参数表、SLAM／ROS adapter 接入路线及数据兼容性缺口见[最终报告](STAGE8_REPORT.md#stage8-dataflow-audit)。下面保留快速验收视图；Stage8.2 已补充 source epoch、可选 production/receive 时间、回合/任务关联、UNKNOWN 和取消终态；真正的跨机时钟映射/ROS adapter 尚未实现。
 
 下面对应当前代码，而非未来架构。`AgentSession` 只有 SLEEP / ACTIVE；LISTENING / THINKING / SPEAKING 是由是否生成、是否播放派生的窗口状态。SPEAKING 时生成可以继续。帧缓存发布不等于 Agent 读取，更不等于上传。
 
@@ -193,11 +239,11 @@ stateDiagram-v2
 | `/look` / 同帧 `/look-roi` | 有效帧通常 1 / 1；本地失效帧 0 | 原尺寸与编码尺寸分开；ROI 严格同源同序号同时间 |
 | 自然缄默指令 | 通常 1 / 0 | agent_action SLEEP，零语音段，清历史/取消活动任务；重新唤醒才答复 |
 | `/sleep` / `/interrupt` / `/stop` / `/wait` / `/cancel` | 0 新请求 / 0 | 本地取消/清队列，必要时 Supervisor ACK；已发云端请求不能收回计费 |
-| 知识 / Master / 行为工具 | 通常 2；受最多 3 次限制 | 工具往返可见，行为另看 Supervisor 状态/task ID/backend |
+| 知识 / Master / 行为工具 | 检索/澄清通常2，检索再带路通常3；有证据需要修正时最多4 | 工具往返可见，行为另看Supervisor状态/task_id/destination_id |
 
 代码边界：[主入口](../../../scripts/demo_stage8_interaction.py)、[交互调度](../../../embodied_agent/interaction.py)、[Agent 工具与官方 loop](../../../embodied_agent/runtime.py)、[音频与 SAPI](../../../embodied_agent/audio.py)、[Supervisor](../../../embodied_agent/behavior.py)、[帧契约](../../../embodied_agent/frames.py)。本地日志不保存问题/识别原文、PCM 或图片；原文只供当前窗口观察。`input_id` 标记门控决定，`turn_id` 关联模型与播报指标；行为用 task ID 关联 ACK/取消/完成。
 
-收口全项目 **260 passed** / pip check 通过；另 11 项历史断言在 reference 单独通过，不计入 active suite。证据见最终报告，调试经过见 Learning Log。用户基本功能通过；真人准确率、环境误漏唤醒率和噪声/回声尚未量化，不以合成样本替代。运动/导航依旧 Fake，Stage 7→6 接口待独立验证。
+本轮全项目 **294 passed** / pip check通过，ROI兼容补查Stage8相关144项通过。Stage8.1历史收口260项、reference另11项保留于旧证据，不计入本轮新增项。证据见最终报告，调试经过见 Learning Log。用户基本功能通过；真人准确率、环境误漏唤醒率和噪声/回声尚未量化，不以合成样本替代。运动/导航依旧 Fake，Stage 7→6 接口待独立验证。
 
 ## 安装与独立调试
 
@@ -224,4 +270,4 @@ PydanticAI Slim 2.53.0 的 OpenAI extra + `qwen3.8-flash` non-thinking，不复�
 & D:\project\CompanionBot\.venv\Scripts\python.exe -m pip check
 ```
 
-SDK 自动重试 / Agent validation retries 均为 0。每轮默认最多 3 次模型请求、4 次工具调用、512 output tokens、framework total-token limit 12000，生成 timeout 30 秒。取消/异常 usage 可能不完整，标记 `usage_complete=false`；本地取消不证明云端计费立即停止。`scripts/smoke_stage8_qwen.py` 保留有限 API 兼容性检查，真实调用须计数；早期设备 smoke 已移至 `reference/smoke_stage8_interaction.py`，不代表当前 Demo 验收。历史说明见 [Learning Log](LEARNING_LOG.md)。
+SDK自动重试为0；只有lookup参数可由PydanticAI修正一次，其他工具/输出retries=0。每轮默认最多4次模型请求、4次工具调用、512 output tokens、framework total-token limit12000，生成timeout30秒。取消/异常 usage 可能不完整，标记 `usage_complete=false`；本地取消不证明云端计费立即停止。`scripts/smoke_stage8_qwen.py` 保留有限 API 兼容性检查，真实调用须计数；早期设备 smoke 已移至 `reference/smoke_stage8_interaction.py`，不代表当前 Demo 验收。历史说明见 [Learning Log](LEARNING_LOG.md)。

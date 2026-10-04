@@ -1,8 +1,50 @@
 {
-  "notice": "仅用于 Stage 8 软件验证的虚构场馆/商品，不是真实展品或实时库存。",
-  "destinations": {"service_desk": "服务台", "robot_exhibit": "机器人展区"},
+  "version": 2,
+  "notice": "仅用于 Stage 8 软件验证的虚构场馆/商品，不是真实展品、库存、售价或地图。",
+  "destinations": [
+    {"id":"service_desk","name":"服务台","aliases":["咨询台","接待处"]},
+    {"id":"robot_exhibit","name":"机器人展区","aliases":["机器人展品","机器人展览"]},
+    {"id":"instant_noodle_zone","name":"方便面专区","aliases":["方便面货架"]},
+    {"id":"pasta_zone","name":"意大利面专区","aliases":["意面货架"]},
+    {"id":"gift_zone","name":"纪念品区","aliases":["礼品区"]},
+    {"id":"drinks_a","name":"饮品一区"},
+    {"id":"drinks_b","name":"饮品二区"}
+  ],
+  "brands": [
+    {"id":"master_kong","name":"康师傅","aliases":["Master Kong"]},
+    {"id":"uni","name":"统一","aliases":["Uni-President"]},
+    {"id":"barilla","name":"百味来","aliases":["Barilla"]},
+    {"id":"demo_a","name":"演示甲"},
+    {"id":"demo_b","name":"演示乙"}
+  ],
+  "categories": [
+    {"id":"noodles","name":"面食","aliases":["面类"]},
+    {"id":"instant_noodles","name":"方便面","aliases":[],"parent_id":"noodles","destination_id":"instant_noodle_zone"},
+    {"id":"pasta","name":"意大利面","aliases":["意面","pasta"],"parent_id":"noodles","destination_id":"pasta_zone"},
+    {"id":"robotics","name":"机器人展品","aliases":["机器人","机器人展览"],"destination_id":"robot_exhibit"},
+    {"id":"gifts","name":"纪念品","aliases":["礼品"],"destination_id":"gift_zone"},
+    {"id":"juice","name":"果汁","aliases":["果汁饮料"],"parent_id":"beverages"},
+    {"id":"beverages","name":"饮料"},
+    {"id":"tea","name":"茶饮料","parent_id":"beverages"}
+  ],
+  "attribute_definitions": [
+    {"id":"flavor","name":"口味","aliases":["味道"],"values":[{"id":"红烧牛肉","name":"红烧牛肉","aliases":["红烧牛肉味","红烧牛肉面"]},{"id":"香菇炖鸡","name":"香菇炖鸡","aliases":["香菇炖鸡味"]}]},
+    {"id":"packaging","name":"包装","aliases":["pack","包装方式"],"values":[{"id":"袋装","name":"袋装","aliases":[]},{"id":"桶装","name":"桶装","aliases":[]}]},
+    {"id":"size","name":"规格","aliases":["容量","重量","spec"],"values":[{"id":"500ml","name":"500ml","aliases":["500毫升","五百毫升"]},{"id":"250ml","name":"250ml","aliases":["250毫升"]},{"id":"103g","name":"103g","aliases":["103克"]},{"id":"110g","name":"110g","aliases":["110克"]}]},
+    {"id":"brand","name":"品牌","source_field":"brand_id"}
+  ],
   "items": [
-    {"id": "robot_exhibit", "name": "机器人展区", "description": "演示数据：介绍双轮自平衡机器人，包含感知、规划与平衡控制三部分。"},
-    {"id": "demo_cup", "name": "纪念杯", "description": "虚构商品：300 毫升陶瓷杯，售价 39 元。此数据不代表真实库存。"}
+    {"id":"robot_exhibit","name":"双轮自平衡机器人","aliases":["机器人展品"],"category_id":"robotics","location_label":"展台 R1","destination_id":"robot_exhibit","description":"虚构展品：介绍感知、规划与平衡控制。"},
+    {"id":"robot_arm","name":"工业机械臂展品","aliases":["机械臂"],"category_id":"robotics","location_label":"展台 R2","destination_id":"robot_exhibit","description":"虚构展品：工业机械臂。"},
+    {"id":"demo_cup","name":"纪念杯","sku":"GIFT-CUP-300","aliases":["陶瓷杯"],"category_id":"gifts","attributes":{"规格":"300ml"},"location_label":"礼品架 G1","destination_id":"gift_zone","description":"虚构商品：300 毫升陶瓷杯，演示售价 39 元，不代表真实库存。"},
+    {"id":"mk_beef_bag","name":"康师傅红烧牛肉面","sku":"MK-BEEF-BAG-103","brand_id":"master_kong","category_id":"instant_noodles","aliases":["红烧牛肉味","红烧牛肉面"],"attributes":{"口味":"红烧牛肉","包装":"袋装","规格":"103g"},"location_label":"N1 第二层","destination_id":"instant_noodle_zone"},
+    {"id":"mk_beef_cup","name":"康师傅红烧牛肉面","sku":"MK-BEEF-CUP-110","brand_id":"master_kong","category_id":"instant_noodles","aliases":["红烧牛肉味","红烧牛肉面"],"attributes":{"口味":"红烧牛肉","包装":"桶装","规格":"110g"},"location_label":"N1 第三层","destination_id":"instant_noodle_zone"},
+    {"id":"uni_beef","name":"统一红烧牛肉面","sku":"UNI-BEEF-BAG-100","brand_id":"uni","category_id":"instant_noodles","aliases":["红烧牛肉味","红烧牛肉面"],"attributes":{"口味":"红烧牛肉","包装":"袋装","规格":"100g"},"location_label":"N2 第一层","destination_id":"instant_noodle_zone"},
+    {"id":"mk_chicken","name":"康师傅香菇炖鸡面","sku":"MK-CHICKEN-BAG-100","brand_id":"master_kong","category_id":"instant_noodles","aliases":["香菇炖鸡味"],"attributes":{"口味":"香菇炖鸡","包装":"袋装","规格":"100g"},"location_label":"N1 第一层","destination_id":"instant_noodle_zone"},
+    {"id":"barilla_spaghetti","name":"百味来意大利直面","sku":"PASTA-SPAG-500","brand_id":"barilla","category_id":"pasta","aliases":["意大利面","直面","spaghetti"],"attributes":{"规格":"500g"},"location_label":"P1 第一层","destination_id":"pasta_zone"},
+    {"id":"barilla_penne","name":"百味来斜管面","sku":"PASTA-PENNE-500","brand_id":"barilla","category_id":"pasta","aliases":["意大利面","通心粉","penne"],"attributes":{"规格":"500g"},"location_label":"P1 第二层","destination_id":"pasta_zone"},
+    {"id":"apple_a","name":"苹果汁","sku":"JUICE-A-250","brand_id":"demo_a","category_id":"juice","aliases":["苹果果汁"],"attributes":{"规格":"250ml"},"location_label":"D1 第一层","destination_id":"drinks_a"},
+    {"id":"apple_b","name":"苹果汁","sku":"JUICE-B-500","brand_id":"demo_b","category_id":"juice","aliases":["苹果果汁"],"attributes":{"规格":"500ml"},"location_label":"D2 第一层","destination_id":"drinks_b"},
+    {"id":"mk_iced_tea","name":"康师傅冰红茶","sku":"MK-TEA-500","brand_id":"master_kong","category_id":"tea","attributes":{"规格":"500ml"},"location_label":"D2 第二层","destination_id":"drinks_b","description":"虚构商品记录，仅用于同品牌跨品类检索验证。"}
   ]
 }

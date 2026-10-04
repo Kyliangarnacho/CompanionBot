@@ -9,7 +9,7 @@
   "run_timeout_s": 30,
   "frame_max_age_s": 1,
   "robot_max_age_s": 0.5,
-  "request_limit": 3,
+  "request_limit": 4,
   "tool_calls_limit": 4,
   "total_tokens_limit": 12000,
   "max_output_tokens": 512,

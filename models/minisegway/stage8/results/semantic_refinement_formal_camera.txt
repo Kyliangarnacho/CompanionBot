@@ -1,0 +1,9 @@
+[ WARN:0@6.934] global cap.cpp:477 cv::VideoCapture::open VIDEOIO(MSMF): backend is generally available but can't be used to capture by index
+SLEEP | 唤醒短语：你好小柒 | robot/navigation=fake
+/interrupt /cancel /stop /wait /sleep /status /complete /look 问题 /quit
+自然视觉问题自动选帧；/look 问题；/look-roi x1 y1 x2 y2 问题（原图坐标）。
+播放中可说“你好小柒，打断回答”；只接收明确打断口令，没有 AEC。文字/空格始终可用。
+先打开 C920 与 Stage 7 感知链…
+
+[任务事件] {"status":"REJECT","reason":"no_active_task","intent":null,"task_id":null,"backend":"fake","destination_id":null,"input_id":null,"turn_id":null,"request_id":null,"progress":null,"contract_version":1,"source_id":"legacy:backend","source_epoch":"legacy","sequence":null,"observed_at_s":null,"received_at_s":null,"clock_domain":"host_perf_counter","time_semantics":"backend_event"}
+启动/音频错误：RuntimeError

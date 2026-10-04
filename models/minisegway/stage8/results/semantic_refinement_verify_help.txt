@@ -1,0 +1,9 @@
+usage: verify_stage82.py [-h] [--case {all,catalog,controls,privacy,semantic}]
+
+Stage 8 Final dataflow demo/acceptance: real Qwen, fake execution, no GUI. All
+natural prompts are synthetic acceptance fixtures. Raw successes/failures,
+tool IDs, provider usage and async task events stay under Stage 8 results.
+
+options:
+  -h, --help            show this help message and exit
+  --case {all,catalog,controls,privacy,semantic}

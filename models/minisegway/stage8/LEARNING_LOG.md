@@ -56,3 +56,39 @@
 - 通过[保留清单](results/closeout_preservation_manifest.json)核对Stage3–7工程与用户成果、Stage8config和既有results。未改门限/依赖，不新增模型或硬件请求，不操作GUI、不commit/push。完整性检查见[收口检查](results/stage8_closeout_integrity.json)。
 
 历史内容位置：[`stage8_development_history.md`](reference/stage8_development_history.md)为完整报告快照；[`legacy_interaction.py`](reference/legacy_interaction.py)与[`legacy_cases.py`](reference/legacy_cases.py)是退休helper/断言；[`smoke_stage8_interaction.py`](reference/smoke_stage8_interaction.py)是早期设备诊断。reference不被当前入口导入，默认pytest只收集`tests/`。
+
+
+## Stage 8.2 — Agent Dataflow / Interface Finalization（2026-10-04）
+
+- 开工读取AGENTS并运行sin17-radar：catalog retrieval/entity resolution用PydanticAI typed tools + RapidFuzz小型召回；参考ROS Actions状态/取消语义但不安装ROS。Reject向量数据库、多Agent、万能Envelope。原Stage8 baseline 110项通过。
+- 真实缺口：lookup使用字符串包含并把所有目的地交给模型；正式入口behavior_requested/strict gate可能漏自然表达；input_id与turn_id未关联，ACK无强ID检查，事件与task历史无上界。补充数据驱动品牌/分类/属性/区域关系与turn-bound resolution，Supervisor复核合法ID、任务/时钟/序号和取消，不改Stage3–7。
+- 第一次集成104 pass / 6 fail。失败包括旧FAILED断言（现在结果未知为UNKNOWN）、隐藏工具假设、旧知识JSON结构、unscored语音关键词拒绝，以及Streaming时机。原始计数与具体原因留在results/stage82_initial_verification.json；语音安全测试改为检查低行动置信度/无前缀不派发，而非继续断言关键词路由。
+- Streaming取舍：所有文字回合可语义选择工具后，不能提前知道文本是否是行为前言。保持官方Agent.run/events，含行为权限的响应暂存到工具选择明确；ACK后的最终回答和取图后的视觉回答继续流式播报。纯文字首响应可能延后，不宣称旧首句重叠性能完全保留。故意错误前言测试仍禁止ACK前播报。
+- 第一轮真实Qwen失败：nested attributes被编码为JSON string，Pydantic validation以UnexpectedModelBehavior失败。只加有界JSON对象解码后继续严格校验，没有放开多余字段或ID。一次试图给BehaviorRequest加Annotated解析改变框架单模型参数展平schema，模型却继续发平铺intent/destination_id；读安装的PydanticAI upstream后恢复原展平形式，保留v1包裹兼容，并新增针对三个调用形态的schema测试。
+- 无匹配时重复检索导致UsageLimitExceeded；后续限制两次检索且只允许一次模式修正，NO_MATCH/REJECT后结束。新鲜类别命中会优先专区，避免模型误标product后按SKU数量追问；实体ID/SKU只精确匹配，禁止近邻自动纠错。
+- 完整真实批次stage82_qwen_fe7b658709574d2cb0cd019862fd7ccb曾21/21应用路径正确，40 requests / 83829 input / 2243 output tokens。随后复验保留了失败：Qwen偶尔使用flavor/packaging/brand键、或额外filters，另有模式自我修正。把字段/值别名放入attribute_definitions数据；未知参数仍严格校验，lookup仅允许一次PydanticAI schema修正。已有失败证明有时需要第四次模型请求，因此上限从3→4；正常链路仍2–3，不增加第二Agent或SDK重试。
+- 模型在真实NO_MATCH/REJECT/CLARIFY后的解释仍可能报schema错误。应用基于已确认的工具结果生成固定拒绝/澄清，answer_source=local_catalog_fallback；保留模型FAILED、error_type和usage不完整，验收只把预期拒绝的这种路径标为应用正确，不伪装模型成功。
+- 异步任务补充RUNNING/progress、CANCEL_REQUESTED、UNKNOWN、2s cooperative deadline、300s task deadline、request_id幂等与v2 metadata；模型结束后通过独立callback/poll处理完成/取消，迟到/乱序/错ID/协议降级不能覆盖新任务。限定内存ledger/事件/历史/GUI与输入队列。Backend重启协调和磁盘日志轮转仍由未来adapter/运维负责，不虚构持久化恢复。
+- Frame/Master仅在Stage8 adapter增加source_epoch/接收时间/可选production时钟；不把host_read_complete改成曝光时间。相同帧Master选择/清除合法，所以不盲目拒绝所有相同sequence。ASR新增typed provenance，不变PCM/confidence语义；旧recognition_epoch拒绝前不提交source watermark，防止污染重连状态。
+- 正式入口--headless/--no-preview C920真实检验通过：Qwen主动capture_view，源帧46、1280×720、age0.0258s，2requests/4914input/38outputtokens、3.202s。未启动GUI，结果在stage82_native_camera_first.txt和对应interaction日志，未存用户图像。
+- 本地音频复验首次错误地假设历史合成fixture为16kHz，断言失败在stage82_native_audio.txt保留。实际原fixture22050Hz；验收侧显式用SciPy resample_poly转16kHz，ASR adapter仍坚持16kHz且没有隐藏重采样。SenseVoice/Silero识别“你前面有什么？”，Realtek读取无错误、原生Huihui SAPI COMPLETED 3.082s/pending0。证据stage82_native_audio.json；没有受控真人语音/扬声器AEC准确率结论。
+- 最新全仓回归、真实Qwen交付批次、环境/pip与冻结路径检查统一记录在results/stage82_delivery_verification.json。此前失败批次和旧实验结果保留；不commit/push、不操作桌面GUI。
+
+- 最终交付：全仓294项通过；最新真实批次stage82_qwen_67195502b5d74ed2ac9d4be99c2d9050为21/21应用路径正确，17模型轮中1次过期补充的解释UnexpectedModelBehavior，使用有事实依据的本地拒绝且保留FAILED。41network attempts、已报告108048/2372 tokens；不是21次模型全成功，也不是可靠率保证。补查ROI兼容时保留legacy缺省epoch=None的原同帧校验，只有明确填epoch的adapter才获得重启隔离保证。
+
+## Stage 8.2 语义检索微调（2026-10-05）
+
+- 先读AGENTS与现行三份文档，sin17-radar确认 query expansion / multi-query fusion；Borrow现有PydanticAI typed tool，Adapt有界并集与来源证据，参考RRF但当前无需排序平台/向量库。开工Stage8回归144项通过。扩展在第一次Qwen构造Tool Call时完成，不加改写Agent、独立请求或新依赖。
+- 原目录把“快食面”预存为方便面alias，不能据旧验收推断模型语义理解。本轮去掉该分类的口语补丁、品牌错字及“那个…”指示词；保留真实业务名称、英文品牌、分类和属性单位。加同品牌茶饮料与饮料父类验证跨品类，没有新词库、目的地或坐标。
+- CatalogQuery增加默认空、最多3项且每项1–160字符的query_variants。Provider共同应用全部结构化过滤，各查询召回再按实体ID合并；query_index→queries保留来源，分数不能直接确认意图。精确SKU/ID忽略扩展。商品/分类/目的地分别最多30项，保持revision/count/truncated；未来Provider不用遵守JSON扫描实现。
+- 第一真实批次 `stage82_qwen_24915e5f68784099b4d99cda473f00bf` 两条扩展OFF为NO_MATCH、ON为RESOLVED，首次实时扩展成功；但验收脚本碰到首调用target_kind=sku（非法枚举）后在对照解析中异常中止。模型实际已按框架一次修正为product；修复验收脚本，保留最早非法参数与validation_error，用实际合法调用对照，不篡改首调用记录。
+- 第二批次 `stage82_qwen_91192e840b6f4706bab4bc07f56018ef` 暴露词边界去重错误：连写原query与空格分词variant归一化相同，被误去重；另有“袋装方便面”组合字段只得到fuzzy召回。修正查询identity保留分词差别，并对当前候选自己的真实字段做≤160字符的字面组合覆盖，不新增业务映射、不降低可信门槛。
+- “苹果汁”扩展为“果汁”不应把具体商品提升成无导航位置的父分类。Resolver区分原查询直接实体命中与扩展分类假设；不同区域/实体冲突澄清，补充时原entity/category/destination集合均受交集约束，旧扩展不会自动带入下一句。
+- 后续批次 `stage82_qwen_07c31942442a49f193460af73eb8144f`、`stage82_qwen_a203cfbdfe764b75958696b5336b0873`、`stage82_qwen_7b80daea654e43f3887bc0c8de83fe7f` 保留错误凭据/回合顺序导致的UsageLimitExceeded：包括entity.id、revision和生成UUID冒充resolution_id。Supervisor均拒绝，已派发后模型失败的任务按既有逻辑取消；不放宽ID或Token预算。精简来源元数据，查询只存一份，另加强工具字段职责说明；候选输出省略typed可恢复的可选默认/null字段，保留所有实际证据。失败不能被解释为“零执行”或模型成功。
+- 本轮正式入口 headless / no-preview / no-mic / no-tts 复验在camera-device1打开失败（MSMF），没有首帧/模型请求，原始输出在 `semantic_refinement_formal_camera.txt`。未操作GUI或系统设备设置，也未用其他camera冒充C920；原10-04成功设备证据仍保留，当前硬件复验未通过。
+- 用户追加收尾规则：清理stale临时产物/缓存，CURRENT_STATE负责阶段状态，README只微调能力和正式命令。已写入仓库AGENTS；最终结论、全仓回归、完整live批次与清理清单集中在 `results/semantic_refinement_delivery.json`，不新建阶段报告体系。
+- 候选输出省略可恢复默认/null字段后，最后语义批次 `stage82_qwen_e4cc12e7fcb4460fb0688a13b78445d0` 11/11通过、24请求、74674/1646已报告tokens、wall48.875s；两条语义表达首次扩展OFF为NO_MATCH、ON为RESOLVED。其他可字面检索的用例不伪称扩展增益。
+- 独立privacy首次 `stage82_qwen_821551066ce945e59c96dea02d451084` 中Qwen编造enter_behavior工具名，UnexpectedModelBehavior；未触发SLEEP，依赖该前提的零请求用例也记失败。补强“使用API工具名，不按意图创造名称”说明；同时单独验证本地/sleep，使语义休眠失败不会掩盖sleep gate本身的契约。最终privacy批次f12a2612513a4e3885b72fd5ac112b5a为3/3、1模型请求；controls批次082db98c2e6946b0a4e0dd6956674e2c为5/5、7请求。原失败记录保留，不增加通用输出重试、工具别名路由或关键词休眠fallback。
+- 交付审查额外发现规模边界：不能把“商品列表截断”自动当成“明确品类专区有歧义”。Provider增加可选region_entity_conflict（null=完整性未知），检查截断前并集；100件同类依旧解析专区，第101件隐藏的跨区扩展命中则CLARIFY。没有把全表扫描写进Protocol要求，外部Provider缺完整性证明时保守处理。最终回归计数与清理清单以delivery JSON为准；只删无引用的成功中间测试日志及可再生缓存，不删原始模型/设备失败。
+
+- 用户重新接上摄像头后，同一正式入口、同一camera-device1无GUI复验成功：1280×720、Qwen自主capture_view、源帧41/age0.00284s，2请求、6450/50tokens、wall3.400s、Streaming正常；证据semantic_refinement_camera_reconnected.txt与interaction_187d648c44444ba3a4d3efe577205f94日志/metrics。先前打开失败记录保留，本次关闭麦克风/TTS，不混作真人语音验证。最终全仓302项通过（13.02s），pip check通过。

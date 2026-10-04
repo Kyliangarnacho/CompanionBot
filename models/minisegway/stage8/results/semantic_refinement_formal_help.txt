@@ -1,0 +1,47 @@
+usage: demo_stage8_interaction.py [-h] [--fake] [--config CONFIG]
+                                  [--vosk-model VOSK_MODEL]
+                                  [--asr-backend {vosk,sensevoice}]
+                                  [--asr-model-dir ASR_MODEL_DIR]
+                                  [--no-voice-interrupt]
+                                  [--idle-timeout IDLE_TIMEOUT]
+                                  [--audio-device AUDIO_DEVICE]
+                                  [--audio-samplerate {16000,22050,44100,48000}]
+                                  [--tts] --camera-device CAMERA_DEVICE
+                                  [--camera-backend {auto,msmf,dshow}]
+                                  [--preview] [--no-preview] [--headless]
+                                  [--max-source-frames MAX_SOURCE_FRAMES]
+                                  [--diagnose-audio] [--no-tts] [--no-mic]
+
+Real Stage 7 C920 + local microphone/TTS, with the unchanged Stage 8 Agent.
+
+options:
+  -h, --help            show this help message and exit
+  --fake                Offline FunctionModel, no API key needed
+  --config CONFIG
+  --vosk-model VOSK_MODEL
+                        Local unpacked Chinese Vosk model directory
+  --asr-backend {vosk,sensevoice}
+                        Question ASR; wake remains local Vosk
+  --asr-model-dir ASR_MODEL_DIR
+  --no-voice-interrupt  Strict half duplex; disable addressed voice interrupt
+                        channel
+  --idle-timeout IDLE_TIMEOUT
+                        Seconds of idle before local sleep announcement
+  --audio-device AUDIO_DEVICE
+                        Input index or device-name substring; default built-in
+                        Realtek
+  --audio-samplerate {16000,22050,44100,48000}
+                        Native PCM sample rate, also passed to Vosk; no hidden
+                        resampling
+  --tts                 Offline Windows Chinese SAPI5 output
+  --camera-device CAMERA_DEVICE
+  --camera-backend {auto,msmf,dshow}
+  --preview             User-operated Stage 7 preview; Space interrupts speech
+  --no-preview
+  --headless            Console only; opens no GUI
+  --max-source-frames MAX_SOURCE_FRAMES
+                        Finite headless diagnostic run
+  --diagnose-audio      Read-only built-in mic/permission/PCM check; exits
+                        without a GUI/model
+  --no-tts
+  --no-mic

@@ -353,7 +353,7 @@ def test_official_stream_can_speak_before_generation_finishes():
         speech = SpeechOutput(lambda _: None, engine_factory=factory, on_event=event)
         await speech.start()
         async def stream(_messages, info):
-            assert "request_behavior" not in {tool.name for tool in info.function_tools}
+            assert "request_behavior" in {tool.name for tool in info.function_tools}
             yield "第一句已稳定。"
             deadline = asyncio.get_running_loop().time() + 1
             while "tts_started" not in events:
@@ -365,7 +365,9 @@ def test_official_stream_can_speak_before_generation_finishes():
             BehaviorSupervisor(FakeRobotBackend(), FakeNavigationBackend(set())), AgentConfig()),
             strict_behavior_intent=True, on_run_start=lambda: holders.update(turn=StreamingSpeech(speech)),
             on_speech=lambda fragment: holders["turn"].push(fragment))
-        await session.receive("你好小柒介绍一下")
+        await session.receive("你好小柒")
+        # Low action-confidence voice is read-only, independent of its words.
+        await session.receive("介绍一下", source="voice", confidence=.7, utterance_confidence=.9)
         outcome = await session.wait()
         timing = await holders["turn"].finish()
         assert outcome.status == "COMPLETED" and outcome.metrics["text_stream_events"] >= 2
@@ -479,7 +481,8 @@ def test_stream_generation_cancel_also_clears_speech_queue():
             BehaviorSupervisor(FakeRobotBackend(), FakeNavigationBackend(set())), AgentConfig()),
             strict_behavior_intent=True, on_run_start=lambda: holders.update(turn=StreamingSpeech(speech)),
             on_speech=lambda text: holders["turn"].push(text))
-        await session.receive("你好小柒长回答")
+        await session.receive("你好小柒")
+        await session.receive("长回答", source="voice", confidence=.7, utterance_confidence=.9)
         await produced.wait()
         await asyncio.sleep(.04)
         speech.interrupt()  # Main entry's local control first purges speech.
@@ -529,7 +532,7 @@ def test_readonly_knowledge_and_master_tools_use_local_providers():
                 returns.extend(p.content for p in tool_return)
                 yield "仅演示知识；真实 Master 来自 Stage 7。"
             else:
-                assert "request_behavior" not in {t.name for t in info.function_tools}
+                assert "request_behavior" in {t.name for t in info.function_tools}
                 yield {0: DeltaToolCall(name="lookup_knowledge", tool_call_id="knowledge", json_args='{"query":"纪念杯"}'),
                        1: DeltaToolCall(name="master_status", tool_call_id="master", json_args="{}")}
         runtime = AgentRuntime(FunctionModel(stream_function=stream),
@@ -540,7 +543,7 @@ def test_readonly_knowledge_and_master_tools_use_local_providers():
         outcome = await session.wait()
         assert outcome.status == "COMPLETED" and outcome.metrics["tool_calls"] == 2
         assert any(r.get("source_id") == "actual_stage7" for r in returns)
-        assert any(r.get("items", [{}])[0].get("id") == "demo_cup" for r in returns if r.get("items"))
+        assert any(r.get("items", [{}])[0].get("entity", {}).get("id") == "demo_cup" for r in returns if r.get("items"))
         await session.close()
     asyncio.run(run())
 
@@ -810,7 +813,11 @@ def test_unscored_asr_keeps_missing_confidence_and_requires_vad_and_addressed_be
         assert (await session.wait()).status == "COMPLETED"
         assert session.last_gate["score"] is None and session.last_gate["confidence"] is None
         await session.receive("请跟随我", **data)
-        assert session.last_gate["reason"] == "unscored_behavior_requires_wake_prefix"
+        # Semantic intent is understood by the model, but application authority
+        # denies the action for ALL unaddressed unscored voice, without keywords.
+        denied = await session.wait()
+        assert denied.status == "COMPLETED" and not runtime.supervisor.robot.requests
+        assert "behavior_not_authorized_in_this_turn" in denied.text
         await session.receive("你好", **(data | {"vad_validated": False}))
         assert session.last_gate["reason"] == "invalid_voice_format"
         await session.receive("你好", **(data | {"recognition_epoch": -1}))

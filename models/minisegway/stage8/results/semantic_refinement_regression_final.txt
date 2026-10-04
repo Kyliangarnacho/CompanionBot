@@ -1,0 +1,26 @@
+COMMAND: D:\project\CompanionBot\.venv\Scripts\python.exe -c "import sys; print(sys.executable); print(sys.version)"
+D:\project\CompanionBot\.venv\Scripts\python.exe
+3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]
+
+EXIT: 0
+
+COMMAND: D:\project\CompanionBot\.venv\Scripts\python.exe -m pip --version
+pip 26.2.1 from D:\project\CompanionBot\.venv\Lib\site-packages\pip (python 3.11)
+
+
+EXIT: 0
+
+COMMAND: D:\project\CompanionBot\.venv\Scripts\python.exe -m pytest tests -q
+........................................................................ [ 23%]
+........................................................................ [ 47%]
+........................................................................ [ 71%]
+........................................................................ [ 95%]
+..............                                                           [100%]
+302 passed in 13.02s
+
+EXIT: 0
+
+COMMAND: D:\project\CompanionBot\.venv\Scripts\python.exe -m pip check
+No broken requirements found.
+
+EXIT: 0

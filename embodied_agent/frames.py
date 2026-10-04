@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import math
 import threading
 import time
+from uuid import uuid4
 from typing import Protocol
 
 import cv2
@@ -20,6 +21,11 @@ class FrameSnapshot:
     reason: str = "valid_rgb"
     time_semantics: str = "host_read_complete"
     clock_domain: str = "host_perf_counter"
+    adapter_contract_version: int = 2
+    source_epoch: str = "legacy"
+    received_at_s: float | None = None
+    produced_at_s: float | None = None
+    produced_clock_domain: str | None = None
 
 
 @dataclass(frozen=True)
@@ -29,6 +35,7 @@ class FrameROI:
     sequence_id: int
     source_time_s: float
     xyxy: tuple[int, int, int, int]
+    source_epoch: str | None = None
 
 
 class FrameProvider(Protocol):
@@ -44,9 +51,17 @@ class Stage7FrameBuffer:
     def __init__(self) -> None:
         self._snapshot: FrameSnapshot | None = None
         self._lock = threading.Lock()
+        self.source_epoch = uuid4().hex
 
-    def publish(self, frame: ColorFrame, *, valid: bool = True, reason: str = "valid_rgb") -> None:
+    def publish(self, frame: ColorFrame, *, valid: bool = True, reason: str = "valid_rgb",
+                source_epoch: str | None = None, produced_at_s: float | None = None,
+                produced_clock_domain: str | None = None) -> None:
         with self._lock:
+            if source_epoch is not None and source_epoch != self.source_epoch:
+                raise ValueError("source_epoch_mismatch: clear and obtain the new epoch before publishing")
+            if (produced_at_s is None) != (produced_clock_domain is None) or (
+                    produced_at_s is not None and not math.isfinite(produced_at_s)):
+                raise ValueError("invalid_production_timestamp")
             previous = self._snapshot
             if previous and (previous.frame.source_id != frame.source_id
                              or frame.sequence_id <= previous.frame.sequence_id
@@ -57,7 +72,9 @@ class Stage7FrameBuffer:
             pixels.flags.writeable = False
             copy = ColorFrame(pixels, frame.sequence_id, frame.source_id,
                               frame.width, frame.height, frame.host_receive_time_s)
-            self._snapshot = FrameSnapshot(copy, valid, reason)
+            self._snapshot = FrameSnapshot(copy, valid, reason, source_epoch=self.source_epoch,
+                                           received_at_s=time.perf_counter(), produced_at_s=produced_at_s,
+                                           produced_clock_domain=produced_clock_domain)
 
     def latest(self) -> FrameSnapshot | None:
         with self._lock:
@@ -66,6 +83,7 @@ class Stage7FrameBuffer:
     def clear(self) -> None:
         with self._lock:
             self._snapshot = None
+            self.source_epoch = uuid4().hex
 
 
 def encode_keyframe(snapshot: FrameSnapshot | None, *, now_s: float,
@@ -86,11 +104,13 @@ def encode_keyframe(snapshot: FrameSnapshot | None, *, now_s: float,
     if roi_xyxy is not None:
         if roi is not None:
             raise ValueError("ambiguous_roi")
-        roi = FrameROI(frame.source_id, frame.sequence_id, frame.host_receive_time_s, roi_xyxy)
+        roi = FrameROI(frame.source_id, frame.sequence_id, frame.host_receive_time_s, roi_xyxy, snapshot.source_epoch)
     if roi:
         if (roi.source_id, roi.sequence_id, roi.source_time_s) != (
                 frame.source_id, frame.sequence_id, frame.host_receive_time_s):
             raise ValueError("roi_source_mismatch")
+        if roi.source_epoch is not None and roi.source_epoch != snapshot.source_epoch:
+            raise ValueError("roi_source_epoch_mismatch")
         if any(type(v) is not int for v in roi.xyxy) or len(roi.xyxy) != 4:
             raise ValueError("invalid_roi")
         x1, y1, x2, y2 = roi.xyxy
@@ -109,4 +129,7 @@ def encode_keyframe(snapshot: FrameSnapshot | None, *, now_s: float,
         "clock_domain": snapshot.clock_domain, "roi_space": "source_pixels",
         "encoded_width": int(pixels.shape[1]), "encoded_height": int(pixels.shape[0]),
         "valid": True, "validity_reason": snapshot.reason, "validity_scope": "raw_rgb_contract",
+        "adapter_contract_version": snapshot.adapter_contract_version, "source_epoch": snapshot.source_epoch,
+        "received_at_s": snapshot.received_at_s, "produced_at_s": snapshot.produced_at_s,
+        "produced_clock_domain": snapshot.produced_clock_domain,
     }

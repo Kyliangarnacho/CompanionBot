@@ -1,0 +1,27 @@
+SLEEP | 唤醒短语：你好小柒 | robot/navigation=fake
+/interrupt /cancel /stop /wait /sleep /status /complete /look 问题 /quit
+自然视觉问题自动选帧；/look 问题；/look-roi x1 y1 x2 y2 问题（原图坐标）。
+播放中可说“你好小柒，打断回答”；只接收明确打断口令，没有 AEC。文字/空格始终可用。
+先打开 C920 与 Stage 7 感知链…
+source: camera:1
+backend: MSMF; requested: 1280x720@30.0; reported: 1280x720@30.000
+calibration: LOADED 1280x720 from D:\project\CompanionBot\models\minisegway\stage7\stage7_7\config\c920e_camera_params_1280x720.npz
+Full perception: OSNet pending reference + automatic ReID reacquire enabled
+Geometry: axial_z assumed; mount provisional=True; pitch provider=ConstantPitchProvider; robot axes +X forward / +Y left / +Z up
+
+[状态] SLEEP | 生成=否 | Master=UNAVAILABLE ID=None | task=NONE | 模拟执行 fake
+
+[输入] ACCEPT · 已唤醒。
+已唤醒。
+
+[状态] LISTENING | 生成=否 | Master=UNAVAILABLE ID=None | task=NONE | 模拟执行 fake
+
+[输入] ACCEPT · 已提交 Agent，正在生成
+
+[状态] THINKING | 生成=是 | Master=UNAVAILABLE ID=None | task=NONE | 模拟执行 fake
+我前面是一位穿白色蓝领上衣、靠近镜头的人，背景是浅色墙面和一扇深色的门。
+{"turn_id": "724edff570724587aa8158f924a78215", "input_id": "b786e9175fac48428cf72096f67907ab", "status": "COMPLETED", "model": "qwen3.8-flash", "wall_s": 3.2016151999123394, "first_text_s": 2.7841628999449313, "first_token_s": 1.4996736000757664, "first_display_s": 2.784170800121501, "text_stream_events": 13, "first_token_semantics": "first_pydantic_content_or_tool_event_not_wire_token", "speech_deferred_for_behavior_ack": false, "initial_response_buffered_for_semantic_tools": false, "interaction_action": null, "requests": 2, "input_tokens": 4914, "output_tokens": 38, "tool_calls": 1, "network_attempts": 2, "usage_complete": true, "usage_source": "provider", "error_type": null, "http_status": null, "frame": {"source_id": "1", "source_sequence_id": 46, "source_time_s": 1484863.7276116002, "time_semantics": "host_read_complete", "width": 1280, "height": 720, "selected_age_s": 0.025789599865674973, "roi_xyxy": null, "frame_contract_version": 1, "pixel_format": "bgr8", "image_encoding": "jpeg", "clock_domain": "host_perf_counter", "roi_space": "source_pixels", "encoded_width": 1280, "encoded_height": 720, "valid": true, "validity_reason": "valid_rgb", "validity_scope": "raw_rgb_contract", "adapter_contract_version": 2, "source_epoch": "4a020619bfde4bcc9396d11b63e02dcb", "received_at_s": 1484863.7281585, "produced_at_s": null, "produced_clock_domain": null}, "vision_attempted": true, "behavior_events": [], "first_speech_s": null}
+
+[任务事件] {"status":"REJECT","reason":"no_active_task","intent":null,"task_id":null,"backend":"fake","destination_id":null,"input_id":null,"turn_id":null,"request_id":null,"progress":null,"contract_version":1,"source_id":"legacy:backend","source_epoch":"legacy","sequence":null,"observed_at_s":null,"received_at_s":null,"clock_domain":"host_perf_counter","time_semantics":"backend_event"}
+metrics: D:\project\CompanionBot\models\minisegway\stage8\results\interaction_058ccf6425af41fdb3a7d8bfb4531074_metrics.json
+阶段日志：D:\project\CompanionBot\models\minisegway\stage8\results\interaction_058ccf6425af41fdb3a7d8bfb4531074.jsonl

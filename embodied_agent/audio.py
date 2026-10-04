@@ -14,10 +14,12 @@ import threading
 import time
 import re
 from collections import deque
+from uuid import uuid4
 
 import numpy as np
 
 from .interaction import CONTROLS, normalized, canonical_voice_wake, voice_interrupt
+from .inputs import ASRMetadata
 
 
 def select_input_device(sd, override=None, *, samplerate=16000) -> dict:
@@ -146,6 +148,10 @@ async def microphone_events(model_path: Path, callback, *, device=None,
                                             "vad": "silero", "silence_s": silence_s,
                                             "load_s": time.perf_counter() - started})
     loop = asyncio.get_running_loop()
+    source_epoch = uuid4().hex
+    def provenance(captured_at):
+        return ASRMetadata(source_id="microphone:" + str(selected["index"]), source_epoch=source_epoch,
+                           sequence=stats["final_transcripts"], received_at_s=captured_at)
     queue: asyncio.Queue = asyncio.Queue(maxsize=8)
     reset_needed = False
     stats = {"chunks": 0, "blocked_chunks": 0, "stale_chunks": 0,
@@ -332,7 +338,8 @@ async def microphone_events(model_path: Path, callback, *, device=None,
                             await callback(interrupt or canonical_voice_wake(text, wake_phrase, fuzzy=fuzzy_wake),
                                            source="voice", final=True, confidence=None, confidence_kind="unavailable",
                                            asr_backend="sensevoice", vad_validated=True,
-                                           playback_control=bool(interrupt), recognition_epoch=epoch, captured_at_s=captured_at)
+                                           playback_control=bool(interrupt), recognition_epoch=epoch, captured_at_s=captured_at,
+                                           asr_metadata=provenance(captured_at))
                     continue
                 result = await asyncio.to_thread(recognize, data, is_active(), captured_at)
                 if result:
@@ -358,7 +365,8 @@ async def microphone_events(model_path: Path, callback, *, device=None,
                         await callback(interrupt or text, source="voice", final=True,
                                        confidence=confidence, utterance_confidence=score,
                                        playback_control=bool(interrupt),
-                                       recognition_epoch=epoch, captured_at_s=captured_at)
+                                       recognition_epoch=epoch, captured_at_s=captured_at,
+                                       asr_metadata=provenance(captured_at))
     finally:
         if on_event:
             on_event("audio_closed", stats)

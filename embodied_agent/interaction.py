@@ -8,12 +8,14 @@ import math
 import time
 from typing import Callable
 import unicodedata
+from uuid import uuid4
 
 from pydantic_ai import CancellationToken
 
 from .behavior import BehaviorRequest, Feedback, Intent
 from .frames import FrameProvider, FrameROI, encode_keyframe
 from .runtime import AgentRuntime, TurnOutcome
+from .inputs import ASRMetadata
 
 
 class InteractionState(str, Enum):
@@ -62,7 +64,7 @@ def voice_interrupt(text: str, phrase: str, *, fuzzy=False) -> str | None:
 
 
 def behavior_requested(text: str) -> bool:
-    """Local authorization gate for side-effect tools, never another model router."""
+    """Deprecated v1 hint, retained for imports. Never grants/denies tool access."""
     text = normalized(text)
     return any(term in text for term in ("跟随", "跟着", "跟我", "带我", "领我", "引导我", "导航到",
                                          "follow", "guideto", "暂停", "停止", "取消"))
@@ -78,6 +80,7 @@ class AgentSession:
         self.runtime, self.frames, self.clock = runtime, frames, clock
         self.on_text, self.on_complete = on_text, on_complete
         self.on_speech, self.on_run_start, self.speech_metrics = on_speech, on_run_start, speech_metrics
+        # Compatibility argument only. Semantic tool selection belongs to Qwen.
         self.strict_behavior_intent = strict_behavior_intent
         self.preempt_on_input, self.on_silence = preempt_on_input, on_silence
         self.last_decision = "ignored"
@@ -90,6 +93,12 @@ class AgentSession:
         self.playback_active = False
         self.voice_blocked_until_s = 0.0
         self._dispatch_lock = asyncio.Lock()
+        self._asr_watermark = None
+
+    def reset_asr_source(self):
+        """Capture owner calls on reconnect, before permitting the new stream."""
+        self._asr_watermark = None
+        self.asr_epoch += 1
 
     def set_playback(self, active: bool) -> None:
         """Audio renderer calls before/after playback.
@@ -121,15 +130,31 @@ class AgentSession:
                       vad_validated: bool = False, playback_control: bool = False,
                       vision: bool = False, roi: FrameROI | None = None,
                       roi_xyxy: tuple[int, int, int, int] | None = None,
-                      structured: bool = False) -> str | None:
+                      structured: bool = False, input_id: str | None = None,
+                      asr_metadata: ASRMetadata | None = None) -> str | None:
         async with self._dispatch_lock:
             now = self.clock()
             config = self.runtime.config
             self.last_decision = "ignored"
-            self.last_gate = {"source": source, "reason": "accepted"}
+            input_id = input_id or uuid4().hex
+            self.last_gate = {"source": source, "reason": "accepted", "input_id": input_id}
             if source not in ("text", "voice"):
                 raise ValueError("source must be text or voice")
             if source == "voice":
+                if asr_metadata is not None:
+                    invalid = not isinstance(asr_metadata, ASRMetadata)
+                    if not invalid:
+                        stamp = (asr_metadata.source_id, asr_metadata.source_epoch, asr_metadata.sequence)
+                        invalid = (asr_metadata.clock_domain != "host_perf_counter" or
+                                   asr_metadata.time_semantics != "host_callback_receipt" or
+                                   not 0 <= now - asr_metadata.received_at_s <= 1.5 or
+                                   self._asr_watermark is not None and (stamp[:2] != self._asr_watermark[:2]
+                                       or stamp[2] <= self._asr_watermark[2]))
+                    if invalid:
+                        self.last_decision = "voice_rejected"
+                        self.last_gate["reason"] = "asr_clock_restart_duplicate_or_out_of_order"
+                        return None
+                    self.last_gate["asr_metadata"] = asr_metadata.model_dump()
                 unscored = (asr_backend == "sensevoice" and confidence_kind == "unavailable"
                             and confidence is None and utterance_confidence is None and vad_validated is True)
                 if (type(final) is not bool or type(playback_control) is not bool
@@ -152,8 +177,7 @@ class AgentSession:
                 phrase = normalized(config.wake_phrase)
                 addressed = norm.startswith(phrase)
                 tail = norm[len(phrase):] if addressed else norm
-                strict_control = (tail in {normalized(k) for k in CONTROLS}
-                                  or behavior_requested(tail))
+                strict_control = tail in {normalized(k) for k in CONTROLS}
                 interrupt = playback_control and addressed and tail == "打断回答" and self.state == InteractionState.ACTIVE
                 # Generic ASR providers retain the old min-word threshold. Native
                 # Vosk adds a separate utterance score for ordinary conversation.
@@ -177,6 +201,8 @@ class AgentSession:
                     self.last_decision = "voice_rejected"
                     self.last_gate["reason"] = reason
                     return None
+                if asr_metadata is not None:
+                    self._asr_watermark = stamp
             if not isinstance(text, str):
                 raise ValueError("text must be a decoded Unicode string")
             text = text.strip()
@@ -194,6 +220,7 @@ class AgentSession:
                 self.last_gate["reason"] = "control_requires_wake_prefix"
                 return None
             if control:
+                self.runtime.clear_history()
                 self.last_decision = "local_control"
                 self.runtime.record_event("interaction", {"event": "control", "control": control, "source": source})
                 if self.on_silence:
@@ -215,7 +242,7 @@ class AgentSession:
                     self.asr_epoch += 1
                     self.runtime.clear_history()
                     return ("已休眠。行为取消失败，需处理后端反馈：" + cancellation.model_dump_json()
-                            if cancellation and cancellation.status == "FAILED" else "已休眠。")
+                            if cancellation and cancellation.status in ("FAILED", "UNKNOWN", "CANCEL_REQUESTED") else "已休眠。")
                 return ("回答已打断。" if control == "interrupt" else
                         json.dumps(cancellation.model_dump(mode="json"), ensure_ascii=False))
             if self.state == InteractionState.SLEEP:
@@ -258,13 +285,19 @@ class AgentSession:
                 prompt = [text, "关键帧来源（仅问答，不授权机器人行为）：" + json.dumps(metadata), image]
             self.token = CancellationToken()
             self.last_decision = "accepted"
-            authorized = behavior_requested(text) and not vision if self.strict_behavior_intent else None
+            # Text grants the current conversational turn, not an action keyword.
+            # Unscored ASR still needs an addressed command for side effects;
+            # scored ASR needs the frozen minimum-word action threshold.
+            authorized = not vision and (source == "text" or addressed or
+                          confidence_kind == "min_word" and confidence is not None and confidence >= config.audio_confidence_min)
+            turn_id = uuid4().hex
+            self.last_gate["turn_id"] = turn_id
             if self.on_run_start:
                 self.on_run_start()
-            self.task = asyncio.create_task(self._run(prompt, self.token, metadata, structured, authorized))
+            self.task = asyncio.create_task(self._run(prompt, self.token, metadata, structured, authorized, input_id, turn_id))
             return None
 
-    async def _run(self, prompt, token, metadata, structured, authorized=None) -> TurnOutcome:
+    async def _run(self, prompt, token, metadata, structured, authorized=None, input_id=None, turn_id=None) -> TurnOutcome:
         def capture():
             if self.state != InteractionState.ACTIVE or token.cancelled:
                 raise ValueError("interaction_inactive_or_cancelled")
@@ -277,7 +310,9 @@ class AgentSession:
         outcome = await self.runtime.run(prompt, token, on_text=self.on_text,
                                          frame_metadata=metadata, structured=structured,
                                          on_speech=self.on_speech, behavior_authorized=authorized,
-                                         speech_metrics=self.speech_metrics, capture_view=capture)
+                                         speech_metrics=self.speech_metrics, capture_view=capture,
+                                         input_id=input_id, turn_id=turn_id,
+                                         is_current=lambda: self.state == InteractionState.ACTIVE and self.token is token)
         if outcome.metrics.get("interaction_action") == "SLEEP":
             if self.on_silence:
                 self.on_silence()
@@ -307,5 +342,7 @@ class AgentSession:
     async def close(self) -> None:
         await self._interrupt()
         await self.runtime.supervisor.cancel()
+        await self.runtime.supervisor.cancel_all()
         self.state = InteractionState.SLEEP
+        self.runtime.clear_history()
         await self.runtime.close()

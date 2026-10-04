@@ -1,0 +1,18 @@
+{"case": "colloquial_category", "validated": true, "answer": "好的，已带你前往方便面专区。\n\n不过目前是假后端演示，实际机器人不会移动。", "requests": 3, "catalog": ["RESOLVED"], "destination_ids": ["instant_noodle_zone"]}
+{"case": "where_category", "validated": true, "answer": "意大利面专区在 **pasta_zone**（面食区的意面货架）。\n\n这里属于虚构演示数据，不是真实地图或库存。如果你想让我带你过去，说一声即可。", "requests": 2, "catalog": ["RESOLVED"], "destination_ids": []}
+{"case": "colloquial_exhibit", "validated": true, "answer": "好的，已带你前往机器人展区（展台 R1 的双轮自平衡机器人和 R2 的工业机械臂）。\n\n注意：当前使用的是假后端演示，实际没有机器人运动。", "requests": 3, "catalog": ["RESOLVED"], "destination_ids": ["robot_exhibit"]}
+{"case": "specific_packaging_ambiguity", "validated": true, "answer": "红烧牛肉面有两个包装，我不能替你选：\n\n- 袋装（103g）\n- 桶装（110g）\n\n你要哪种？确认后我带你去方便面专区。", "requests": 2, "catalog": ["CLARIFY"], "destination_ids": []}
+{"case": "followup_packaging", "validated": true, "answer": "已确认：康师傅红烧牛肉面（袋装，103g），位于方便面专区 N1 第二层。\n\n带路任务已提交（目的地 instant_noodle_zone）。注意：这是假后端演示，机器人不会实际移动。", "requests": 3, "catalog": ["RESOLVED"], "destination_ids": ["instant_noodle_zone"]}
+{"case": "shared_area_many_products", "validated": true, "answer": "好的，已带你去方便面专区（红烧牛肉面都在这个货架区）🍜\n\n不过要说明一下：这是**假后端演示**，只是软件验证，实体机器人并没有真的移动。\n\n到了货架前，你可以自己看看不同品牌和规格的红烧牛肉面～", "requests": 4, "catalog": ["RESOLVED"], "destination_ids": ["instant_noodle_zone"]}
+{"case": "cross_area_brand_ambiguity", "validated": true, "answer": "苹果汁有两款，我不能替你选：\n\n- 演示甲 250ml（D1）\n- 演示乙 500ml（D2）\n\n你想去哪一个？", "requests": 2, "catalog": ["CLARIFY"], "destination_ids": []}
+{"case": "followup_brand_size", "validated": true, "answer": "好的，带你去演示乙 500ml 苹果汁所在的 D2 饮品区。\n\n⚠️ 说明：这是假后端（backend=fake）演示，已获得前往 drinks_b 的许可，但实际并没有真实机器人运动。", "requests": 3, "catalog": ["RESOLVED"], "destination_ids": ["drinks_b"]}
+{"case": "no_match", "validated": true, "answer": "抱歉，本地目录中没有找到“量子芒果干”这个商品，无法确认它的货架或展区位置。\n\n要不要换个名称或品牌再查一下？", "requests": 2, "catalog": ["NO_MATCH"], "destination_ids": []}
+{"case": "specific_sku", "validated": true, "answer": "找到了：SKU MK-BEEF-BAG-103 是康师傅红烧牛肉面（袋装，103g），位于方便面专区（instant_noodle_zone）。\n\n已提交带路任务（task b07c6df3…）。注意：当前后端为 fake 演示模式，仅获准开始导航，实际没有机器人运动。", "requests": 3, "catalog": ["RESOLVED"], "destination_ids": ["instant_noodle_zone"]}
+{"case": "unknown_sku", "validated": true, "answer": "本地目录里没有 SKU「MODEL-INVENTED-SKU」的记录（该检索结果仅为 Stage 8 软件验证用的虚构数据，非真实展品/库存）。因此无法为你带路前往。\n\n请确认正确的商品名称或 SKU，我再帮你查地点。", "requests": 2, "catalog": ["NO_MATCH"], "destination_ids": []}
+{"case": "expired_pending_start", "validated": true, "answer": "康师傅红烧牛肉面有两种包装，我不能替你选：\n\n- **袋装**（103g）\n- **桶装**（110g）\n\n你想买哪一种？确认后我就带你过去。", "requests": 2, "catalog": ["CLARIFY"], "destination_ids": []}
+{"case": "expired_pending_supplement", "validated": false, "answer": "模型请求失败；可检查阶段日志中的异常类型和 HTTP 状态。", "requests": 2, "catalog": ["NO_MATCH"], "destination_ids": []}
+{"case": "semantic_follow", "validated": true, "answer": "好的，跟随任务已受理（task_id: 26a83438…）。\n\n⚠️ 注意：当前后端为 **fake 演示模式**，机器人实体不会实际运动。如需真实跟随，请确认接入真实机器人后端。", "requests": 2, "catalog": [], "destination_ids": [null]}
+{"case": "semantic_cancel", "validated": true, "answer": "已取消跟随任务（task_id: 26a83438…），状态：**CANCEL**。\n\n⚠️ 当前仍为 **fake 演示模式**，无实体机器人动作。", "requests": 2, "catalog": [], "destination_ids": []}
+{"case": "cancel_pending_guide", "validated": true, "answer": "好的，已带你前往服务台（咨询台）。\n\n⚠️ 说明：这是假后端演示（backend=fake），实际没有机器人运动。", "requests": 3, "catalog": ["RESOLVED"], "destination_ids": ["service_desk"]}
+{"case": "semantic_sleep", "validated": true, "answer": "", "requests": 1, "catalog": [], "destination_ids": []}
+Saved: D:\project\CompanionBot\models\minisegway\stage8\results\stage82_qwen_f1b12ec915064992b49f43a6ed6ed89a
