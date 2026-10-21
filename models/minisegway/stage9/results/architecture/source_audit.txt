@@ -1,0 +1,13 @@
+{
+  "protected_files": 1758,
+  "protected_changed": [
+    "models/minisegway/stage5/results/plots/stage5_v1_5_block_stream.png",
+    "models/minisegway/stage5/results/plots/stage5_v1_5_dynamic_ff.png",
+    "models/minisegway/stage5/results/plots/stage5_v1_5_planning_timeline.png",
+    "models/minisegway/stage5/results/plots/stage5_v1_5_velocity.png"
+  ],
+  "algorithm_definitions_checked": 306,
+  "body_mismatches": [],
+  "import_binding_mismatches": [],
+  "passed": false
+}

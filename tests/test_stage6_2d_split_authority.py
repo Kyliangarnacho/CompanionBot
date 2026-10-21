@@ -2,12 +2,11 @@
 
 import unittest
 
-from control.pi_mcu_packets import (PROTOCOL_VERSION, HeartbeatPacket,
-    ReferenceBlockPacket, ResumeReferenceCommandPacket, SafetyCommandPacket,
-    YawCommandPacket)
-from control.safety_brake import SafetyBrakeConfig
-from control.stage6_pi_mcu_link import MCUSafetyArbiter, MCUReferenceBlockReceiver
-from control.stage6_yaw_servo import BearingYawServo, MCULatestYawSource
+from companionbot_contracts.packets import PROTOCOL_VERSION, HeartbeatPacket, ReferenceBlockPacket, ResumeReferenceCommandPacket, SafetyCommandPacket, YawCommandPacket
+from companionbot_control.core.safety_brake import SafetyBrakeConfig
+from companionbot_control.runtime.mcu import MCUSafetyArbiter, MCUReferenceBlockReceiver
+from companionbot_follow.core.bearing_yaw import BearingYawServo
+from companionbot_control.runtime.yaw_reference import MCULatestYawSource
 
 
 def block(sequence, start, epoch=0):

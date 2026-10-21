@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/home/kylian/projects/CompanionBot/scripts/smoke_stage9_ros.py", line 131, in <module>
+    main()
+  File "/home/kylian/projects/CompanionBot/scripts/smoke_stage9_ros.py", line 76, in main
+    until(node, lambda: bool(transforms))
+  File "/home/kylian/projects/CompanionBot/scripts/smoke_stage9_ros.py", line 31, in until
+    raise TimeoutError("ROS smoke deadline")
+TimeoutError: ROS smoke deadline

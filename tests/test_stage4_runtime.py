@@ -4,11 +4,7 @@ import unittest
 import numpy as np
 from scipy.linalg import solve_discrete_are
 
-from control.stage4_runtime import (
-    EnvironmentMode, NaturalTransientPayloadId, PayloadIdConfig,
-    PayloadLifecycle, PayloadPlantBuilder, QChangeTriggerConfig,
-    SagittalPayloadParameters, SlopeSupervisor, SlopeSupervisorConfig,
-)
+from companionbot_control.core.stage4_runtime import EnvironmentMode, NaturalTransientPayloadId, PayloadIdConfig, PayloadLifecycle, PayloadPlantBuilder, QChangeTriggerConfig, SagittalPayloadParameters, SlopeSupervisor, SlopeSupervisorConfig
 
 
 class Stage4RuntimeTest(unittest.TestCase):

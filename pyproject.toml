@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=77.0.3,<80", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "companionbot-core"
+version = "0.9.1"
+description = "Editable bootstrap of the CompanionBot responsibility packages"
+requires-python = ">=3.11"
+# Dependencies are maintained in the existing requirements files.
+
+[tool.setuptools.packages.find]
+where = ["ros2_ws/src/companionbot_interfaces", "ros2_ws/src/companionbot_control", "ros2_ws/src/companionbot_follow", "ros2_ws/src/companionbot_perception", "ros2_ws/src/companionbot_behavior", "ros2_ws/src/companionbot_simulation", "ros2_ws/src/companionbot_bringup"]
+include = ["companionbot_contracts*", "companionbot_control*", "companionbot_follow*", "companionbot_perception*", "companionbot_behavior*", "companionbot_simulation*", "companionbot_bringup*"]
+namespaces = false

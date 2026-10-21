@@ -11,15 +11,15 @@ import cv2
 import numpy as np
 import pytest
 
-from embodied_agent.audio import SpeechOutput, microphone_events, wake_grammar, confirmed_wake
-from embodied_agent.behavior import BehaviorSupervisor, FakeNavigationBackend, FakeRobotBackend
-from embodied_agent.config import AgentConfig
-from embodied_agent.frames import Stage7FrameBuffer, FrameSnapshot, encode_keyframe
-from embodied_agent.interaction import AgentSession
-from embodied_agent.runtime import AgentRuntime, fake_model
-from perception.camera import ColorFrame
-from perception.detection_stream import LatestFrameSlot
-from scripts.demo_yolo26n_depth import _FrameFanout
+from companionbot_behavior.core.audio import SpeechOutput, microphone_events, wake_grammar, confirmed_wake
+from companionbot_behavior.core.behavior import BehaviorSupervisor, FakeNavigationBackend, FakeRobotBackend
+from companionbot_behavior.core.config import AgentConfig
+from companionbot_behavior.core.frames import Stage7FrameBuffer, FrameSnapshot, encode_keyframe
+from companionbot_behavior.core.interaction import AgentSession
+from companionbot_behavior.core.runtime import AgentRuntime, fake_model
+from companionbot_perception.core.camera import ColorFrame
+from companionbot_perception.core.detection_stream import LatestFrameSlot
+from companionbot_perception.runtime.session import _FrameFanout
 
 
 def color(seq=5):
@@ -213,7 +213,7 @@ def test_frame_formats_are_explicit_and_foreign_clock_is_rejected():
 
 
 def test_custom_wake_remains_configurable_without_legacy_name_mapping():
-    from embodied_agent.interaction import canonical_voice_wake
+    from companionbot_behavior.core.interaction import canonical_voice_wake
     assert AgentConfig().wake_phrase == "你好小柒"
     assert confirmed_wake({"text": "你好助手"}, {"text": "你好助手"}, "你好助手")
     assert canonical_voice_wake("你好助手，介绍一下", "你好助手") == "你好助手，介绍一下"
@@ -237,7 +237,7 @@ def test_invalid_voice_transport_types_never_wake_or_call_model():
 
 
 def test_builtin_name_selection_never_falls_back_to_webcam():
-    from embodied_agent.audio import select_input_device
+    from companionbot_behavior.core.audio import select_input_device
     devices = [{"index": 1, "name": "Microphone C920", "hostapi": 0, "max_input_channels": 2},
                {"index": 8, "name": "Microphone Array Realtek", "hostapi": 1, "max_input_channels": 2},
                {"index": 3, "name": "Microphone Array Realtek", "hostapi": 0, "max_input_channels": 2}]
@@ -252,7 +252,7 @@ def test_builtin_name_selection_never_falls_back_to_webcam():
 
 
 def test_microphone_unsupported_format_is_explicit():
-    from embodied_agent.audio import select_input_device
+    from companionbot_behavior.core.audio import select_input_device
     def incompatible(**_): raise RuntimeError("unsupported rate")
     sd = SimpleNamespace(query_devices=lambda: [{"index": 3, "name": "Microphone Realtek", "hostapi": 0, "max_input_channels": 2}],
                          query_hostapis=lambda: [{"name": "MME"}], check_input_settings=incompatible)
@@ -263,7 +263,7 @@ def test_microphone_unsupported_format_is_explicit():
 
 
 def test_sentence_buffer_chinese_boundaries_and_partial_tail():
-    from embodied_agent.audio import SentenceBuffer
+    from companionbot_behavior.core.audio import SentenceBuffer
     buffer = SentenceBuffer()
     assert buffer.push("你好，欢迎参观") == []
     assert buffer.push("。接下来") == ["你好，欢迎参观。"]
@@ -274,7 +274,7 @@ def test_sentence_buffer_chinese_boundaries_and_partial_tail():
 
 
 def test_stream_queue_order_interruption_and_no_old_tail():
-    from embodied_agent.audio import StreamingSpeech
+    from companionbot_behavior.core.audio import StreamingSpeech
     async def run():
         engines, gates = [], []
         def factory():
@@ -306,8 +306,8 @@ def test_stream_queue_order_interruption_and_no_old_tail():
 
 
 def test_live_master_metadata_clock_and_staleness():
-    from embodied_agent.perception import MasterStatusBuffer
-    from perception.master_selection import MasterTrackingFrame, MasterState
+    from companionbot_behavior.core.perception import MasterStatusBuffer
+    from companionbot_perception.core.master_selection import MasterTrackingFrame, MasterState
     now = [10.0]
     master = MasterStatusBuffer(clock=lambda: now[0])
     assert not master.status()["available"]
@@ -324,7 +324,7 @@ def test_live_master_metadata_clock_and_staleness():
 
 
 def test_ui_feedback_separates_received_accepted_sleep_and_rejection():
-    from embodied_agent.ui import DemoBridge, input_feedback
+    from companionbot_behavior.core.ui import DemoBridge, input_feedback
     bridge = DemoBridge()
     bridge.submit(" 你好小柒 ")
     assert bridge.commands.get_nowait() == "你好小柒"
@@ -333,14 +333,14 @@ def test_ui_feedback_separates_received_accepted_sleep_and_rejection():
     assert input_feedback("问题", state="ACTIVE", valid_voice=False)["status"] == "REJECT"
     assert input_feedback("问题", state="ACTIVE", response="视觉请求未发送：frame_stale")["status"] == "REJECT"
     assert input_feedback("/wait", state="SLEEP", local=True)["status"] == "ACCEPT"
-    from embodied_agent.ui import format_metrics
+    from companionbot_behavior.core.ui import format_metrics
     line = format_metrics({"phase": "model_complete", "data": {"first_text_s": .8, "first_speech_s": None, "wall_s": 1.2}})
     assert "0.80s" in line and "待确认" in line and "1.20s" in line
 
 
 def test_official_stream_can_speak_before_generation_finishes():
     from pydantic_ai.models.function import FunctionModel
-    from embodied_agent.audio import StreamingSpeech
+    from companionbot_behavior.core.audio import StreamingSpeech
     async def run():
         holders, engines, events = {}, [], []
         def factory():
@@ -406,8 +406,8 @@ def test_behavior_preamble_is_not_displayed_or_spoken_before_supervisor_ack():
 
 def test_single_entry_camera_precedes_local_listening_and_input_acceptance(tmp_path):
     from argparse import Namespace
-    from scripts.run_stage8_agent import main
-    from embodied_agent.ui import DemoBridge
+    from companionbot_behavior.runtime.session import main
+    from companionbot_behavior.core.ui import DemoBridge
     import threading
     async def run():
         bridge, ready = DemoBridge(), threading.Event()
@@ -441,8 +441,8 @@ def test_single_entry_camera_precedes_local_listening_and_input_acceptance(tmp_p
 
 
 def test_live_master_is_follow_prerequisite_even_for_fake_execution():
-    from embodied_agent.perception import PerceptionAwareFakeRobot
-    from embodied_agent.behavior import BehaviorRequest
+    from companionbot_behavior.core.perception import PerceptionAwareFakeRobot
+    from companionbot_behavior.core.behavior import BehaviorRequest
     async def run():
         value = {"available": True, "state": "UNSELECTED", "visible": False}
         robot = PerceptionAwareFakeRobot(lambda: value)
@@ -459,7 +459,7 @@ def test_live_master_is_follow_prerequisite_even_for_fake_execution():
 
 def test_stream_generation_cancel_also_clears_speech_queue():
     from pydantic_ai.models.function import FunctionModel
-    from embodied_agent.audio import StreamingSpeech
+    from companionbot_behavior.core.audio import StreamingSpeech
     async def run():
         engines, holders = [], {}
         def factory():
@@ -498,7 +498,7 @@ def test_stream_generation_cancel_also_clears_speech_queue():
 
 def test_stream_tool_failure_purges_native_renderer_backlog():
     from pydantic_ai.models.function import FunctionModel, DeltaToolCall
-    from embodied_agent.audio import StreamingSpeech
+    from companionbot_behavior.core.audio import StreamingSpeech
     async def run():
         holders = {}
         speech = SpeechOutput(lambda _: None, engine_factory=FakeSpeechEngine)
@@ -549,7 +549,7 @@ def test_readonly_knowledge_and_master_tools_use_local_providers():
 
 
 def test_idle_sleep_waits_for_speech_end_then_starts_a_fresh_window():
-    from embodied_agent.interaction import InteractionState
+    from companionbot_behavior.core.interaction import InteractionState
     async def run():
         now = [10.0]
         runtime = AgentRuntime(fake_model(), BehaviorSupervisor(FakeRobotBackend(), FakeNavigationBackend(set())),
@@ -710,7 +710,7 @@ def test_new_text_dismissal_preempts_old_generation_then_sleeps():
 
 def test_sleep_output_preempts_coemitted_motion_tool_and_cancels_existing_task():
     from pydantic_ai.models.function import FunctionModel,DeltaToolCall
-    from embodied_agent.behavior import BehaviorRequest
+    from companionbot_behavior.core.behavior import BehaviorRequest
     async def run():
         robot=FakeRobotBackend();supervisor=BehaviorSupervisor(robot,FakeNavigationBackend(set()))
         existing=await supervisor.submit(BehaviorRequest(intent="WAIT"))
@@ -727,7 +727,7 @@ def test_sleep_output_preempts_coemitted_motion_tool_and_cancels_existing_task()
 
 
 def test_native_utterance_score_is_additive_and_voice_rejections_are_specific():
-    from embodied_agent.audio import asr_scores
+    from companionbot_behavior.core.audio import asr_scores
     assert asr_scores({"result":[{"conf":.3,"start":0,"end":.1},{"conf":.95,"start":.1,"end":1}]})==pytest.approx((.3,.885))
     async def run():
         runtime=AgentRuntime(fake_model(),BehaviorSupervisor(FakeRobotBackend(),FakeNavigationBackend(set())),AgentConfig())
@@ -759,7 +759,7 @@ def test_native_utterance_score_is_additive_and_voice_rejections_are_specific():
 def test_wake_prefix_corroboration_keeps_question_tail_without_accepting_near_words():
     assert confirmed_wake({"text":"你好 小七 这个是什么品牌"},{"text":"你 好 小 七"},"你好小柒")
     assert not confirmed_wake({"text":"你好 小气"},{"text":"你 好 小 七"},"你好小柒")
-    from embodied_agent.ui import input_feedback
+    from companionbot_behavior.core.ui import input_feedback
     data=input_feedback("你好",state="ACTIVE",valid_voice=False,source="voice",
                         gate={"reason":"confidence_below_threshold","score":.2,"threshold":.6})
     assert data["source"]=="voice" and "0.20 < 0.60" in data["reason"]
@@ -767,7 +767,7 @@ def test_wake_prefix_corroboration_keeps_question_tail_without_accepting_near_wo
 
 @pytest.mark.parametrize("name", ["七", "琪", "棋", "琦", "气"])
 def test_requested_phonetic_wake_tolerance_accepts_measured_low_scores(name):
-    from embodied_agent.interaction import canonical_voice_wake
+    from companionbot_behavior.core.interaction import canonical_voice_wake
     async def run():
         runtime = AgentRuntime(fake_model(), BehaviorSupervisor(FakeRobotBackend(), FakeNavigationBackend(set())), AgentConfig())
         session = AgentSession(runtime)
@@ -844,8 +844,8 @@ def test_idle_transition_notifies_once_and_explicit_sleep_remains_silent():
 
 
 def test_echo_veto_matches_command_inside_tts_and_does_not_invent_aec():
-    from embodied_agent.audio import SpeechOutput
-    from embodied_agent.interaction import voice_interrupt
+    from companionbot_behavior.core.audio import SpeechOutput
+    from companionbot_behavior.core.interaction import voice_interrupt
     speech = SpeechOutput(lambda _: None)
     speech._echo_text = "操作提示：你好小七，打断回答。"
     speech._echo_until_s = time.perf_counter() + 1
@@ -857,7 +857,7 @@ def test_echo_veto_matches_command_inside_tts_and_does_not_invent_aec():
 
 
 def test_sensevoice_adapter_is_explicit_about_pcm_rate_and_silence_clipping(tmp_path):
-    from embodied_agent.speech_recognition import SenseVoiceInput, SpeechSegment, segment_quality
+    from companionbot_behavior.core.speech_recognition import SenseVoiceInput, SpeechSegment, segment_quality
     with pytest.raises(ValueError, match="16000 Hz"):
         SenseVoiceInput(tmp_path, samplerate=48000)
     with pytest.raises(ValueError, match="assets missing"):
@@ -908,8 +908,8 @@ def test_playback_pcm_only_dispatches_interrupt_and_never_normal_question(monkey
 
 @pytest.mark.parametrize("blocked", [False, True])
 def test_question_asr_preserves_unscored_event_and_rejects_old_epoch(monkeypatch, tmp_path, blocked):
-    from embodied_agent.speech_recognition import SpeechSegment
-    import embodied_agent.speech_recognition as recognition
+    from companionbot_behavior.core.speech_recognition import SpeechSegment
+    import companionbot_behavior.core.speech_recognition as recognition
     async def run():
         loop=asyncio.get_running_loop();received=[];epoch=[0]
         class QuestionASR:

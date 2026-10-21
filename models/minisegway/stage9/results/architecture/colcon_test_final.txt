@@ -1,0 +1,16 @@
+Starting >>> companionbot_interfaces
+Finished <<< companionbot_interfaces [0.74s]
+Starting >>> companionbot_follow
+Starting >>> companionbot_perception
+Finished <<< companionbot_follow [3.35s]
+Starting >>> companionbot_control
+Finished <<< companionbot_perception [5.11s]
+Starting >>> companionbot_behavior
+Finished <<< companionbot_control [3.48s]
+Starting >>> companionbot_simulation
+Finished <<< companionbot_simulation [3.72s]
+Finished <<< companionbot_behavior [7.89s]
+Starting >>> companionbot_bringup
+Finished <<< companionbot_bringup [4.61s]
+
+Summary: 7 packages finished [18.6s]

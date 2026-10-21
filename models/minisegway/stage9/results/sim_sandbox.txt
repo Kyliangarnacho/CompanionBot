@@ -1,0 +1,61 @@
+[INFO] [launch]: All log files can be found below /home/kylian/projects/CompanionBot/models/minisegway/stage9/results/ros_logs/2026-10-05-12-27-00-821844-Mbappe7-21
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [frozen_sim-1]: process started with pid [26]
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] [37;1m2026-10-05 12:27:01.051 [31;1m[[37;1mTRANSPORT_UDP[31;1m Error] [37mError creating socket: Operation not permitted[34;1m -> Function [36minit[m
+[frozen_sim-1] [37;1m2026-10-05 12:27:01.058 [31;1m[[37;1mRTPS_PARTICIPANT[31;1m Error] [37mUser transport failed to register.[34;1m -> Function [36mRTPSParticipantImpl[m
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] getifaddrs: Operation not permitted
+[frozen_sim-1] [ERROR] [1791174421.514055152] [companionbot.frozen_sim]: frozen simulation failed: FileNotFoundError(2, 'No such file or directory')
+[frozen_sim-1] Traceback (most recent call last):
+[frozen_sim-1]   File "/home/kylian/projects/CompanionBot/ros2_ws/install/companionbot_ros/lib/companionbot_ros/frozen_sim", line 33, in <module>
+[frozen_sim-1]     sys.exit(load_entry_point('companionbot-ros', 'console_scripts', 'frozen_sim')())
+[frozen_sim-1]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[frozen_sim-1]   File "/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_ros/companionbot_ros/frozen_sim.py", line 116, in main
+[frozen_sim-1]     raise node.error
+[frozen_sim-1]   File "/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_ros/companionbot_ros/frozen_sim.py", line 76, in _run
+[frozen_sim-1]     common = baseline.load_common()
+[frozen_sim-1]              ^^^^^^^^^^^^^^^^^^^^^^
+[frozen_sim-1]   File "/home/kylian/projects/CompanionBot/scripts/run_stage3b_yaw_control.py", line 1021, in load_common
+[frozen_sim-1]     manifest, config, dynamic, motion, offline = longitudinal.load_production_baseline()
+[frozen_sim-1]                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[frozen_sim-1]   File "/home/kylian/projects/CompanionBot/scripts/run_stage3a_velocity_feedforward_handoff.py", line 58, in load_production_baseline
+[frozen_sim-1]     manifest = load_json(BASELINE_MANIFEST_PATH)
+[frozen_sim-1]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[frozen_sim-1]   File "/home/kylian/projects/CompanionBot/scripts/run_stage3a_dynamic_nominal_reference.py", line 46, in load_json
+[frozen_sim-1]     return json.loads(path.read_text(encoding="utf-8"))
+[frozen_sim-1]                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[frozen_sim-1]   File "/usr/lib/python3.12/pathlib.py", line 1029, in read_text
+[frozen_sim-1]     with self.open(mode='r', encoding=encoding, errors=errors) as f:
+[frozen_sim-1]          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[frozen_sim-1]   File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+[frozen_sim-1]     return io.open(self, mode, buffering, encoding, errors, newline)
+[frozen_sim-1]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[frozen_sim-1] FileNotFoundError: [Errno 2] No such file or directory: '/home/kylian/projects/CompanionBot/models/minisegway/stage3/config/baseline.json'
+[ERROR] [frozen_sim-1]: process has died [pid 26, exit code 1, cmd '/home/kylian/projects/CompanionBot/ros2_ws/install/companionbot_ros/lib/companionbot_ros/frozen_sim --ros-args --params-file /tmp/launch_params_gxkjs0s6'].

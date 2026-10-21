@@ -1,0 +1,85 @@
+...............................F
+=================================== FAILURES ===================================
+___ test_framework_semantic_tool_availability_and_current_turn_guide_receipt ___
+
+    def test_framework_semantic_tool_availability_and_current_turn_guide_receipt():
+        async def run():
+            provider = catalog()
+            nav = FakeNavigationBackend(provider.destination_ids())
+            supervisor = BehaviorSupervisor(FakeRobotBackend(), nav)
+            seen = []
+            async def stream(messages, info):
+                seen.append({t.name for t in info.function_tools})
+                returns = [p for p in messages[-1].parts if p.part_kind == 'tool-return']
+                if returns and returns[0].tool_name == 'lookup_knowledge':
+                    r = returns[0].content['resolution']
+                    yield {0:DeltaToolCall(name='request_behavior',tool_call_id='guide',json_args=json.dumps({'request':{
+                        'intent':'GUIDE_TO','destination_id':r['destination_id'],'resolution_id':r['resolution_id']}}))}
+                elif returns:
+                    yield '模拟后端已接收请求。'
+                else:
+                    yield {0:DeltaToolCall(name='lookup_knowledge',tool_call_id='search',json_args='{"query":"快食面","query_variants":["方便面"],"target_kind":"category"}')}
+            runtime = AgentRuntime(FunctionModel(stream_function=stream), supervisor, AgentConfig(), catalog=provider)
+            session = AgentSession(runtime, strict_behavior_intent=True)
+            await session.receive('你好小柒')
+            await session.receive('陪我过去瞧瞧卖面食的地方', input_id='human-input')
+            result = await session.wait()
+            assert result.status == 'COMPLETED' and result.metrics['requests'] == 3
+            assert 'request_behavior' in seen[0] and 'request_behavior' not in seen[-1]
+            event = next(r for r in result.metrics['behavior_events'] if r['status'] == 'ACCEPT')
+            assert event['input_id'] == 'human-input' and event['turn_id'] == result.metrics['turn_id']
+            assert event['destination_id'] == 'instant_noodle_zone'
+            task_id = event['task_id']
+            assert session.task.done() and (await supervisor.status(task_id)).status == 'ACCEPT'
+            await supervisor.receive_feedback(nav.advance(task_id, .6))
+            assert (await supervisor.status(task_id)).status == 'RUNNING'
+            await supervisor.receive_feedback(nav.complete(task_id))
+            assert supervisor.active_task is None and (await supervisor.status(task_id)).status == 'COMPLETED'
+            await session.close()
+>       asyncio.run(run())
+
+tests/test_stage82_dataflow.py:354: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/asyncio/runners.py:194: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/asyncio/base_events.py:687: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def run():
+        provider = catalog()
+        nav = FakeNavigationBackend(provider.destination_ids())
+        supervisor = BehaviorSupervisor(FakeRobotBackend(), nav)
+        seen = []
+        async def stream(messages, info):
+            seen.append({t.name for t in info.function_tools})
+            returns = [p for p in messages[-1].parts if p.part_kind == 'tool-return']
+            if returns and returns[0].tool_name == 'lookup_knowledge':
+                r = returns[0].content['resolution']
+                yield {0:DeltaToolCall(name='request_behavior',tool_call_id='guide',json_args=json.dumps({'request':{
+                    'intent':'GUIDE_TO','destination_id':r['destination_id'],'resolution_id':r['resolution_id']}}))}
+            elif returns:
+                yield '模拟后端已接收请求。'
+            else:
+                yield {0:DeltaToolCall(name='lookup_knowledge',tool_call_id='search',json_args='{"query":"快食面","query_variants":["方便面"],"target_kind":"category"}')}
+        runtime = AgentRuntime(FunctionModel(stream_function=stream), supervisor, AgentConfig(), catalog=provider)
+        session = AgentSession(runtime, strict_behavior_intent=True)
+        await session.receive('你好小柒')
+        await session.receive('陪我过去瞧瞧卖面食的地方', input_id='human-input')
+        result = await session.wait()
+>       assert result.status == 'COMPLETED' and result.metrics['requests'] == 3
+E       AssertionError: assert ('FAILED' == 'COMPLETED'
+E         
+E         - COMPLETED
+E         + FAILED)
+
+tests/test_stage82_dataflow.py:342: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_stage82_dataflow.py::test_framework_semantic_tool_availability_and_current_turn_guide_receipt
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 31 passed in 31.56s

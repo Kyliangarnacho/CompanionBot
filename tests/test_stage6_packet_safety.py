@@ -4,19 +4,10 @@ import math
 import struct
 import unittest
 
-from control.pi_mcu_packets import (
-    PROTOCOL_VERSION, HeartbeatPacket, ReferenceBlockPacket,
-    ResumeReferenceCommandPacket, RobotStatePacket, SafetyCommandPacket,
-    SafetyStatusPacket,
-    TargetObservationPacket,
-)
-from control.safety_brake import (
-    SafetyBrakeConfig, SafetyBrakePrimitive, SafetyReference,
-)
-from control.stage6_pi_mcu_link import (
-    InMemoryPacketTransport, MCUSafetyArbiter, MCUReferenceBlockReceiver,
-    Stage6PacketLink,
-)
+from companionbot_contracts.packets import PROTOCOL_VERSION, HeartbeatPacket, ReferenceBlockPacket, ResumeReferenceCommandPacket, RobotStatePacket, SafetyCommandPacket, SafetyStatusPacket, TargetObservationPacket
+from companionbot_control.core.safety_brake import SafetyBrakeConfig, SafetyBrakePrimitive, SafetyReference
+from companionbot_simulation.runtime.packet_link import InMemoryPacketTransport, Stage6PacketLink
+from companionbot_control.runtime.mcu import MCUSafetyArbiter, MCUReferenceBlockReceiver
 
 
 def block(sequence_id: int, start_tick: int,

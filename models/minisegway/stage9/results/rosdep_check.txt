@@ -1,0 +1,8 @@
+/usr/bin/rosdep:6: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+  from pkg_resources import load_entry_point
+
+ERROR: your rosdep installation has not been initialized yet.  Please run:
+
+    sudo rosdep init
+    rosdep update
+

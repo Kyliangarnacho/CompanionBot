@@ -1,6 +1,25 @@
-# CompanionBot current state — Stage 8.2 baseline
+# CompanionBot current state — Ubuntu / ROS 2 Jazzy
 
-## Stage 8 当前状态（2026-10-05）
+## Stage 9 当前状态：迁移与职责架构整理（2026-10-05）
+
+- 主环境保持 WSL2 Ubuntu 24.04.4 / .venv Python 3.12.3 / ROS 2 Jazzy；Windows venv 不复用，数值/模型/Agent 依赖与初次迁移相同。source scripts/env.sh 后统一解释器；pip check、rosdep check 通过，未重复安装 Jazzy。
+- 当前七个 package：**interfaces / perception / follow / control / behavior / simulation / bringup**，代码唯一归属 ros2_ws/src。原顶层 control/sim/perception/embodied_agent/learning 与混杂 scripts 已按职责搬迁；算法 core/runtime 与 ros adapter 分层，package 不强制等于 node。根 pyproject 仅 editable bootstrap 同一份源码。
+- 唯一正式入口仍是 scripts/demo_stage8_interaction.py，薄委托 companionbot_behavior.app.main；ROS interaction 同样委托该 main。唯一正式 bringup：**ros2 launch companionbot_bringup interaction.launch.py**。simulation.launch.py 仅有限诊断，camera_tf 仅 opt-in。
+- Pi reference producer / bearing yaw 属于 follow；MCU receiver/safety/latest-yaw/estimator/controller 属于 control；plant、virtual sensors、in-memory transport/模拟调度属于 simulation。control/follow 核心无需 MuJoCo/rclpy/视觉库，Agent 包不依赖 control/follow/simulation，无 actuator authority。保持 Python，未做 MCU/C++ 移植。
+- Stage 3–6 的冻结算法、参数、plant、truth/tolerance、scheduler/reference/双窗口 follower 保持。1 ms physics / 2 ms controller 不拆 DDS。原算法306个完整定义 body及import alias一致，1,758个原配置/资产/冻结成功失败证据SHA256不变。Stage3/4完整四份metrics/history与重组前Linux完全相等，Stage6五场景KF/raw/事件/对齐/packet计数亦相等，共76项exact checks。
+- Stage 7 Camera/YOLO/ByteTrack/Master/OSNet/depth/geometry仍原语义，perception publisher taps复用唯一Camera/interaction node。**真实Stage7→6视觉运动闭环仍未完成**；外参、pitch、axial-Z provisional。TF默认关闭，仅opt-in未实测camera mount，无map/odom定位。
+- Stage 8 Agent/Catalog/Supervisor、sleep/stream cancel/freshness/source/task/feedback契约保留；ROS service只queued，不能等同授权/完成。Robot/NavigationBackend仍Fake、hardware_execution_ready=false；无SLAM/Nav2/真实地图导航。各source/perf/sim/ROS publication clock与source/reference epoch分别保留。
+- 最终全量pytest **332 passed，0 skipped（8.11 s）**；七包clean build/rebuild与colcon全量test通过。colcon **333 tests / 0 errors / 0 failures / 0 skipped**是同一332pytest cases加接口CTest外层，不重复计coverage。新增4架构边界+1资产路径测试，原测试只迁import/CLI路径。
+- MuJoCo headless、Stage3 Q-OFF移动payload、Stage4 final六场景、Stage5 V1.5三solver benchmark/replay/reference stream和原4ms delay、Stage6五径向场景与最新八动态完整历史复现通过；最新Windows双窗口event/sequence/FULL/alignment一致，max latch delta约8.55e-14m/s。
+- 真实模型CPU fixture inference与完整感知typed DDS通过（120 Color / 82 Master updates / 40 relative observation，异步吞吐不固定）；正式root Demo回放+ROS正常退出，observer failure0且未自动选Master。Agent/Supervisor全量回归、input freshness/duplicate gate、Fake GUIDE_TO ACCEPT/CANCEL task身份、50Hz sim telemetry/独立clock/opt-inTF通过。
+- 原生eSpeak cmn→paplay完成/取消、pending0/worker退出再验通过。WSL2仍无/dev/video*或USB bus；C920未验。初次16kHz mono PCM证据保留，物理麦克风/扬声器身份、真人wake/ASR/AEC/可听起声、GUI、真实Qwen Linux API、Pi/STM32实机链未验；fake/replay不视作硬件通过。
+- 旧通用companionbot_ros、重复Stage7 full-mode wrapper、旧路径audit归档reference/pre_reorganization并COLCON_IGNORE。旧build/install和本轮源cache仅在新构建/验收后清理；历史runner、拒绝学习/失败证据、provenance与当前.venv/build/install保留。清理清单见本轮results/architecture/cleanup_scope.json。
+- 整理初轮漏原import alias导致四runner NameError，仅恢复alias；Stage5工具漏PLOT_PATHS重定向曾覆盖四历史PNG，审计检出后按Windows原副本与开工SHA256精确恢复，修复wrapper重验全部hash不变。原失败/恢复证据保留，没有改算法或门限。
+- 当前权威文档：[ARCHITECTURE](models/minisegway/stage9/ARCHITECTURE.md)、[RUNNING](models/minisegway/stage9/RUNNING.md)、[INTERFACES](models/minisegway/stage9/INTERFACES.md)、[STAGE9_REPORT](models/minisegway/stage9/STAGE9_REPORT.md)。本轮证据在results/architecture，初次迁移报告快照在reference/pre_reorganization，旧结果不覆盖。用户已有改动保留，未commit/push。
+
+阶段文字交付索引（2026-10-21）：`C:\Users\29603\Desktop\CompanionBot\stage report\Stage9_Linux_ROS2\final_report.md`、同目录 `learning_log.md`。按 AGENTS 新增规则，同一大阶段固定维护这两份文件；原始证据留在仓库对应阶段成果目录。本次只整理文字与核对副本，未重跑机器人回归。
+
+## Stage 8 冻结能力与 Windows 历史验收（2026-10-05）
 
 - 唯一正式交互入口：`scripts/demo_stage8_interaction.py --camera-device 1`，交互窗口＋Stage7预览；`run_stage8_agent.py`是无设备文字诊断，`verify_stage82.py`是自动验收，不是另一套正式Demo。
 - PydanticAI Slim2.53.0＋现有Qwen `qwen3.8-flash`，单Agent，保留C920唯一采集owner、Realtek、Vosk唤醒“你好小柒”、SenseVoice/Silero、Streaming与SAPI。睡眠零模型请求/零Agent问答取帧，感知继续运行。
@@ -17,7 +36,7 @@
 
 当前权威文档：[最终架构与接口](models/minisegway/stage8/STAGE8_REPORT.md)、[运行与验收](models/minisegway/stage8/RUNNING.md)、[设计/失败/修复记录](models/minisegway/stage8/LEARNING_LOG.md)。Stage3–7冻结边界见下文。
 
-## Stage 7 当前状态
+## Stage 7 冻结能力与历史入口（当前路径见 Stage 9）
 
 - 最终入口：`scripts/demo_stage7_perception.py --camera-device 1 --preview`，RGB-only。
   Camera → YOLO26n → ByteTrack → Master/OSNet ReID，与独立 YOLO26n-depth 按

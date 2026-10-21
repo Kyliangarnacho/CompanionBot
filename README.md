@@ -11,7 +11,7 @@ CompanionBot 是面向双轮自平衡陪伴机器人的研究项目，结合自�
 | 自平衡与轮端控制 | 状态估计、纵向 LQR、yaw PD、轮端转矩分配及抗扰验证 | 冻结的仿真 baseline；Pi/MCU 完整实机链仍待接入 |
 | 自然交互与行为请求 | 本地语音唤醒、多轮对话、按需视觉问答、商品/场馆语义检索与歧义澄清、带路请求、流式文字与语音、打断/取消/休眠 | 真实相机、内置麦克风与本地语音；目录为虚构示例，行为由确定性 Supervisor 审核，运动/导航使用 Fake Backend |
 
-当前可以分别体验真实感知、自然交互和仿真跟随。实机视觉→运动控制尚未接通；带路已预留目的地与任务接口，后续采用 SLAM + Navigation，当前没有实际地图导航。
+当前主开发环境是 Ubuntu 24.04 + ROS 2 Jazzy。Windows 的真实设备证据保留；WSL2 当前使用无设备交互或感知回放，音频可通过 WSLg 桥检查。实机视觉→运动控制尚未接通；带路已预留目的地与任务接口，后续采用 SLAM + Navigation，当前没有实际地图导航。
 
 ## 系统架构
 
@@ -49,7 +49,9 @@ flowchart TD
 | MCU 侧实时控制 | 状态估计、reference 消费、safety merge、纵向 LQR、yaw PD 与轮端 torque 分配 |
 | Interaction / Agent | PydanticAI Slim + Qwen；本地唤醒、流式问答、按需图像与高层行为请求，不直接控制速度或轮端转矩 |
 
-Pi/MCU 是职责划分；目前感知性能来自 Windows 开发机，控制与通信时序验证来自仿真，还没有 Pi 5/STM32 的完整实机认证。MuJoCo physics 为 1 kHz，冻结 controller 为 500 Hz。
+Pi/MCU 是职责划分；感知性能数字来自 Windows 开发机，控制与通信时序验证来自仿真，还没有 Pi 5/STM32 的完整实机认证。MuJoCo physics 为 1 kHz，冻结 controller 为 500 Hz。ROS 包装现有 runtime，不调度高频控制 tick；[接口与职责边界](models/minisegway/stage9/INTERFACES.md)保留独立时钟、source/sequence 和 frame 语义。
+
+代码按 interfaces、perception、follow、control、behavior、simulation、bringup 七个 package 归属到 `ros2_ws/src`；算法 core/runtime 与 ROS adapter 分目录，库包不强制启动 node。完整布局、依赖与数据流见 [软件架构](models/minisegway/stage9/ARCHITECTURE.md)。
 
 ## 已验证能力与关键数据
 
@@ -78,54 +80,66 @@ Pi/MCU 是职责划分；目前感知性能来自 Windows 开发机，控制与�
 
 ## 快速运行
 
-在 `D:\project\CompanionBot` 使用项目虚拟环境。安装与测试前先确认解释器和 pip：
+在 Linux 使用仓库虚拟环境与 Jazzy overlay。首次安装、设备检查和详细命令见 [Linux / ROS 运行说明](models/minisegway/stage9/RUNNING.md)；Windows 维护命令仍见原感知/交互运行文档。
 
-```powershell
-.\.venv\Scripts\python.exe -c "import sys; print(sys.executable); print(sys.version)"
-.\.venv\Scripts\python.exe -m pip --version
-.\.venv\Scripts\python.exe -m pytest -q
+```bash
+cd ~/projects/CompanionBot
+source scripts/env.sh
+python -c 'import sys; print(sys.executable); print(sys.version)'
+python -m pip --version
+bash scripts/build_ros.sh
+source scripts/env.sh
 ```
 
-**视觉感知 Demo：**
+**视觉感知单层诊断（设备就绪后由用户操作）：**
 
-```powershell
-.\.venv\Scripts\python.exe scripts\demo_stage7_perception.py --camera-device 1 --preview
+```bash
+python -m companionbot_perception.runtime.session --mode full --camera-device /dev/v4l/by-id/ACTUAL_CAMERA --preview
 ```
 
-点击人物框后等待 `PENDING_LOCK → LOCKED`；`c` 清除，`q`/Escape 退出。device 1 只是本机示例，不是固定设备身份。默认从 [final_demo.json](models/minisegway/stage7/config/final_demo.json) 加载 calibration、ReID policy 和 provisional geometry；可用 `--config`、`--opencv-backend`、`--reid-weights` 等参数覆盖对应入口。
+点击人物框后等待 `PENDING_LOCK → LOCKED`；`c` 清除，`q`/Escape 退出。设备路径必须按实测替换并核对标定设备身份。默认从 [final_demo.json](models/minisegway/stage7/config/final_demo.json) 加载 calibration、ReID policy 和 provisional geometry；可用 `--config`、`--opencv-backend`、`--reid-weights` 等参数覆盖对应入口。
 
-首次配置环境与分层诊断入口见 [感知运行说明](models/minisegway/stage7/RUNNING.md)。
+当前配置与诊断命令见 [Linux / ROS 运行说明](models/minisegway/stage9/RUNNING.md)；原设备与分层实验记录见 [历史感知运行说明](models/minisegway/stage7/RUNNING.md)。
 
-**仿真跟随 Demo：**
+**仿真跟随可视化（由用户操作）：**
 
-```powershell
-.\.venv\Scripts\python.exe scripts\view_stage6_5_manual_2d_follow.py --duration 300 --realtime-factor 1.0
+```bash
+python -m companionbot_simulation.scenarios.view_stage6_5_manual_2d_follow --duration 300 --realtime-factor 1.0
 ```
 
 窗口由用户亲自操作。真实视觉与这个 synthetic follower 目前没有连接。
 
-**语音与视觉交互 Demo：**
+**唯一正式交互 Demo：**
 
-```powershell
-& D:\project\CompanionBot\.venv\Scripts\python.exe D:\project\CompanionBot\scripts\demo_stage8_interaction.py --camera-device 1
+```bash
+python scripts/demo_stage8_interaction.py --no-camera --fake --headless --no-mic --no-tts --ros
+# ROS launch 同样调用上述正式入口，默认无设备 / Fake / headless：
+ros2 launch companionbot_bringup interaction.launch.py
 ```
 
-等设备就绪，说“你好小柒”唤醒后提问；窗口显示输入是否接受和回答，支持按需视觉问答与打断。找商品可用口语名称或功能描述，必要时补充条件。相机在休眠中继续感知；FOLLOW 前需选择 Master，运动/导航为模拟执行。可加 `--fake` 使用离线模型；依赖、模型资产、设备选项及验收步骤见 [交互运行说明](models/minisegway/stage8/RUNNING.md)。
+当前终端模式输入“你好小柒”唤醒；无相机时 Master 不可用，FOLLOW 会被拒绝。找商品可用口语名称或功能描述，必要时补充条件；运动/导航仍为模拟执行。设备就绪后，同一入口可用 `--camera-device`、本地麦克风/TTS 与用户操作的 GUI；相机在休眠中继续感知，FOLLOW 前需选择 Master。模型和原交互语义见 [交互运行说明](models/minisegway/stage8/RUNNING.md)，Linux 设备与 launch 参数见 [Linux / ROS 运行说明](models/minisegway/stage9/RUNNING.md)。
 
-**无相机、无 API 的文字调试：**
+**无相机、无 API 的旧文字诊断：**
 
-```powershell
-.\.venv\Scripts\python.exe scripts\run_stage8_agent.py --fake
+```bash
+python -m companionbot_behavior.runtime.session --fake
 ```
 
 ## 代码与成果索引
 
 ```text
-perception/                    Camera、detector、tracking、Master/ReID、depth、geometry
-embodied_agent/                独立 Agent、唤醒/取消、关键帧与高层行为安全边界
-control/                       Pi follow/planning 与冻结 controller/safety
-sim/                           MuJoCo 和传感器仿真支持
-scripts/                       当前 demo、benchmark 与实验入口
+ros2_ws/src/
+  companionbot_interfaces/     messages/services、source stamps、Pi/MCU codecs
+  companionbot_perception/     感知 core/runtime、ROS publishers、diagnostic/benchmark
+  companionbot_follow/         Pi KF/Governor、规划、reference producer
+  companionbot_control/        MCU estimator/controller、reference receiver/safety
+  companionbot_behavior/       Agent/Catalog/Supervisor、正式 app、ROS interaction
+  companionbot_simulation/     MuJoCo、packet 调度、Stage 1–6 scenarios/实验
+  companionbot_bringup/        正式 interaction launch 与有限 simulation 诊断
+scripts/                       唯一正式 Demo 薄入口、env/build helper
+tools/environment/             Linux 安装与资产恢复
+tools/verification/            软件自动验收与审计
+tests/                         跨模块回归
 models/minisegway/
   stage3/ ... stage6/           冻结控制/规划/跟随配置与结果
   stage7/
@@ -137,6 +151,7 @@ models/minisegway/
   stage8/                      Agent配置、最终报告、运行说明、Learning Log
     reference/                 退休helper/早期诊断与完整历史快照
     results/                   成功/失败与真实API/device证据
+  stage9/                      Linux/ROS运行、接口边界、迁移报告与本阶段验证
 ```
 
 第三方实现通过依赖或 `.venv` 缓存使用；模型权重和大体积生成数据保留在本地。MiniSegway 来源、CAD 与许可信息见 [模型说明](models/minisegway/README.md)及仓库已有 provenance/license 文件。

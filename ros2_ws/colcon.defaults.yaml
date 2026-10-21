@@ -1,0 +1,4 @@
+# Ubuntu colcon still infers unittest from the removed tests_require metadata.
+# Use the supported pytest runner with modern setuptools/PyTorch metadata.
+test:
+  python-testing: pytest

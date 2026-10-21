@@ -1,0 +1,1 @@
+"""CompanionBot diagnostics implementation."""

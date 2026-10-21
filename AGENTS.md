@@ -26,7 +26,7 @@
 
 ## Python 环境与执行
 
-- CompanionBot 的安装、测试、脚本运行和依赖检查统一优先使用仓库虚拟环境 `D:\project\CompanionBot\.venv`；不得因为虚拟环境缺包而切换到系统 Python。
+- 当前主开发环境是 WSL2 Ubuntu 24.04 + ROS 2 Jazzy，统一使用仓库 `.venv/bin/python`（基于 `/usr/bin/python3` 3.12、`--system-site-packages` 以复用 Jazzy deb）。Windows 维护时使用 `D:\project\CompanionBot\.venv\Scripts\python.exe`；两个系统必须各建 `.venv`，不得复制复用或因缺包改用系统 Python运行项目。
 - 每次涉及依赖安装或测试前，先确认当前 Python 可执行文件路径、Python 版本，以及 `python -m pip --version` 显示的 pip 所属环境。
 - Windows 下优先显式调用 `D:\project\CompanionBot\.venv\Scripts\python.exe`，并用同一解释器执行 `-m pip`、`-m pytest`、脚本和依赖检查，确保安装环境、测试环境与运行环境一致。
 - 虚拟环境缺少所需包时，直接在该 `.venv` 中安装；禁止在一个环境安装、另一个环境验证。
@@ -44,6 +44,14 @@
 - `CURRENT_STATE.md` 负责当前工程状态、阶段完成项、验证结果和待办；每次阶段收尾做简短、准确的更新。
 - README 只在原有结构上微调项目能力、限制与当前正式 Demo 启动命令，不加入“Stage X 又完成了什么”、测试流水账或阶段报告等冗余内容；这些属于 CURRENT_STATE 和对应阶段文档。
 - 保持唯一正式交互入口 `scripts/demo_stage8_interaction.py`；诊断和自动验收脚本须明确标注用途，不另立正式 Demo。
+
+## 临时产物、报告与交付
+
+- 每个大阶段的文字交付统一放在 `C:\Users\29603\Desktop\CompanionBot\stage report\<阶段名称>\`（WSL：`/mnt/c/Users/29603/Desktop/CompanionBot/stage report/<阶段名称>/`）。同一阶段只维护一份 `final_report.md` 和一份 `learning_log.md`，后续迭代更新原文件，不为每个 Step/实验另建报告；Stage 9 使用 `Stage9_Linux_ROS2/`。
+- `final_report.md` 包含 modified files、tests、deviations、remaining issues，并说明重要新增或调整类/函数的输入、处理与输出；区分已实现、计划和实际验收。`learning_log.md` 只记录可复用结论、失败机制与取舍，不复制测试流水账。
+- 原始配置、JSON、history、日志和图表仍保存在仓库对应阶段成果目录；长期文档只同步当前合同、能力边界及报告索引。既有历史报告与冻结证据保留，不因统一报告格式追溯删除。
+- 临时实验输出集中到本阶段成果目录下的独立会话目录；同类完整临时 run 默认最多保留最近 3 份，仅在结果安全落盘、Owner 与引用核对后清理。正式成果、失败证据、未知 Owner 路径、有效 workspace build/install/log 和用户文件不按缓存自动删除，不引入其他项目的清理器。
+- 指定目录无法访问时明确报告，不静默改用其他长期目录。交付使用独立文件副本并核对 SHA256；若沿用已授权的仓库/桌面双位置保存，明确来源并核验副本一致性。纯文档交付只做内容、链接与副本检查，不默认重跑机器人仿真。
 
 ## 电脑与 GUI 操作
 

@@ -3,12 +3,7 @@ import math
 from pathlib import Path
 import unittest
 
-from sim.slope_estimation import (
-    SlopePlantParameters,
-    analytic_theta_eq,
-    equilibrium_sum_torque_nm,
-    inverse_analytic_alpha,
-)
+from companionbot_control.estimation.slope_estimation import SlopePlantParameters, analytic_theta_eq, equilibrium_sum_torque_nm, inverse_analytic_alpha
 
 
 ROOT = Path(__file__).resolve().parents[1]

@@ -1,0 +1,22 @@
+{
+  "original_files": 1676,
+  "changed_existing_files": [
+    ".gitignore",
+    "AGENTS.md",
+    "CURRENT_STATE.md",
+    "README.md",
+    "embodied_agent/audio.py",
+    "embodied_agent/devices.py",
+    "embodied_agent/ui.py",
+    "models/minisegway/stage7/RUNNING.md",
+    "models/minisegway/stage8/RUNNING.md",
+    "scripts/demo_stage8_interaction.py",
+    "scripts/demo_yolo26n_depth.py",
+    "scripts/run_stage8_agent.py",
+    "scripts/smoke_test_minisegway.py"
+  ],
+  "unexpected_changed_existing_files": [],
+  "frozen_files_checked": 1093,
+  "frozen_sha256_unchanged": true,
+  "frozen_differences": []
+}

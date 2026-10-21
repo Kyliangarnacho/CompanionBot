@@ -1,0 +1,2 @@
+* 0 default, ALSA (32 in, 32 out)
+({'name': 'ALSA', 'devices': [0], 'default_input_device': 0, 'default_output_device': 0}, {'name': 'OSS', 'devices': [], 'default_input_device': -1, 'default_output_device': -1})

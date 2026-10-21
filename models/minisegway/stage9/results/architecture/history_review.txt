@@ -1,0 +1,9 @@
+9881c72 feat(stage8): finalize agent interfaces and LLM-guided semantic retrieval
+5a7e175 feat: finalize CompanionBot agent integration and documentation
+19d46a7 feat(stage7): complete perception pipeline through camera-frame 3D
+c26cdb8 feat: complete Stage 6 follow governor and radial KF integration
+a248114 feat(stage5): finalize V1.5 planner streaming and interactive demo
+d9f7380 finalize Stage 4 runtime and baseline robustness
+e384339 feat: finalize Stage 3 payload robustness and Q revalidation
+fa0544c feat: finalize sensorization v1 with realistic IMU and timestamp alignment
+fcdbeca Finalize CompanionBot V1 control architecture and documentation

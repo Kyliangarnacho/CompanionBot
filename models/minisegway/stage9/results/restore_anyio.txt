@@ -1,0 +1,11 @@
+Collecting anyio==4.15.1
+  Using cached anyio-4.15.1-py3-none-any.whl.metadata (4.7 kB)
+Requirement already satisfied: idna>=2.8 in ./.venv/lib/python3.12/site-packages (from anyio==4.15.1) (3.20)
+Requirement already satisfied: typing_extensions>=4.16.0 in ./.venv/lib/python3.12/site-packages (from anyio==4.15.1) (4.16.0)
+Using cached anyio-4.15.1-py3-none-any.whl (132 kB)
+Installing collected packages: anyio
+  Attempting uninstall: anyio
+    Found existing installation: anyio 4.12.1
+    Uninstalling anyio-4.12.1:
+      Successfully uninstalled anyio-4.12.1
+Successfully installed anyio-4.15.1

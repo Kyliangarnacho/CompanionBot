@@ -4,21 +4,10 @@ from dataclasses import replace
 import numpy as np
 import pytest
 
-from perception.camera import ColorFrame
-from perception.master_selection import MasterManager, MasterState
-from perception.person_reid import (
-    AppearanceEmbedding,
-    BackendEmbedding,
-    MasterReIDEvidence,
-    PersonReIdentifier,
-    ReIDInputError,
-    crop_person_bgr,
-)
-from perception.person_tracker import (
-    PersonTrackingDiagnostics,
-    PersonTrackingFrame,
-    TrackedPerson,
-)
+from companionbot_perception.core.camera import ColorFrame
+from companionbot_perception.core.master_selection import MasterManager, MasterState
+from companionbot_perception.core.person_reid import AppearanceEmbedding, BackendEmbedding, MasterReIDEvidence, PersonReIdentifier, ReIDInputError, crop_person_bgr
+from companionbot_perception.core.person_tracker import PersonTrackingDiagnostics, PersonTrackingFrame, TrackedPerson
 
 
 class FakeEmbeddingBackend:

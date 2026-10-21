@@ -1,5 +1,7 @@
 # Stage 7 running and output guide
 
+当前 Linux/ROS 启动与设备限制见 [Stage 9 RUNNING](../stage9/RUNNING.md)。下文保留原 Windows 设备验收/维护说明，不表示 WSL2 已验证同一 C920。正式交互入口统一为 `scripts/demo_stage8_interaction.py`；本文件的感知入口用于分层诊断。
+
 All commands run from the repository root in the project `.venv`.
 
 ## Environment

@@ -1,0 +1,39 @@
+Linux Mbappe7 6.18.33.2-microsoft-standard-WSL2 #1 SMP PREEMPT_DYNAMIC Thu Jun 18 21:54:43 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+PRETTY_NAME="Ubuntu 24.04.4 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.4 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo
+ls: cannot access '/dev/video*': No such file or directory
+ls: cannot access '/dev/bus/usb': No such file or directory
+/dev/snd:
+total 0
+crw-rw---- 1 root audio 116, 33 Oct  5 11:47 timer
+Server String: unix:/mnt/wslg/PulseServer
+Library Protocol Version: 35
+Server Protocol Version: 35
+Is Local: yes
+Client Index: 0
+Tile Size: 65472
+User Name: wslg
+Host Name: Mbappe7
+Server Name: pulseaudio
+Server Version: 17.0-25-gc3305
+Default Sample Specification: s16le 2ch 44100Hz
+Default Channel Map: front-left,front-right
+Default Sink: RDPSink
+Default Source: RDPSource
+Cookie: c147:9c2b
+1	RDPSink.monitor	module-rdp-sink.c	s16le 2ch 44100Hz	SUSPENDED
+2	RDPSource	module-rdp-source.c	s16le 1ch 44100Hz	SUSPENDED
+1	RDPSink	module-rdp-sink.c	s16le 2ch 44100Hz	SUSPENDED
+
+({'name': 'ALSA', 'devices': [], 'default_input_device': -1, 'default_output_device': -1}, {'name': 'OSS', 'devices': [], 'default_input_device': -1, 'default_output_device': -1})

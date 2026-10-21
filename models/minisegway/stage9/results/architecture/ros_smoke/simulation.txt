@@ -1,0 +1,4 @@
+[INFO] [launch]: All log files can be found below /home/kylian/projects/CompanionBot/models/minisegway/stage9/results/architecture/ros_logs/2026-10-05-14-32-32-391953-Mbappe7-82104
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [frozen_sim-1]: process started with pid [82107]
+[INFO] [frozen_sim-1]: process has finished cleanly [pid 82107]

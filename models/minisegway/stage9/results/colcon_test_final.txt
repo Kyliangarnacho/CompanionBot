@@ -1,0 +1,17 @@
+Starting >>> companionbot_interfaces
+Finished <<< companionbot_interfaces [0.33s]
+Starting >>> companionbot_ros
+/home/kylian/projects/CompanionBot/.venv/lib/python3.12/site-packages/setuptools/_distutils/dist.py:289: UserWarning: Unknown distribution option: 'tests_require'
+  warnings.warn(msg)
+--- stderr: companionbot_ros
+
+----------------------------------------------------------------------
+Ran 0 tests in 0.000s
+
+NO TESTS RAN
+---
+Failed   <<< companionbot_ros [0.74s, exited with code 5]
+
+Summary: 1 package finished [1.29s]
+  1 package failed: companionbot_ros
+  1 package had stderr output: companionbot_ros

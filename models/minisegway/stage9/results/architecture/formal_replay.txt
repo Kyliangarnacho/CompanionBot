@@ -1,0 +1,20 @@
+SLEEP | 唤醒短语：你好小柒 | robot/navigation=fake
+/interrupt /cancel /stop /wait /sleep /status /complete /look 问题 /quit
+自然视觉问题自动选帧；/look 问题；/look-roi x1 y1 x2 y2 问题（原图坐标）。
+播放中可说“你好小柒，打断回答”；只接收明确打断口令，没有 AEC。文字/空格始终可用。
+先打开视频回放与 Stage 7 感知链…
+source: video:/home/kylian/projects/CompanionBot/models/minisegway/stage9/results/architecture/models/canvas_replay.avi
+calibration: LOADED 1280x720 from /home/kylian/projects/CompanionBot/models/minisegway/stage7/stage7_7/config/c920e_camera_params_1280x720.npz
+Full perception: OSNet pending reference + automatic ReID reacquire enabled
+Geometry: axial_z assumed; mount provisional=True; pitch provider=ConstantPitchProvider; robot axes +X forward / +Y left / +Z up
+
+[状态] SLEEP | 生成=否 | Master=UNAVAILABLE ID=None | task=NONE | 模拟执行 fake
+
+[状态] SLEEP | 生成=否 | Master=UNSELECTED ID=None | task=NONE | 模拟执行 fake
+
+[状态] SLEEP | 生成=否 | Master=UNAVAILABLE ID=None | task=NONE | 模拟执行 fake
+metrics: /home/kylian/projects/CompanionBot/models/minisegway/stage9/results/architecture/formal_replay/interaction_e4fb65cb339940bc9519c7c6e01592a4_metrics.json
+Stage 7 数据源已结束。
+
+[任务事件] {"status":"REJECT","reason":"no_active_task","intent":null,"task_id":null,"backend":"fake","destination_id":null,"input_id":null,"turn_id":null,"request_id":null,"progress":null,"contract_version":1,"source_id":"legacy:backend","source_epoch":"legacy","sequence":null,"observed_at_s":null,"received_at_s":null,"clock_domain":"host_perf_counter","time_semantics":"backend_event"}
+阶段日志：models/minisegway/stage9/results/architecture/formal_replay/interaction_e4fb65cb339940bc9519c7c6e01592a4.jsonl

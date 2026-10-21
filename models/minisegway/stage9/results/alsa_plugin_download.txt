@@ -1,0 +1,2 @@
+Get:1 http://archive.ubuntu.com/ubuntu noble/universe amd64 libasound2-plugins amd64 1.2.7.1-1ubuntu5 [74.8 kB]
+Fetched 74.8 kB in 1s (73.4 kB/s)

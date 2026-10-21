@@ -1,0 +1,6 @@
+# Same-host fresh text enters the existing Session gate; queued != authorized/executed.
+SourceStamp meta
+string text
+---
+bool queued
+string reason

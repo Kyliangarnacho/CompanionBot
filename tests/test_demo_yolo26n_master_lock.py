@@ -7,12 +7,7 @@ from types import SimpleNamespace
 
 import cv2
 
-from scripts.demo_yolo26n_master_lock import (
-    REID_ACCEPT_THRESHOLD,
-    REID_RETRY_THRESHOLD,
-    _format_reid_summary,
-    _mouse_callback,
-)
+from companionbot_perception.diagnostics.master_lock import REID_ACCEPT_THRESHOLD, REID_RETRY_THRESHOLD, _format_reid_summary, _mouse_callback
 
 
 def test_mouse_callback_only_enqueues_left_click_pixel_coordinates():

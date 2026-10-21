@@ -1,0 +1,95 @@
+.........FFF............................................................ [ 22%]
+........................................................................ [ 44%]
+........................................................................ [ 66%]
+........................................................................ [ 88%]
+.......................................                                  [100%]
+=================================== FAILURES ===================================
+____________ test_linux_speech_cancels_both_pulse_pipeline_children ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ea238e14aa0>
+
+    def test_linux_speech_cancels_both_pulse_pipeline_children(monkeypatch):
+>       engine, processes = speech_processes(monkeypatch)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_linux_backends.py:68: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_linux_backends.py:64: in speech_processes
+    return audio._LinuxSpeech(), processes
+           ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <embodied_agent.audio._LinuxSpeech object at 0x7ea2b9276660>
+
+    def __init__(self):
+        self.executable = shutil.which("espeak-ng")
+        if not self.executable:
+            raise RuntimeError("Install espeak-ng or source scripts/env.sh for the local runtime")
+        self.process = None
+        self.synthesis = None
+>       self.pulse_player = shutil.which("paplay") if os.environ.get("PULSE_SERVER") else None
+                                                      ^^
+E       NameError: name 'os' is not defined. Did you forget to import 'os'
+
+embodied_agent/audio.py:432: NameError
+________________ test_linux_speech_child_failure_is_not_success ________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ea238eae480>
+
+    def test_linux_speech_child_failure_is_not_success(monkeypatch):
+>       engine, processes = speech_processes(monkeypatch)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_linux_backends.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_linux_backends.py:64: in speech_processes
+    return audio._LinuxSpeech(), processes
+           ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <embodied_agent.audio._LinuxSpeech object at 0x7ea23ab3c5c0>
+
+    def __init__(self):
+        self.executable = shutil.which("espeak-ng")
+        if not self.executable:
+            raise RuntimeError("Install espeak-ng or source scripts/env.sh for the local runtime")
+        self.process = None
+        self.synthesis = None
+>       self.pulse_player = shutil.which("paplay") if os.environ.get("PULSE_SERVER") else None
+                                                      ^^
+E       NameError: name 'os' is not defined. Did you forget to import 'os'
+
+embodied_agent/audio.py:432: NameError
+____________ test_linux_without_pulse_retains_native_audio_backend _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ea293bf1dc0>
+
+    def test_linux_without_pulse_retains_native_audio_backend(monkeypatch):
+>       engine, processes = speech_processes(monkeypatch, pulse=False)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_linux_backends.py:91: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_linux_backends.py:64: in speech_processes
+    return audio._LinuxSpeech(), processes
+           ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <embodied_agent.audio._LinuxSpeech object at 0x7ea2ba152150>
+
+    def __init__(self):
+        self.executable = shutil.which("espeak-ng")
+        if not self.executable:
+            raise RuntimeError("Install espeak-ng or source scripts/env.sh for the local runtime")
+        self.process = None
+        self.synthesis = None
+>       self.pulse_player = shutil.which("paplay") if os.environ.get("PULSE_SERVER") else None
+                                                      ^^
+E       NameError: name 'os' is not defined. Did you forget to import 'os'
+
+embodied_agent/audio.py:432: NameError
+=========================== short test summary info ============================
+FAILED tests/test_linux_backends.py::test_linux_speech_cancels_both_pulse_pipeline_children
+FAILED tests/test_linux_backends.py::test_linux_speech_child_failure_is_not_success
+FAILED tests/test_linux_backends.py::test_linux_without_pulse_retains_native_audio_backend
+3 failed, 324 passed in 7.71s

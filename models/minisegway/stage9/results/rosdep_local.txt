@@ -1,0 +1,46 @@
+/home/kylian/projects/CompanionBot/.venv/bin/python
+3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]
+pip 24.0 from /home/kylian/projects/CompanionBot/.venv/lib/python3.12/site-packages/pip (python 3.12)
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   588  100   588    0     0   1029      0 --:--:-- --:--:-- --:--:--  1031
+/usr/bin/rosdep:6: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+  from pkg_resources import load_entry_point
+reading in sources list data from /home/kylian/projects/CompanionBot/.venv/rosdep/sources.list.d
+Hit https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/osx-homebrew.yaml
+Hit https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/base.yaml
+Hit https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/python.yaml
+Hit https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/ruby.yaml
+Hit https://raw.githubusercontent.com/ros/rosdistro/master/releases/fuerte.yaml
+Query rosdistro index https://raw.githubusercontent.com/ros/rosdistro/master/index-v4.yaml
+Skip distro "ardent" different from requested "jazzy"
+Skip distro "bouncy" different from requested "jazzy"
+Skip distro "crystal" different from requested "jazzy"
+Skip distro "dashing" different from requested "jazzy"
+Skip distro "eloquent" different from requested "jazzy"
+Skip distro "foxy" different from requested "jazzy"
+Skip distro "galactic" different from requested "jazzy"
+Skip distro "groovy" different from requested "jazzy"
+Skip distro "humble" different from requested "jazzy"
+Skip distro "hydro" different from requested "jazzy"
+Skip distro "indigo" different from requested "jazzy"
+Skip distro "iron" different from requested "jazzy"
+Skip distro "jade" different from requested "jazzy"
+Add distro "jazzy"
+Skip distro "kilted" different from requested "jazzy"
+Skip distro "kinetic" different from requested "jazzy"
+Skip distro "lunar" different from requested "jazzy"
+Skip distro "lyrical" different from requested "jazzy"
+Skip distro "melodic" different from requested "jazzy"
+Skip distro "noetic" different from requested "jazzy"
+Skip distro "rolling" different from requested "jazzy"
+updated cache in /home/kylian/projects/CompanionBot/.venv/ros_home/rosdep/sources.cache
+/usr/bin/rosdep:6: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+  from pkg_resources import load_entry_point
+ERROR[companionbot_ros]: Cannot locate rosdep definition for [ament_python]
+	rosdep key : ament_python
+	OS name    : ubuntu
+	OS version : noble
+	Data:
+<no data>
+All system dependencies have been satisfied

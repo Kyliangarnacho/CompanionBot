@@ -5,12 +5,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from perception.camera import ColorFrame
-from perception.person_detector import (
-    PersonDetection,
-    PersonDetector,
-    PersonDetectorConfig,
-)
+from companionbot_perception.core.camera import ColorFrame
+from companionbot_perception.core.person_detector import PersonDetection, PersonDetector, PersonDetectorConfig
 
 
 class FakeBoxes:

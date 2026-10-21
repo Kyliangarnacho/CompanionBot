@@ -1,0 +1,10 @@
+# Ubuntu 24.04 / Python 3.12; install CPU torch/torchvision first (see Stage 9 RUNNING).
+-r requirements.txt
+-r requirements-yolo.txt
+-r requirements-agent.txt
+-r requirements-agent-audio.txt
+# Debian colcon/launch imports these through the system-site-packages venv.
+setuptools>=77.0.3,<80
+wheel
+empy==3.3.4
+lark>=1.1,<2

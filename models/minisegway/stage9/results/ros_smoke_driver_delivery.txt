@@ -1,0 +1,1 @@
+{"node_names": [["stage9_smoke_client", "/"], ["interaction", "/companionbot"]], "follow_without_master": "master_not_locked", "navigation_fake_task": {"task_id": "bebe590f9d424eb0b8f77f1e9b4890b8", "destination_id": "service_desk", "statuses": ["ACCEPT", "CANCEL"]}, "sim_control_samples_received": 30, "sim_source_time_s": 0.6000000000000004, "passed": true}

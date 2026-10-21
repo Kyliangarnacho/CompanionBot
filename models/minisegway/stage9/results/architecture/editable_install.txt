@@ -1,0 +1,18 @@
+WARNING: The directory '/home/kylian/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+Obtaining file:///home/kylian/projects/CompanionBot
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: companionbot-core
+  Building editable for companionbot-core (pyproject.toml): started
+  Building editable for companionbot-core (pyproject.toml): finished with status 'done'
+  Created wheel for companionbot-core: filename=companionbot_core-0.9.1-0.editable-py3-none-any.whl size=3019 sha256=cc419427d7303c8c079470779df3dd7e90e3b41e8a4dcd34246c34875db5c7ec
+  Stored in directory: /tmp/pip-ephem-wheel-cache-4upo7gj4/wheels/0f/4f/61/30afbd5c04ce2ab7398f38c78aac257526bbc0a0fcf93f9971
+Successfully built companionbot-core
+Installing collected packages: companionbot-core
+  Attempting uninstall: companionbot-core
+    Found existing installation: companionbot-core 0.9.0
+    Uninstalling companionbot-core-0.9.0:
+      Successfully uninstalled companionbot-core-0.9.0
+Successfully installed companionbot-core-0.9.1

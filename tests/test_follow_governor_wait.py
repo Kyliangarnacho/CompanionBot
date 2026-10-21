@@ -2,10 +2,8 @@
 
 import unittest
 
-from control.follow_governor import FollowGovernor, FollowGovernorConfig
-from control.rolling_reference import (
-    SparseVelocityCommandScheduler, TargetObservation,
-)
+from companionbot_follow.core.follow_governor import FollowGovernor, FollowGovernorConfig
+from companionbot_follow.core.rolling_reference import SparseVelocityCommandScheduler, TargetObservation
 
 
 class FollowGovernorWaitTest(unittest.TestCase):

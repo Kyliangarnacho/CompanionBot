@@ -4,18 +4,16 @@ import numpy as np
 import pytest
 from types import SimpleNamespace
 
-from perception.camera import ColorFrame
-from perception.camera_calibration import CameraCalibration
-from perception.depth import DepthFrame
-from perception.detection_stream import LatestFrameSlot
-from perception.master_selection import MasterManager, MasterSelector
-from perception.person_detector import PersonDetector, PersonDetectorConfig
-from perception.person_reid import crop_person_bgr
-from perception.person_tracker import (
-    PersonTrackingDiagnostics, PersonTrackingFrame, TrackedPerson,
-)
-from scripts.demo_yolo26n_master_lock import _draw_preview, _process_click
-from scripts.demo_yolo26n_depth import _FrameFanout, _depth_preview_lines
+from companionbot_perception.core.camera import ColorFrame
+from companionbot_perception.core.camera_calibration import CameraCalibration
+from companionbot_perception.core.depth import DepthFrame
+from companionbot_perception.core.detection_stream import LatestFrameSlot
+from companionbot_perception.core.master_selection import MasterManager, MasterSelector
+from companionbot_perception.core.person_detector import PersonDetector, PersonDetectorConfig
+from companionbot_perception.core.person_reid import crop_person_bgr
+from companionbot_perception.core.person_tracker import PersonTrackingDiagnostics, PersonTrackingFrame, TrackedPerson
+from companionbot_perception.diagnostics.master_lock import _draw_preview, _process_click
+from companionbot_perception.runtime.session import _FrameFanout, _depth_preview_lines
 
 
 def _frame(seq: int, width: int = 1280, height: int = 720) -> ColorFrame:

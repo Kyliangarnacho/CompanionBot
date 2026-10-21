@@ -1,0 +1,8 @@
+# Stage 3–6 runtime and active regression suite. ROS itself comes from Ubuntu debs.
+numpy==2.2.6
+scipy==1.14.1
+mujoco==3.2.0
+ruckig==0.19.4
+matplotlib>=3.8,<4
+pytest>=8,<9
+PyYAML>=6,<7

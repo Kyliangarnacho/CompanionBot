@@ -9,15 +9,15 @@ import pytest
 from pydantic import ValidationError
 from pydantic_ai.models.function import DeltaToolCall, FunctionModel
 
-from embodied_agent.behavior import BehaviorRequest, BehaviorSupervisor, FakeNavigationBackend, FakeRobotBackend, Feedback
-from embodied_agent.catalog import Candidate, CatalogDocument, CatalogQuery, CatalogResolver, JsonCatalogProvider
-from embodied_agent.catalog import json_object
-from embodied_agent.config import AgentConfig, STAGE_DIR
-from embodied_agent.frames import FrameROI, Stage7FrameBuffer, encode_keyframe
-from embodied_agent.inputs import ASRMetadata
-from embodied_agent.interaction import AgentSession
-from embodied_agent.runtime import AgentRuntime
-from perception.camera import ColorFrame
+from companionbot_behavior.core.behavior import BehaviorRequest, BehaviorSupervisor, FakeNavigationBackend, FakeRobotBackend, Feedback
+from companionbot_behavior.core.catalog import Candidate, CatalogDocument, CatalogQuery, CatalogResolver, JsonCatalogProvider
+from companionbot_behavior.core.catalog import json_object
+from companionbot_behavior.core.config import AgentConfig, STAGE_DIR
+from companionbot_behavior.core.frames import FrameROI, Stage7FrameBuffer, encode_keyframe
+from companionbot_behavior.core.inputs import ASRMetadata
+from companionbot_behavior.core.interaction import AgentSession
+from companionbot_behavior.core.runtime import AgentRuntime
+from companionbot_perception.core.camera import ColorFrame
 
 
 def catalog():
@@ -291,7 +291,7 @@ def test_nested_data_change_invalidates_a_previous_resolution():
 
 
 def test_ui_bridge_backlog_is_bounded_without_opening_gui():
-    from embodied_agent.ui import DemoBridge
+    from companionbot_behavior.core.ui import DemoBridge
     bridge=DemoBridge()
     for i in range(2000):
         bridge.emit('stream',str(i))

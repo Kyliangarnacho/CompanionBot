@@ -1,0 +1,20 @@
+Collecting mujoco==3.2.0
+  Downloading mujoco-3.2.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (44 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.3/44.3 kB 42.7 kB/s eta 0:00:00
+Requirement already satisfied: absl-py in ./.venv/lib/python3.12/site-packages (from mujoco==3.2.0) (2.5.0)
+Requirement already satisfied: etils[epath] in ./.venv/lib/python3.12/site-packages (from mujoco==3.2.0) (1.14.0)
+Requirement already satisfied: glfw in ./.venv/lib/python3.12/site-packages (from mujoco==3.2.0) (2.10.2)
+Requirement already satisfied: numpy in ./.venv/lib/python3.12/site-packages (from mujoco==3.2.0) (2.2.6)
+Requirement already satisfied: pyopengl in ./.venv/lib/python3.12/site-packages (from mujoco==3.2.0) (3.1.10)
+Requirement already satisfied: fsspec in ./.venv/lib/python3.12/site-packages (from etils[epath]->mujoco==3.2.0) (2026.7.0)
+Requirement already satisfied: typing_extensions in ./.venv/lib/python3.12/site-packages (from etils[epath]->mujoco==3.2.0) (4.16.0)
+Requirement already satisfied: zipp in /usr/lib/python3/dist-packages (from etils[epath]->mujoco==3.2.0) (1.0.0)
+Requirement already satisfied: more-itertools in /usr/lib/python3/dist-packages (from zipp->etils[epath]->mujoco==3.2.0) (10.2.0)
+Downloading mujoco-3.2.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (6.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.0/6.0 MB 1.1 MB/s eta 0:00:00
+Installing collected packages: mujoco
+  Attempting uninstall: mujoco
+    Found existing installation: mujoco 3.14.0
+    Uninstalling mujoco-3.14.0:
+      Successfully uninstalled mujoco-3.14.0
+Successfully installed mujoco-3.2.0

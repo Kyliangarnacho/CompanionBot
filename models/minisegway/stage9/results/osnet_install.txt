@@ -1,0 +1,8 @@
+Cloning into '/home/kylian/projects/CompanionBot/.venv/lib/python3.12/site-packages/_companionbot_torchreid_source'...
+HEAD is now at f8cd150 Update README.rst
+python: /home/kylian/projects/CompanionBot/.venv/bin/python
+version: 3.12.3
+pip: 24.0 /home/kylian/projects/CompanionBot/.venv/lib/python3.12/site-packages/pip/__init__.py
+installed OSNet source from f8cd150fdf77e8d9e1ed143b7f308c2c609ded50: /home/kylian/projects/CompanionBot/.venv/lib/python3.12/site-packages/_companionbot_torchreid_source/torchreid/models/osnet.py
+No TorchReID training requirements were installed.
+/home/kylian/projects/CompanionBot/.venv/lib/reid_models/osnet_x0_25_msmt17_combineall_256x128_amsgrad_ep150_stp60_lr0.0015_b64_fb10_softmax_labelsmooth_flip_jitter.pth

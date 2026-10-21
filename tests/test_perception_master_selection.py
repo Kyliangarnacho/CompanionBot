@@ -4,17 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from perception.master_selection import (
-    MasterEventType,
-    MasterManager,
-    MasterSelector,
-    MasterState,
-)
-from perception.person_tracker import (
-    PersonTrackingDiagnostics,
-    PersonTrackingFrame,
-    TrackedPerson,
-)
+from companionbot_perception.core.master_selection import MasterEventType, MasterManager, MasterSelector, MasterState
+from companionbot_perception.core.person_tracker import PersonTrackingDiagnostics, PersonTrackingFrame, TrackedPerson
 
 
 def _track(track_id: int, bbox: tuple[float, float, float, float],

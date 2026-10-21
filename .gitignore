@@ -23,6 +23,9 @@ build/
 dist/
 CMakeFiles/
 CMakeCache.txt
+/ros2_ws/install/
+/ros2_ws/log/
+*.egg-info/
 *.o
 *.obj
 *.elf

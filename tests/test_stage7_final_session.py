@@ -1,8 +1,8 @@
 import numpy as np
 
-from perception.master_reid_session import MasterReIDSession
-from perception.master_selection import MasterState
-from perception.person_reid import MasterReIDEvidence, PersonReIdentifier
+from companionbot_perception.core.master_reid_session import MasterReIDSession
+from companionbot_perception.core.master_selection import MasterState
+from companionbot_perception.core.person_reid import MasterReIDEvidence, PersonReIdentifier
 from test_stage7_6_reid import FakeEmbeddingBackend, _pair, _track
 
 

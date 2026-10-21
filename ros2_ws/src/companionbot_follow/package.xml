@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>companionbot_follow</name>
+  <version>0.9.1</version>
+  <description>Pi-side following estimation, governor and reference planning</description>
+  <maintainer email="maintainer@companionbot.local">CompanionBot</maintainer>
+  <license>LicenseRef-CompanionBot</license>
+  <exec_depend>companionbot_interfaces</exec_depend>
+  <test_depend>python3-pytest</test_depend>
+  <export><build_type>ament_python</build_type></export>
+</package>
+

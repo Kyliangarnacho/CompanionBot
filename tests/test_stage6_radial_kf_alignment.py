@@ -3,13 +3,10 @@
 import math
 import unittest
 
-from control.follow_governor import FollowGovernor, FollowGovernorConfig
-from control.pi_mcu_packets import (PROTOCOL_VERSION, RobotStatePacket,
-    TargetObservationPacket)
-from control.radial_velocity_kf import (PiRadialObservationPipeline,
-    PiRobotStateHistory, RadialEstimate, RadialVelocityKFConfig,
-    RadialVelocityKalmanFilter)
-from control.rolling_reference import TargetObservation
+from companionbot_follow.core.follow_governor import FollowGovernor, FollowGovernorConfig
+from companionbot_contracts.packets import PROTOCOL_VERSION, RobotStatePacket, TargetObservationPacket
+from companionbot_follow.core.radial_velocity_kf import PiRadialObservationPipeline, PiRobotStateHistory, RadialEstimate, RadialVelocityKFConfig, RadialVelocityKalmanFilter
+from companionbot_follow.core.rolling_reference import TargetObservation
 
 
 def config():

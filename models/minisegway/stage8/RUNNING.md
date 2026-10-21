@@ -1,5 +1,7 @@
 # Stage 8.2 Final Demo 运行与验收
 
+当前 Linux `.venv`、Jazzy、正式入口/launch 与设备限制见 [Stage 9 RUNNING](../stage9/RUNNING.md)。下文保留原 Windows 说明；SAPI/Realtek/C920 历史通过不等于本轮 WSL2 设备通过。Robot/Navigation 仍 Fake。
+
 正式入口继续使用 `scripts/demo_stage8_interaction.py`。当前机器的依赖、Vosk 模型和 Stage 7 权重已安装。直接在 PowerShell 复制执行：
 
 ```powershell

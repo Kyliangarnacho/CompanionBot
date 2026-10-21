@@ -1,0 +1,6 @@
+Starting >>> companionbot_interfaces
+Finished <<< companionbot_interfaces [0.23s]
+Starting >>> companionbot_ros
+Finished <<< companionbot_ros [1.67s]
+
+Summary: 2 packages finished [2.13s]

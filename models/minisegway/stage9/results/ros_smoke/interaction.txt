@@ -1,0 +1,43 @@
+[INFO] [launch]: All log files can be found below /home/kylian/projects/CompanionBot/models/minisegway/stage9/results/ros_logs/2026-10-05-13-17-22-057526-Mbappe7-54806
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [interaction-1]: process started with pid [54827]
+[INFO] [camera_tf-2]: process started with pid [54828]
+[camera_tf-2] [WARN] [1791177443.071176991] [companionbot.provisional_camera_tf]: Publishing UNMEASURED camera mount by explicit opt-in; no localization TF
+[interaction-1] SLEEP | 唤醒短语：你好小柒 | robot/navigation=fake
+[interaction-1] /interrupt /cancel /stop /wait /sleep /status /complete /look 问题 /quit
+[interaction-1] 自然视觉问题自动选帧；/look 问题；/look-roi x1 y1 x2 y2 问题（原图坐标）。
+[interaction-1] 播放中可说“你好小柒，打断回答”；只接收明确打断口令，没有 AEC。文字/空格始终可用。
+[interaction-1] 
+[interaction-1] [状态] SLEEP | 生成=否 | Master=UNAVAILABLE ID=None | task=NONE | 模拟执行 fake
+[interaction-1] 
+[interaction-1] [输入] ACCEPT · 已唤醒。
+[interaction-1] 已唤醒。
+[interaction-1] 
+[interaction-1] [状态] LISTENING | 生成=否 | Master=UNAVAILABLE ID=None | task=NONE | 模拟执行 fake
+[interaction-1] 
+[interaction-1] [输入] ACCEPT · 已提交 Agent，正在生成
+[interaction-1] 
+[interaction-1] [状态] THINKING | 生成=是 | Master=UNAVAILABLE ID=None | task=NONE | 模拟执行 fake
+[interaction-1] 
+[interaction-1] [任务事件] {"status":"REJECT","reason":"master_not_locked","intent":"FOLLOW","task_id":null,"backend":"fake","destination_id":null,"input_id":"66f1020254d742be9f4bbd79ca52b363","turn_id":"4710fbc281364b73b835e98f6fecc06b","request_id":"4710fbc281364b73b835e98f6fecc06b","progress":null,"contract_version":1,"source_id":"legacy:backend","source_epoch":"legacy","sequence":null,"observed_at_s":null,"received_at_s":null,"clock_domain":"host_perf_counter","time_semantics":"backend_event"}
+[interaction-1] 假后端反馈：{"status": "REJECT", "reason": "master_not_locked", "intent": "FOLLOW", "task_id": null, "backend": "fake", "destination_id": null, "input_id": "66f1020254d742be9f4bbd79ca52b363", "turn_id": "4710fbc281364b73b835e98f6fecc06b", "request_id": "4710fbc281364b73b835e98f6fecc06b", "progress": null, "contract_version": 1, "source_id": "legacy:backend", "source_epoch": "legacy", "sequence": null, "observed_at_s": null, "received_at_s": null, "clock_domain": "host_perf_counter", "time_semantics": "backend_event"}
+[interaction-1] {"turn_id": "4710fbc281364b73b835e98f6fecc06b", "input_id": "66f1020254d742be9f4bbd79ca52b363", "status": "COMPLETED", "model": "companionbot-fake", "wall_s": 0.015138481000576576, "first_text_s": 0.014190453000082925, "first_token_s": 0.010980064000250422, "first_display_s": 0.014192626999829372, "text_stream_events": 1, "first_token_semantics": "first_pydantic_content_or_tool_event_not_wire_token", "speech_deferred_for_behavior_ack": true, "initial_response_buffered_for_semantic_tools": true, "interaction_action": null, "answer_source": "model", "catalog_status": null, "requests": 2, "input_tokens": 100, "output_tokens": 46, "tool_calls": 1, "network_attempts": 0, "usage_complete": true, "usage_source": "fake_estimate", "error_type": null, "http_status": null, "frame": null, "vision_attempted": false, "behavior_events": [{"status": "REJECT", "reason": "master_not_locked", "intent": "FOLLOW", "task_id": null, "backend": "fake", "destination_id": null, "input_id": "66f1020254d742be9f4bbd79ca52b363", "turn_id": "4710fbc281364b73b835e98f6fecc06b", "request_id": "4710fbc281364b73b835e98f6fecc06b", "progress": null, "contract_version": 1, "source_id": "legacy:backend", "source_epoch": "legacy", "sequence": null, "observed_at_s": null, "received_at_s": null, "clock_domain": "host_perf_counter", "time_semantics": "backend_event"}], "first_speech_s": null}
+[interaction-1] 
+[interaction-1] [输入] ACCEPT · 已提交 Agent，正在生成
+[interaction-1] 
+[interaction-1] [任务事件] {"status":"ACCEPT","reason":"fake_navigation_started","intent":"GUIDE_TO","task_id":"c7a1b1f04f224b5bb285f18ddad60ff7","backend":"fake","destination_id":"service_desk","input_id":"3d94b0744e01450a990f673b5b589c07","turn_id":"80f2a90e6ad4465ea728f0f79b34b760","request_id":"80f2a90e6ad4465ea728f0f79b34b760","progress":null,"contract_version":2,"source_id":"fake:navigation","source_epoch":"498d6975812e48eb90bcbc4161d2d56e","sequence":0,"observed_at_s":5281.750412363,"received_at_s":5281.75043165,"clock_domain":"host_perf_counter","time_semantics":"backend_event"}
+[interaction-1] 假后端反馈：{"status": "ACCEPT", "reason": "fake_navigation_started", "intent": "GUIDE_TO", "task_id": "c7a1b1f04f224b5bb285f18ddad60ff7", "backend": "fake", "destination_id": "service_desk", "input_id": "3d94b0744e01450a990f673b5b589c07", "turn_id": "80f2a90e6ad4465ea728f0f79b34b760", "request_id": "80f2a90e6ad4465ea728f0f79b34b760", "progress": null, "contract_version": 2, "source_id": "fake:navigation", "source_epoch": "498d6975812e48eb90bcbc4161d2d56e", "sequence": 0, "observed_at_s": 5281.750412363, "received_at_s": 5281.75043165, "clock_domain": "host_perf_counter", "time_semantics": "backend_event"}
+[interaction-1] {"turn_id": "80f2a90e6ad4465ea728f0f79b34b760", "input_id": "3d94b0744e01450a990f673b5b589c07", "status": "COMPLETED", "model": "companionbot-fake", "wall_s": 0.009204908000356227, "first_text_s": 0.008405671999753395, "first_token_s": 0.0023457890001736814, "first_display_s": 0.00840777600024012, "text_stream_events": 1, "first_token_semantics": "first_pydantic_content_or_tool_event_not_wire_token", "speech_deferred_for_behavior_ack": true, "initial_response_buffered_for_semantic_tools": true, "interaction_action": null, "answer_source": "model", "catalog_status": "RESOLVED", "requests": 3, "input_tokens": 150, "output_tokens": 55, "tool_calls": 2, "network_attempts": 0, "usage_complete": true, "usage_source": "fake_estimate", "error_type": null, "http_status": null, "frame": null, "vision_attempted": false, "behavior_events": [{"status": "ACCEPT", "reason": "fake_navigation_started", "intent": "GUIDE_TO", "task_id": "c7a1b1f04f224b5bb285f18ddad60ff7", "backend": "fake", "destination_id": "service_desk", "input_id": "3d94b0744e01450a990f673b5b589c07", "turn_id": "80f2a90e6ad4465ea728f0f79b34b760", "request_id": "80f2a90e6ad4465ea728f0f79b34b760", "progress": null, "contract_version": 2, "source_id": "fake:navigation", "source_epoch": "498d6975812e48eb90bcbc4161d2d56e", "sequence": 0, "observed_at_s": 5281.750412363, "received_at_s": 5281.75043165, "clock_domain": "host_perf_counter", "time_semantics": "backend_event"}], "first_speech_s": null}
+[interaction-1] 
+[interaction-1] [任务事件] {"status":"CANCEL","reason":"fake_navigation_cancelled","intent":"GUIDE_TO","task_id":"c7a1b1f04f224b5bb285f18ddad60ff7","backend":"fake","destination_id":"service_desk","input_id":"3d94b0744e01450a990f673b5b589c07","turn_id":"80f2a90e6ad4465ea728f0f79b34b760","request_id":"80f2a90e6ad4465ea728f0f79b34b760","progress":null,"contract_version":2,"source_id":"fake:navigation","source_epoch":"498d6975812e48eb90bcbc4161d2d56e","sequence":1,"observed_at_s":5281.784901322,"received_at_s":5281.784917724,"clock_domain":"host_perf_counter","time_semantics":"backend_event"}
+[interaction-1] 
+[interaction-1] [输入] ACCEPT · 本地指令已接收；行为执行结果另见 Supervisor
+[interaction-1] {"status": "CANCEL", "reason": "fake_navigation_cancelled", "intent": "GUIDE_TO", "task_id": "c7a1b1f04f224b5bb285f18ddad60ff7", "backend": "fake", "destination_id": "service_desk", "input_id": "3d94b0744e01450a990f673b5b589c07", "turn_id": "80f2a90e6ad4465ea728f0f79b34b760", "request_id": "80f2a90e6ad4465ea728f0f79b34b760", "progress": null, "contract_version": 2, "source_id": "fake:navigation", "source_epoch": "498d6975812e48eb90bcbc4161d2d56e", "sequence": 1, "observed_at_s": 5281.784901322, "received_at_s": 5281.784917724, "clock_domain": "host_perf_counter", "time_semantics": "backend_event"}
+[interaction-1] 
+[interaction-1] [状态] LISTENING | 生成=否 | Master=UNAVAILABLE ID=None | task=NONE | 模拟执行 fake
+[interaction-1] 
+[interaction-1] [任务事件] {"status":"REJECT","reason":"no_active_task","intent":null,"task_id":null,"backend":"fake","destination_id":null,"input_id":null,"turn_id":null,"request_id":null,"progress":null,"contract_version":1,"source_id":"legacy:backend","source_epoch":"legacy","sequence":null,"observed_at_s":null,"received_at_s":null,"clock_domain":"host_perf_counter","time_semantics":"backend_event"}
+[interaction-1] 阶段日志：/home/kylian/projects/CompanionBot/models/minisegway/stage9/results/ros_smoke/interaction/interaction_345d7e9651014ea18184ce58dcd5e8ce.jsonl
+[INFO] [interaction-1]: process has finished cleanly [pid 54827]
+[INFO] [camera_tf-2]: sending signal 'SIGINT' to process[camera_tf-2]
+[INFO] [camera_tf-2]: process has finished cleanly [pid 54828]

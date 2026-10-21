@@ -14,14 +14,12 @@ from pydantic_ai.models.function import DeltaToolCall, FunctionModel
 from pydantic_ai.profiles.openai import OpenAIModelProfile
 import pytest
 
-from embodied_agent.behavior import (
-    BehaviorRequest, BehaviorSupervisor, FakeNavigationBackend, FakeRobotBackend, Intent,
-)
-from embodied_agent.config import AgentConfig, load_api_key
-from embodied_agent.frames import FrameROI, FrameSnapshot, Stage7FrameBuffer, encode_keyframe
-from embodied_agent.interaction import AgentSession, InteractionState
-from embodied_agent.runtime import AgentRuntime, fake_model
-from perception.camera import ColorFrame
+from companionbot_behavior.core.behavior import BehaviorRequest, BehaviorSupervisor, FakeNavigationBackend, FakeRobotBackend, Intent
+from companionbot_behavior.core.config import AgentConfig, load_api_key
+from companionbot_behavior.core.frames import FrameROI, FrameSnapshot, Stage7FrameBuffer, encode_keyframe
+from companionbot_behavior.core.interaction import AgentSession, InteractionState
+from companionbot_behavior.core.runtime import AgentRuntime, fake_model
+from companionbot_perception.core.camera import ColorFrame
 
 
 @pytest.fixture(autouse=True)
@@ -511,7 +509,7 @@ def test_local_cancel_and_sleep_feedback_persist_without_text_or_secret(tmp_path
 
 
 def test_cli_blank_line_and_eof_finish_offline_turn():
-    result = subprocess.run([sys.executable, "scripts/run_stage8_agent.py", "--fake"],
+    result = subprocess.run([sys.executable, "-m", "companionbot_behavior.runtime.session", "--fake"],
                             input="普通聊天\n\n你好小柒\n你好\n", text=True, encoding="utf-8",
                             capture_output=True, timeout=10)
     assert result.returncode == 0, result.stderr

@@ -4,17 +4,8 @@ import unittest
 
 import numpy as np
 
-from control.rolling_reference import (
-    DeterministicReferenceBlockStream,
-    RuckigFullHorizonVelocityPlanner,
-    RuckigLightweightVelocityPlanner,
-    RollingReferenceCommand,
-    SparseVelocityCommandScheduler,
-)
-from control.trajectory_feedforward import (
-    SparseProjectionFactorizationCache,
-    project_hidden_reference_and_input,
-)
+from companionbot_follow.core.rolling_reference import DeterministicReferenceBlockStream, RuckigFullHorizonVelocityPlanner, RuckigLightweightVelocityPlanner, RollingReferenceCommand, SparseVelocityCommandScheduler
+from companionbot_follow.core.trajectory_feedforward import SparseProjectionFactorizationCache, project_hidden_reference_and_input
 
 
 ROOT = Path(__file__).resolve().parents[1]

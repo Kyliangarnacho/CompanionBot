@@ -1,0 +1,12 @@
+Collecting setuptools<72,>=68
+  Downloading setuptools-71.1.0-py3-none-any.whl.metadata (6.6 kB)
+Downloading setuptools-71.1.0-py3-none-any.whl (2.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 276.8 kB/s eta 0:00:00
+Installing collected packages: setuptools
+  Attempting uninstall: setuptools
+    Found existing installation: setuptools 78.1.0
+    Uninstalling setuptools-78.1.0:
+      Successfully uninstalled setuptools-78.1.0
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+torch 2.14.1+cpu requires setuptools>=77.0.3, but you have setuptools 71.1.0 which is incompatible.
+Successfully installed setuptools-71.1.0

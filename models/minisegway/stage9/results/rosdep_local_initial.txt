@@ -1,0 +1,4 @@
+/home/kylian/projects/CompanionBot/.venv/bin/python
+3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]
+pip 24.0 from /home/kylian/projects/CompanionBot/.venv/lib/python3.12/site-packages/pip (python 3.12)
+mkdir: cannot create directory ‘/.venv’: Permission denied

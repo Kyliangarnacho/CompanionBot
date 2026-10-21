@@ -8,14 +8,9 @@ import time
 import numpy as np
 import pytest
 
-from perception.detection_stream import PersonDetectionFrame
-from perception.person_detector import PersonDetection
-from perception.person_tracker import (
-    BackendTrack,
-    PersonTracker,
-    TrackerBackendUpdate,
-    TrackedPerson,
-)
+from companionbot_perception.core.detection_stream import PersonDetectionFrame
+from companionbot_perception.core.person_detector import PersonDetection
+from companionbot_perception.core.person_tracker import BackendTrack, PersonTracker, TrackerBackendUpdate, TrackedPerson
 
 
 def detection(sequence_id: int, box=(10.0, 8.0, 30.0, 44.0), confidence=0.91):
@@ -161,7 +156,7 @@ def test_reset_clears_sequence_and_seen_ids_and_close_is_clean():
 
 def test_real_ultralytics_bytetrack_smoke_tracks_synthetic_person_boxes(monkeypatch, tmp_path):
     monkeypatch.setenv("YOLO_CONFIG_DIR", str(tmp_path))
-    from perception.ultralytics_bytetrack import UltralyticsByteTrackBackend
+    from companionbot_perception.core.ultralytics_bytetrack import UltralyticsByteTrackBackend
 
     backend = UltralyticsByteTrackBackend()
     tracker = PersonTracker(backend)

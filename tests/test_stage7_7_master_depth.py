@@ -3,19 +3,13 @@
 import numpy as np
 import pytest
 
-from perception.camera import ColorFrame
-from perception.camera_calibration import CameraCalibration
-from perception.depth import DepthFrame
-from perception.master_depth import (
-    back_project_camera_point, representative_master_depth, torso_roi_xyxy,
-)
-from perception.master_selection import MasterManager, MasterSelector
-from perception.person_tracker import (
-    PersonTrackingDiagnostics, PersonTrackingFrame, TrackedPerson,
-)
-from scripts.demo_yolo26n_depth import (
-    _SameFramePairer, _paired_preview, _select_preview_track,
-)
+from companionbot_perception.core.camera import ColorFrame
+from companionbot_perception.core.camera_calibration import CameraCalibration
+from companionbot_perception.core.depth import DepthFrame
+from companionbot_perception.core.master_depth import back_project_camera_point, representative_master_depth, torso_roi_xyxy
+from companionbot_perception.core.master_selection import MasterManager, MasterSelector
+from companionbot_perception.core.person_tracker import PersonTrackingDiagnostics, PersonTrackingFrame, TrackedPerson
+from companionbot_perception.runtime.session import _SameFramePairer, _paired_preview, _select_preview_track
 
 
 def _source(seq=1, width=100, height=100, source_id="camera:1"):

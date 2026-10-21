@@ -5,8 +5,8 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from perception.camera import ColorFrame
-from perception.depth import DepthFrame, YoloDepthAdapter, YoloDepthConfig
+from companionbot_perception.core.camera import ColorFrame
+from companionbot_perception.core.depth import DepthFrame, YoloDepthAdapter, YoloDepthConfig
 
 
 def _frame(seq: int = 7) -> ColorFrame:

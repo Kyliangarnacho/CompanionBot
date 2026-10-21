@@ -1,0 +1,20 @@
+mkdir -p failed for path /home/kylian/.config/matplotlib: [Errno 30] Read-only file system: '/home/kylian/.config/matplotlib'
+Matplotlib created a temporary cache directory at /tmp/matplotlib-pmj_4bff because there was an issue with the default path (/home/kylian/.config/matplotlib); it is highly recommended to set the MPLCONFIGDIR environment variable to a writable directory, in particular to speed up the import of Matplotlib and to better support multiprocessing.
+/home/kylian/projects/CompanionBot/.venv/lib/python3.12/site-packages/matplotlib/projections/__init__.py:63: UserWarning: Unable to import Axes3D. This may be due to multiple versions of Matplotlib being installed (e.g. as a system package and as a pip package). As a result, the 3D projection is not available.
+  warnings.warn("Unable to import Axes3D. This may be due to multiple versions of "
+RUN noise_free_regression
+{'case': 'noise_free_regression', 'checks': {'finite': True, 'no_fall': True, 'zero_wheel_saturation': True, 'zero_sum_saturation': True, 'no_underrun': True, 'GT_runtime_dependency_false': True, 'no_alignment_miss': True, 'governor_event_count_preserved': True}, 'kf_velocity_rmse_original': 0.029210471850663267, 'kf_velocity_rmse_linux': 0.029305757418237467, 'rmse_delta': 9.528556757419995e-05}
+RUN noisy_turning
+{'case': 'noisy_turning', 'checks': {'finite': True, 'no_fall': True, 'zero_wheel_saturation': True, 'zero_sum_saturation': True, 'no_underrun': True, 'GT_runtime_dependency_false': True, 'no_alignment_miss': True, 'governor_event_count_preserved': False}, 'kf_velocity_rmse_original': 0.056270610556890595, 'kf_velocity_rmse_linux': 0.05616646112482529, 'rmse_delta': -0.00010414943206530497}
+RUN stop_restart_clean
+{'case': 'stop_restart_clean', 'checks': {'finite': True, 'no_fall': True, 'zero_wheel_saturation': True, 'zero_sum_saturation': True, 'no_underrun': True, 'GT_runtime_dependency_false': True, 'no_alignment_miss': True, 'governor_event_count_preserved': True}, 'kf_velocity_rmse_original': 0.05196138807297928, 'kf_velocity_rmse_linux': 0.051906019170719575, 'rmse_delta': -5.536890225970453e-05}
+RUN stop_restart_noisy
+{'case': 'stop_restart_noisy', 'checks': {'finite': True, 'no_fall': True, 'zero_wheel_saturation': True, 'zero_sum_saturation': True, 'no_underrun': True, 'GT_runtime_dependency_false': True, 'no_alignment_miss': True, 'governor_event_count_preserved': False}, 'kf_velocity_rmse_original': 0.07245938066122581, 'kf_velocity_rmse_linux': 0.0727613685520872, 'rmse_delta': 0.0003019878908613882}
+RUN delayed_jittered_packets
+{'case': 'delayed_jittered_packets', 'checks': {'finite': True, 'no_fall': True, 'zero_wheel_saturation': True, 'zero_sum_saturation': True, 'no_underrun': True, 'GT_runtime_dependency_false': True, 'no_alignment_miss': True, 'governor_event_count_preserved': False}, 'kf_velocity_rmse_original': 0.05636939379852567, 'kf_velocity_rmse_linux': 0.05612910036373534, 'rmse_delta': -0.00024029343479033127}
+Traceback (most recent call last):
+  File "/home/kylian/projects/CompanionBot/scripts/verify_stage9_control.py", line 55, in <module>
+    main()
+  File "/home/kylian/projects/CompanionBot/scripts/verify_stage9_control.py", line 51, in main
+    raise RuntimeError("migration regression differs; inspect evidence, do not retune")
+RuntimeError: migration regression differs; inspect evidence, do not retune

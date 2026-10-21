@@ -1,0 +1,10 @@
+LOG (VoskAPI:ReadDataFiles():model.cc:213) Decoding params beam=12 max-active=5000 lattice-beam=4
+LOG (VoskAPI:ReadDataFiles():model.cc:216) Silence phones 1:2:3:4:5:6:7:8:9:10
+LOG (VoskAPI:RemoveOrphanNodes():nnet-nnet.cc:948) Removed 0 orphan nodes.
+LOG (VoskAPI:RemoveOrphanComponents():nnet-nnet.cc:847) Removing 0 orphan components.
+LOG (VoskAPI:ReadDataFiles():model.cc:248) Loading i-vector extractor from /home/kylian/projects/CompanionBot/.venv/models/vosk-model-small-cn-0.22/ivector/final.ie
+LOG (VoskAPI:ComputeDerivedVars():ivector-extractor.cc:183) Computing derived variables for iVector extractor
+LOG (VoskAPI:ComputeDerivedVars():ivector-extractor.cc:204) Done.
+LOG (VoskAPI:ReadDataFiles():model.cc:282) Loading HCL and G from /home/kylian/projects/CompanionBot/.venv/models/vosk-model-small-cn-0.22/graph/HCLr.fst /home/kylian/projects/CompanionBot/.venv/models/vosk-model-small-cn-0.22/graph/Gr.fst
+LOG (VoskAPI:ReadDataFiles():model.cc:308) Loading winfo /home/kylian/projects/CompanionBot/.venv/models/vosk-model-small-cn-0.22/graph/phones/word_boundary.int
+{"kind": "software_fixture_only", "real_devices_tested": false, "detector": {"persons": 3, "source_metadata_preserved": true}, "osnet": {"dimension": 512, "unit_norm": 1.0}, "depth": {"shape": [720, 1280], "finite_pixels": 921600, "distance_accuracy_verified": false}, "replay": {"path": "models/minisegway/stage9/results/architecture/models/canvas_replay.avi", "frames": 120, "fps": 10, "source": "resized annotated historical preview on synthetic canvas; no camera calibration claim"}, "sensevoice": {"upstream_fixture_text": "开饭时间早上9点至下午5点。", "silero_silence_rejected": true}, "vosk": {"model_loaded": true, "silence_text_empty": true, "real_wake_verified": false}, "passed": true}

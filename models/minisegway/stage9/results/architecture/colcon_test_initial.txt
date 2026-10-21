@@ -1,0 +1,146 @@
+Starting >>> companionbot_interfaces
+UpdateCTestConfiguration  from :/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_interfaces/CTestConfiguration.ini
+Parse Config file:/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_interfaces/CTestConfiguration.ini
+   Site: Mbappe7
+   Build name: (empty)
+ Add coverage exclude regular expressions.
+Create new tag: 20261005-0630 - Experimental
+UpdateCTestConfiguration  from :/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_interfaces/CTestConfiguration.ini
+Parse Config file:/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_interfaces/CTestConfiguration.ini
+Test project /home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_interfaces
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: source_stamps
+
+1: Test command: /home/kylian/projects/CompanionBot/.venv/bin/python "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_interfaces/test_results/companionbot_interfaces/source_stamps.xunit.xml" "--package-name" "companionbot_interfaces" "--output-file" "/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_interfaces/ament_cmake_pytest/source_stamps.txt" "--command" "/home/kylian/projects/CompanionBot/.venv/bin/python" "-u" "-m" "pytest" "/home/kylian/projects/CompanionBot/ros2_ws/src/companionbot_interfaces/test/test_source_stamps.py" "-o" "cache_dir=/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_interfaces/ament_cmake_pytest/source_stamps/.cache" "--junit-xml=/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_interfaces/test_results/companionbot_interfaces/source_stamps.xunit.xml" "--junit-prefix=companionbot_interfaces"
+1: Working Directory: /home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_interfaces
+1: Test timeout computed to be: 60
+1: -- run_test.py: invoking following command in '/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_interfaces':
+1:  - /home/kylian/projects/CompanionBot/.venv/bin/python -u -m pytest /home/kylian/projects/CompanionBot/ros2_ws/src/companionbot_interfaces/test/test_source_stamps.py -o cache_dir=/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_interfaces/ament_cmake_pytest/source_stamps/.cache --junit-xml=/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_interfaces/test_results/companionbot_interfaces/source_stamps.xunit.xml --junit-prefix=companionbot_interfaces
+1: ============================= test session starts ==============================
+1: platform linux -- Python 3.12.3, pytest-8.4.2, pluggy-1.6.0
+1: cachedir: ros2_ws/build/companionbot_interfaces/ament_cmake_pytest/source_stamps/.cache
+1: rootdir: /home/kylian/projects/CompanionBot
+1: configfile: pytest.ini
+1: plugins: ament-xmllint-0.17.5, launch-testing-ros-0.26.12, ament-copyright-0.17.5, ament-lint-0.17.5, ament-pep257-0.17.5, launch-testing-3.4.11, ament-flake8-0.17.5, anyio-4.15.1, typeguard-4.1.5, cov-4.1.0, colcon-core-0.21.0
+1: collected 1 item
+1: 
+1: ../../src/companionbot_interfaces/test/test_source_stamps.py .           [100%]
+1: 
+1: - generated xml file: /home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_interfaces/test_results/companionbot_interfaces/source_stamps.xunit.xml -
+1: ============================== 1 passed in 0.09s ===============================
+1: -- run_test.py: return code 0
+1: -- run_test.py: verify result file '/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_interfaces/test_results/companionbot_interfaces/source_stamps.xunit.xml'
+1/1 Test #1: source_stamps ....................   Passed    0.64 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Label Time Summary:
+pytest    =   0.64 sec*proc (1 test)
+
+Total Test time (real) =   0.64 sec
+Finished <<< companionbot_interfaces [0.89s]
+Starting >>> companionbot_follow
+Starting >>> companionbot_perception
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.4.2, pluggy-1.6.0
+cachedir: /home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_perception/.pytest_cache
+rootdir: /home/kylian/projects/CompanionBot/ros2_ws/src/companionbot_perception
+configfile: setup.cfg
+testpaths: test, ../../../tests/test_demo_yolo26n_master_lock.py, ../../../tests/test_perception_camera.py, ../../../tests/test_perception_depth.py, ../../../tests/test_perception_detection_stream.py, ../../../tests/test_perception_master_selection.py, ../../../tests/test_perception_person_detector.py, ../../../tests/test_perception_person_reid.py, ../../../tests/test_perception_person_tracker.py, ../../../tests/test_stage7_6_reid.py, ../../../tests/test_stage7_7_depth.py, ../../../tests/test_stage7_7_master_depth.py, ../../../tests/test_stage7_final_session.py, ../../../tests/test_stage7_robot_geometry.py
+plugins: ament-xmllint-0.17.5, launch-testing-ros-0.26.12, ament-copyright-0.17.5, ament-lint-0.17.5, ament-pep257-0.17.5, launch-testing-3.4.11, ament-flake8-0.17.5, anyio-4.15.1, typeguard-4.1.5, cov-4.1.0, colcon-core-0.21.0
+collected 112 items
+
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.4.2, pluggy-1.6.0
+cachedir: /home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_follow/.pytest_cache
+rootdir: /home/kylian/projects/CompanionBot/ros2_ws/src/companionbot_follow
+configfile: setup.cfg
+testpaths: test, ../../../tests/test_rolling_reference.py, ../../../tests/test_follow_governor_wait.py, ../../../tests/test_stage6_radial_kf_alignment.py
+plugins: ament-xmllint-0.17.5, launch-testing-ros-0.26.12, ament-copyright-0.17.5, ament-lint-0.17.5, ament-pep257-0.17.5, launch-testing-3.4.11, ament-flake8-0.17.5, anyio-4.15.1, typeguard-4.1.5, cov-4.1.0, colcon-core-0.21.0
+collected 18 items
+
+test/test_color_wire.py .                                                [  0%]
+. ...................................................................... [ 63%]
+. ..................                                                     [100%]
+
+- generated xml file: /home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_follow/pytest.xml -
+============================== 18 passed in 1.83s ==============================
+Finished <<< companionbot_follow [3.51s]
+Starting >>> companionbot_control
+.........................................                                [100%]
+
+- generated xml file: /home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_perception/pytest.xml -
+============================= 112 passed in 2.79s ==============================
+Finished <<< companionbot_perception [4.89s]
+Starting >>> companionbot_behavior
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.4.2, pluggy-1.6.0
+cachedir: /home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_control/.pytest_cache
+rootdir: /home/kylian/projects/CompanionBot/ros2_ws/src/companionbot_control
+configfile: setup.cfg
+testpaths: test, ../../../tests/test_slope_estimation.py, ../../../tests/test_slip_estimation.py, ../../../tests/test_stage4_runtime.py, ../../../tests/test_stage6_2d_split_authority.py
+plugins: ament-xmllint-0.17.5, launch-testing-ros-0.26.12, ament-copyright-0.17.5, ament-lint-0.17.5, ament-pep257-0.17.5, launch-testing-3.4.11, ament-flake8-0.17.5, anyio-4.15.1, typeguard-4.1.5, cov-4.1.0, colcon-core-0.21.0
+collected 20 items
+
+test/test_packet_wire.py ........                                        [ 40%]
+. ............                                                           [100%]
+
+- generated xml file: /home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_control/pytest.xml -
+============================== 20 passed in 1.28s ==============================
+Finished <<< companionbot_control [3.00s]
+Starting >>> companionbot_simulation
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.4.2, pluggy-1.6.0
+cachedir: /home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_behavior/.pytest_cache
+rootdir: /home/kylian/projects/CompanionBot/ros2_ws/src/companionbot_behavior
+configfile: setup.cfg
+testpaths: test, ../../../tests/test_linux_backends.py, ../../../tests/test_stage8_agent.py, ../../../tests/test_stage8_interaction.py, ../../../tests/test_stage82_dataflow.py
+plugins: ament-xmllint-0.17.5, launch-testing-ros-0.26.12, ament-copyright-0.17.5, ament-lint-0.17.5, ament-pep257-0.17.5, launch-testing-3.4.11, ament-flake8-0.17.5, anyio-4.15.1, typeguard-4.1.5, cov-4.1.0, colcon-core-0.21.0
+collected 167 items
+
+test/test_ros_input.py .......                                           [  4%]
+. ...................................................................... [ 46%]
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.4.2, pluggy-1.6.0
+cachedir: /home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_simulation/.pytest_cache
+rootdir: /home/kylian/projects/CompanionBot/ros2_ws/src/companionbot_simulation
+configfile: setup.cfg
+testpaths: test, ../../../tests/test_stage6_packet_safety.py
+plugins: ament-xmllint-0.17.5, launch-testing-ros-0.26.12, ament-copyright-0.17.5, ament-lint-0.17.5, ament-pep257-0.17.5, launch-testing-3.4.11, ament-flake8-0.17.5, anyio-4.15.1, typeguard-4.1.5, cov-4.1.0, colcon-core-0.21.0
+collected 10 items
+
+test/test_asset_paths.py .                                               [ 10%]
+. .........                                                              [100%]
+
+- generated xml file: /home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_simulation/pytest.xml -
+============================== 10 passed in 1.25s ==============================
+Finished <<< companionbot_simulation [3.28s]
+........................................................................ [ 89%]
+..................                                                       [100%]
+
+- generated xml file: /home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_behavior/pytest.xml -
+============================= 167 passed in 5.20s ==============================
+Finished <<< companionbot_behavior [6.96s]
+Starting >>> companionbot_bringup
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.4.2, pluggy-1.6.0
+cachedir: /home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_bringup/.pytest_cache
+rootdir: /home/kylian/projects/CompanionBot/ros2_ws/src/companionbot_bringup
+configfile: setup.cfg
+testpaths: test, ../../../tests/test_architecture_boundaries.py
+plugins: ament-xmllint-0.17.5, launch-testing-ros-0.26.12, ament-copyright-0.17.5, ament-lint-0.17.5, ament-pep257-0.17.5, launch-testing-3.4.11, ament-flake8-0.17.5, anyio-4.15.1, typeguard-4.1.5, cov-4.1.0, colcon-core-0.21.0
+collected 4 items
+
+. ....                                                                   [100%]
+
+- generated xml file: /home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_bringup/pytest.xml -
+============================== 4 passed in 1.94s ===============================
+Finished <<< companionbot_bringup [4.53s]
+
+Summary: 7 packages finished [17.6s]

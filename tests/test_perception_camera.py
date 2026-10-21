@@ -5,14 +5,9 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from perception import camera
-from perception.camera import CameraConfig, CameraStream, ColorFrame
-from perception.camera_calibration import (
-    CameraCalibration,
-    load_camera_calibration,
-    undistort_image_points,
-    validate_calibration_resolution,
-)
+from companionbot_perception.core import camera
+from companionbot_perception.core.camera import CameraConfig, CameraStream, ColorFrame
+from companionbot_perception.core.camera_calibration import CameraCalibration, load_camera_calibration, undistort_image_points, validate_calibration_resolution
 
 
 class FakeCapture:

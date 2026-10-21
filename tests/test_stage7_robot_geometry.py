@@ -5,10 +5,8 @@ import numpy as np
 import pytest
 from scipy.spatial.transform import Rotation
 
-from perception.camera import ColorFrame
-from perception.robot_geometry import (
-    CameraExtrinsic, ConstantPitchProvider, PitchSample, camera_to_robot_observation,
-)
+from companionbot_perception.core.camera import ColorFrame
+from companionbot_perception.core.robot_geometry import CameraExtrinsic, ConstantPitchProvider, PitchSample, camera_to_robot_observation
 
 
 R_BODY_CAMERA = np.array([[0, 0, 1], [-1, 0, 0], [0, -1, 0]])

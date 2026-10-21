@@ -1,0 +1,20 @@
+RUN noise_free_regression
+Traceback (most recent call last):
+  File "/home/kylian/projects/CompanionBot/tools/verification/verify_stage9_control.py", line 116, in <module>
+    main()
+  File "/home/kylian/projects/CompanionBot/tools/verification/verify_stage9_control.py", line 84, in main
+    stage6.run_case(config, stage6_config, stage5_config, common, stage4_config, stage4c_config, case))
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_simulation/companionbot_simulation/scenarios/run_stage6_5_radial_kf.py", line 294, in run_case
+    q_adapter, runtime = stage5.make_runtime(
+                         ^^^^^^^^^^^^^^^^^^^^
+  File "/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_simulation/companionbot_simulation/scenarios/run_stage5_v1_5_pi_mcu_stream.py", line 411, in make_runtime
+    q_adapter = stage4a.make_q_adapter(common, actuator_enabled=False)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_simulation/companionbot_simulation/scenarios/run_stage4a_slope_robustness.py", line 424, in make_q_adapter
+    return Stage4QAdapter(
+           ^^^^^^^^^^^^^^^
+  File "/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_simulation/companionbot_simulation/scenarios/run_stage4a_slope_robustness.py", line 184, in __init__
+    self.config = disturbance_rejection_config_from_dict(dr_raw)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'disturbance_rejection_config_from_dict' is not defined

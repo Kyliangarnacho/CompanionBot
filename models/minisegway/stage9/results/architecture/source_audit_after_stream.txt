@@ -1,0 +1,8 @@
+{
+  "protected_files": 1758,
+  "protected_changed": [],
+  "algorithm_definitions_checked": 306,
+  "body_mismatches": [],
+  "import_binding_mismatches": [],
+  "passed": true
+}

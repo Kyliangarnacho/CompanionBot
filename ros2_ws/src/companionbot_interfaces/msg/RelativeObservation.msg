@@ -1,0 +1,15 @@
+std_msgs/Header header
+SourceStamp meta
+int64 master_track_id
+uint32 width
+uint32 height
+geometry_msgs/Point point
+float64 pitch_rad
+float64 pitch_time_s
+string pitch_alignment_basis
+string pitch_provider
+bool extrinsic_provisional
+bool pitch_provisional
+string depth_convention
+bool depth_convention_provisional
+bool stage6_connected

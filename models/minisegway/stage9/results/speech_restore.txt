@@ -1,0 +1,1 @@
+/home/kylian/projects/CompanionBot/models/minisegway/stage9/results/restored_speech_assets.json

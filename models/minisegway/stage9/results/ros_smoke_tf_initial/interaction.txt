@@ -1,0 +1,28 @@
+[INFO] [launch]: All log files can be found below /home/kylian/projects/CompanionBot/models/minisegway/stage9/results/ros_logs/2026-10-05-12-41-55-818123-Mbappe7-33138
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [interaction-1]: process started with pid [33141]
+[INFO] [camera_tf-2]: process started with pid [33142]
+[camera_tf-2] [WARN] [1791175316.606439161] [companionbot.provisional_camera_tf]: Publishing UNMEASURED camera mount by explicit opt-in; no localization TF
+[camera_tf-2] Traceback (most recent call last):
+[camera_tf-2]   File "/home/kylian/projects/CompanionBot/ros2_ws/install/companionbot_ros/lib/companionbot_ros/camera_tf", line 33, in <module>
+[camera_tf-2]     sys.exit(load_entry_point('companionbot-ros', 'console_scripts', 'camera_tf')())
+[camera_tf-2]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[camera_tf-2]   File "/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_ros/companionbot_ros/camera_tf.py", line 26, in main
+[camera_tf-2]     q = Rotation.from_matrix(extrinsic.rotation_body_camera).as_quat()
+[camera_tf-2]         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[camera_tf-2]   File "_rotation.pyx", line 1109, in scipy.spatial.transform._rotation.Rotation.from_matrix
+[camera_tf-2]   File "<stringsource>", line 663, in View.MemoryView.memoryview_cwrapper
+[camera_tf-2]   File "<stringsource>", line 353, in View.MemoryView.memoryview.__cinit__
+[camera_tf-2] ValueError: buffer source array is read-only
+[ERROR] [camera_tf-2]: process has died [pid 33142, exit code 1, cmd '/home/kylian/projects/CompanionBot/ros2_ws/install/companionbot_ros/lib/companionbot_ros/camera_tf --ros-args'].
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [interaction-1]: sending signal 'SIGINT' to process[interaction-1]
+[interaction-1] SLEEP | 唤醒短语：你好小柒 | robot/navigation=fake
+[interaction-1] /interrupt /cancel /stop /wait /sleep /status /complete /look 问题 /quit
+[interaction-1] 自然视觉问题自动选帧；/look 问题；/look-roi x1 y1 x2 y2 问题（原图坐标）。
+[interaction-1] 播放中可说“你好小柒，打断回答”；只接收明确打断口令，没有 AEC。文字/空格始终可用。
+[interaction-1] 
+[interaction-1] [状态] SLEEP | 生成=否 | Master=UNAVAILABLE ID=None | task=NONE | 模拟执行 fake
+[interaction-1] 
+[interaction-1] [任务事件] {"status":"REJECT","reason":"no_active_task","intent":null,"task_id":null,"backend":"fake","destination_id":null,"input_id":null,"turn_id":null,"request_id":null,"progress":null,"contract_version":1,"source_id":"legacy:backend","source_epoch":"legacy","sequence":null,"observed_at_s":null,"received_at_s":null,"clock_domain":"host_perf_counter","time_semantics":"backend_event"}
+[INFO] [interaction-1]: process has finished cleanly [pid 33141]

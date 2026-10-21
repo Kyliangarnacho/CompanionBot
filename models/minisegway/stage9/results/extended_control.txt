@@ -1,0 +1,140 @@
+FINAL payload lifecycle
+SMOKE lateral centered offset=+0.000 m
+SMOKE lateral left offset=-0.010 m
+SMOKE lateral right offset=+0.010 m
+SMOKE impulse left
+SMOKE impulse right
+{
+  "payload_id": {
+    "time_s": 3.775999999999695,
+    "accepted": true,
+    "reason": "accepted",
+    "update_count": 31,
+    "rank": 2,
+    "condition_number": 90.45310745446201,
+    "normalized_residual_rms": 1.0255062028528943,
+    "estimated_mass_kg": 0.3476250122402579,
+    "estimated_forward_position_m": 0.015176404570587752,
+    "mass_kg": 0.3476250122402579,
+    "forward_position_m": 0.015176404570587752
+  },
+  "lateral": {
+    "centered": {
+      "lateral_offset_m": 0.0,
+      "fell": false,
+      "wheel_saturation_fraction": 0.0,
+      "max_abs_pitch_deg": 7.1560901800599765,
+      "yaw_error_deg": {
+        "rms": 0.06941262708635738,
+        "peak_abs": 0.1473919462596731,
+        "final": -0.12704661617451862
+      },
+      "yaw_drift_rate_deg_s": 0.010488879102020442,
+      "velocity_tracking_m_s": {
+        "rms": 0.04961710178509786,
+        "peak_abs": 0.1306846842535314,
+        "final": -0.009773303524110407
+      },
+      "actual_left_wheel_torque_nm": {
+        "rms": 0.017360663628566843,
+        "peak_abs": 0.06847126019512448,
+        "final": 0.0013215791839396973
+      },
+      "actual_right_wheel_torque_nm": {
+        "rms": 0.017450538704737187,
+        "peak_abs": 0.07014349616448204,
+        "final": 0.002196297932010436
+      }
+    },
+    "left": {
+      "lateral_offset_m": -0.01,
+      "fell": false,
+      "wheel_saturation_fraction": 0.0,
+      "max_abs_pitch_deg": 7.324143063627681,
+      "yaw_error_deg": {
+        "rms": 0.4495988229649308,
+        "peak_abs": 0.7188357736638054,
+        "final": -0.7188357736638054
+      },
+      "yaw_drift_rate_deg_s": 0.0627460907827755,
+      "velocity_tracking_m_s": {
+        "rms": 0.048529979124483945,
+        "peak_abs": 0.14667017244754157,
+        "final": -0.008152757531122634
+      },
+      "actual_left_wheel_torque_nm": {
+        "rms": 0.019298312054521642,
+        "peak_abs": 0.16752127417904283,
+        "final": -0.010259456179727825
+      },
+      "actual_right_wheel_torque_nm": {
+        "rms": 0.019326667345755433,
+        "peak_abs": 0.16814238457173958,
+        "final": -0.008370280825360765
+      }
+    },
+    "right": {
+      "lateral_offset_m": 0.01,
+      "fell": false,
+      "wheel_saturation_fraction": 0.0,
+      "max_abs_pitch_deg": 7.233706304597326,
+      "yaw_error_deg": {
+        "rms": 0.06952249742910313,
+        "peak_abs": 0.19407534297105775,
+        "final": -0.19386885421608466
+      },
+      "yaw_drift_rate_deg_s": 0.018654542222665643,
+      "velocity_tracking_m_s": {
+        "rms": 0.04757443164668899,
+        "peak_abs": 0.117945664832062,
+        "final": -0.009565657198728345
+      },
+      "actual_left_wheel_torque_nm": {
+        "rms": 0.01707477194093634,
+        "peak_abs": 0.043539278788224015,
+        "final": 0.001098799920140994
+      },
+      "actual_right_wheel_torque_nm": {
+        "rms": 0.01715164639463155,
+        "peak_abs": 0.04106386385810652,
+        "final": -0.0017550324283534553
+      }
+    }
+  },
+  "impulses": {
+    "left": {
+      "wheel": "left",
+      "force_n": 1.0,
+      "duration_s": 0.1,
+      "impulse_n_s": 0.1,
+      "fell": false,
+      "wheel_saturation_fraction": 0.0,
+      "peak_abs_pitch_deg": 0.9497473979234292,
+      "peak_pitch_deviation_from_pre_impulse_deg": 1.3442055150955168,
+      "peak_abs_yaw_deviation_deg": 0.6922208852733839,
+      "peak_abs_velocity_deviation_m_s": 0.053305167069889636,
+      "settling_time_s": 0.06199999999976269,
+      "terminal_pitch_deviation_deg": -0.07593897853570193,
+      "terminal_yaw_deviation_deg": 0.06214288847588235,
+      "terminal_velocity_deviation_m_s": 0.024455176146106816
+    },
+    "right": {
+      "wheel": "right",
+      "force_n": 1.0,
+      "duration_s": 0.1,
+      "impulse_n_s": 0.1,
+      "fell": false,
+      "wheel_saturation_fraction": 0.0,
+      "peak_abs_pitch_deg": 0.954873195465897,
+      "peak_pitch_deviation_from_pre_impulse_deg": 1.2737383539658076,
+      "peak_abs_yaw_deviation_deg": 0.7101499329845061,
+      "peak_abs_velocity_deviation_m_s": 0.04869884718685913,
+      "settling_time_s": 0.0019999999997692974,
+      "terminal_pitch_deviation_deg": -0.002362225280343224,
+      "terminal_yaw_deviation_deg": -0.04752594976505793,
+      "terminal_velocity_deviation_m_s": 0.018632198301583858
+    }
+  },
+  "report": "models/minisegway/stage9/results/extended_control/STAGE4_REPLAY.md"
+}
+{"moving_payload_original_gate": {"passed": true, "checks": {"no_fall": true, "payload_contained": true, "saturation_at_most_1pct": true, "velocity_RMSE_at_most_0p08": true, "pitch_peak_at_most_25deg": true, "no_repeated_large_collision_correlated_drops": true}, "failed_checks": []}}

@@ -1,0 +1,7 @@
+companionbot_behavior
+companionbot_bringup
+companionbot_control
+companionbot_follow
+companionbot_interfaces
+companionbot_perception
+companionbot_simulation

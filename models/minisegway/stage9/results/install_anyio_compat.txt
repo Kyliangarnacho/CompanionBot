@@ -1,0 +1,12 @@
+Collecting anyio==4.12.1
+  Downloading anyio-4.12.1-py3-none-any.whl.metadata (4.3 kB)
+Requirement already satisfied: idna>=2.8 in ./.venv/lib/python3.12/site-packages (from anyio==4.12.1) (3.20)
+Requirement already satisfied: typing_extensions>=4.5 in ./.venv/lib/python3.12/site-packages (from anyio==4.12.1) (4.16.0)
+Downloading anyio-4.12.1-py3-none-any.whl (113 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 113.6/113.6 kB 4.0 MB/s eta 0:00:00
+Installing collected packages: anyio
+  Attempting uninstall: anyio
+    Found existing installation: anyio 4.15.1
+    Uninstalling anyio-4.15.1:
+      Successfully uninstalled anyio-4.15.1
+Successfully installed anyio-4.12.1

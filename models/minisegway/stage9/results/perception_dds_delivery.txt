@@ -1,0 +1,6 @@
+source: video:/home/kylian/projects/CompanionBot/models/minisegway/stage9/results/models/canvas_replay.avi
+calibration: LOADED 1280x720 from /home/kylian/projects/CompanionBot/models/minisegway/stage7/stage7_7/config/c920e_camera_params_1280x720.npz
+Full perception: OSNet pending reference + automatic ReID reacquire enabled
+Geometry: axial_z assumed; mount provisional=True; pitch provider=ConstantPitchProvider; robot axes +X forward / +Y left / +Z up
+metrics: /home/kylian/projects/CompanionBot/models/minisegway/stage9/results/perception_ros/fixture_metrics.json
+{"colors_received": 120, "master_updates_received": 105, "relative_observations_received": 75, "source_time_s": 4230.611696862, "ros_publication_sec": 1791176365, "stage6_connected": false, "physical_distance_verified": false, "fixture_track_selected": 1, "passed": true}

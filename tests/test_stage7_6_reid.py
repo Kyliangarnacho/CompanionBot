@@ -5,22 +5,10 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from perception.camera import ColorFrame
-from perception.master_selection import (
-    MasterEventType,
-    MasterManager,
-    MasterState,
-)
-from perception.person_reid import (
-    BackendEmbedding,
-    MasterReIDEvidence,
-    PersonReIdentifier,
-)
-from perception.person_tracker import (
-    PersonTrackingDiagnostics,
-    PersonTrackingFrame,
-    TrackedPerson,
-)
+from companionbot_perception.core.camera import ColorFrame
+from companionbot_perception.core.master_selection import MasterEventType, MasterManager, MasterState
+from companionbot_perception.core.person_reid import BackendEmbedding, MasterReIDEvidence, PersonReIdentifier
+from companionbot_perception.core.person_tracker import PersonTrackingDiagnostics, PersonTrackingFrame, TrackedPerson
 
 
 class FakeEmbeddingBackend:

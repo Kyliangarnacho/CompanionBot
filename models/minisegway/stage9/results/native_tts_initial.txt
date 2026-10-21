@@ -1,0 +1,30 @@
+Exception in callback list.append('tts_started', {'generation': 1, 'started_at_s': 3021.367281269})
+handle: <Handle list.append('tts_started', {'generation': 1, 'started_at_s': 3021.367281269})>
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+TypeError: list.append() takes exactly one argument (2 given)
+Exception in callback SpeechOutput._finish(<Future finis...935999632871}>, {'generation': 1, 'status': 'FAILED:RuntimeError', 'wall_s': 0.010589935999632871})
+handle: <Handle SpeechOutput._finish(<Future finis...935999632871}>, {'generation': 1, 'status': 'FAILED:RuntimeError', 'wall_s': 0.010589935999632871})>
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/kylian/projects/CompanionBot/embodied_agent/audio.py", line 555, in _finish
+    self.on_event("tts_finished", result)
+TypeError: list.append() takes exactly one argument (2 given)
+Traceback (most recent call last):
+  File "/home/kylian/projects/CompanionBot/scripts/verify_stage9_audio.py", line 37, in <module>
+    asyncio.run(main())
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/kylian/projects/CompanionBot/scripts/verify_stage9_audio.py", line 18, in main
+    assert completed["status"] == "COMPLETED"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

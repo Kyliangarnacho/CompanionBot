@@ -8,14 +8,10 @@ import time
 import numpy as np
 import pytest
 
-from perception.camera import ColorFrame
-from perception.camera import CameraProfile
-from perception.detection_stream import (
-    LatestFrameSlot,
-    PersonDetectionFrame,
-    process_person_frame,
-)
-from perception.person_detector import PersonDetection
+from companionbot_perception.core.camera import ColorFrame
+from companionbot_perception.core.camera import CameraProfile
+from companionbot_perception.core.detection_stream import LatestFrameSlot, PersonDetectionFrame, process_person_frame
+from companionbot_perception.core.person_detector import PersonDetection
 
 
 def frame(sequence_id: int, source_time_s: float | None = None) -> ColorFrame:
@@ -156,7 +152,7 @@ def test_close_wakes_waiter_and_drains_last_frame_before_clean_stop():
 
 
 def test_camera_source_releases_and_closes_slot_after_frame_limit(monkeypatch):
-    from scripts import demo_yolo26n_stream as stream_demo
+    import companionbot_perception.runtime.stream as stream_demo
 
     source_frames = [frame(0), frame(1)]
     fake_profile = CameraProfile("fake-device", "FAKE", None, None, None, 64, 48, 30.0)

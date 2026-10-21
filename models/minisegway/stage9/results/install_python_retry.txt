@@ -1,0 +1,298 @@
+Ignoring pywin32: markers 'sys_platform == "win32"' don't match your environment
+Ignoring pycaw: markers 'sys_platform == "win32"' don't match your environment
+Collecting numpy==2.2.6 (from -r requirements.txt (line 2))
+  Using cached numpy-2.2.6-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (62 kB)
+Collecting scipy==1.14.1 (from -r requirements.txt (line 3))
+  Using cached scipy-1.14.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (60 kB)
+Collecting mujoco<4,>=3.3 (from -r requirements.txt (line 4))
+  Using cached mujoco-3.14.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (232 kB)
+Collecting ruckig==0.19.4 (from -r requirements.txt (line 5))
+  Downloading ruckig-0.19.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (24 kB)
+Collecting matplotlib<4,>=3.8 (from -r requirements.txt (line 6))
+  Downloading matplotlib-3.11.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (80 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 80.3/80.3 kB 380.4 kB/s eta 0:00:00
+Collecting pytest<9,>=8 (from -r requirements.txt (line 7))
+  Downloading pytest-8.4.2-py3-none-any.whl.metadata (7.7 kB)
+Requirement already satisfied: PyYAML<7,>=6 in /usr/lib/python3/dist-packages (from -r requirements.txt (line 8)) (6.0.1)
+Collecting opencv-python<6,>=4.5.5 (from -r requirements-camera.txt (line 3))
+  Downloading opencv_python-5.0.0.93-cp37-abi3-manylinux_2_28_x86_64.whl.metadata (19 kB)
+Collecting ultralytics<9,>=8.4.0 (from -r requirements-yolo.txt (line 6))
+  Downloading ultralytics-8.4.173-py3-none-any.whl.metadata (46 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 46.9/46.9 kB 1.5 MB/s eta 0:00:00
+Collecting lap>=0.5.12 (from -r requirements-yolo.txt (line 8))
+  Downloading lap-0.5.13-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (6.6 kB)
+Collecting pydantic-ai-slim==2.53.0 (from pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading pydantic_ai_slim-2.53.0-py3-none-any.whl.metadata (7.4 kB)
+Collecting rapidfuzz==3.14.3 (from -r requirements-agent.txt (line 3))
+  Downloading rapidfuzz-3.14.3-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (12 kB)
+Collecting vosk==0.3.45 (from -r requirements-agent-audio.txt (line 2))
+  Downloading vosk-0.3.45-py3-none-manylinux_2_12_x86_64.manylinux2010_x86_64.whl.metadata (1.8 kB)
+Collecting sherpa-onnx==1.13.8 (from -r requirements-agent-audio.txt (line 3))
+  Downloading sherpa_onnx-1.13.8-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (53 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 53.9/53.9 kB 1.5 MB/s eta 0:00:00
+Collecting sounddevice<0.6,>=0.5 (from -r requirements-agent-audio.txt (line 4))
+  Downloading sounddevice-0.5.6-py3-none-any.whl.metadata (1.4 kB)
+Requirement already satisfied: setuptools<80,>=68 in ./.venv/lib/python3.12/site-packages (from -r requirements-linux.txt (line 7)) (78.1.0)
+Requirement already satisfied: wheel in /usr/lib/python3/dist-packages (from -r requirements-linux.txt (line 8)) (0.42.0)
+Requirement already satisfied: empy==3.3.4 in /usr/lib/python3/dist-packages (from -r requirements-linux.txt (line 9)) (3.3.4)
+Requirement already satisfied: lark<2,>=1.1 in /usr/lib/python3/dist-packages (from -r requirements-linux.txt (line 10)) (1.1.9)
+Collecting anyio>=4.7.0 (from pydantic-ai-slim==2.53.0->pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading anyio-4.15.1-py3-none-any.whl.metadata (4.7 kB)
+Collecting genai-prices>=0.1.9 (from pydantic-ai-slim==2.53.0->pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading genai_prices-0.1.9-py3-none-any.whl.metadata (10 kB)
+Collecting griffelib>=2.0 (from pydantic-ai-slim==2.53.0->pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading griffelib-2.3.0-py3-none-any.whl.metadata (1.3 kB)
+Collecting httpx2>=2.7 (from pydantic-ai-slim==2.53.0->pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading httpx2-2.13.1-py3-none-any.whl.metadata (9.8 kB)
+Collecting opentelemetry-api>=1.28.0 (from pydantic-ai-slim==2.53.0->pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading opentelemetry_api-1.45.0-py3-none-any.whl.metadata (1.4 kB)
+Collecting pydantic-graph==2.53.0 (from pydantic-ai-slim==2.53.0->pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading pydantic_graph-2.53.0-py3-none-any.whl.metadata (4.3 kB)
+Collecting pydantic>=2.12 (from pydantic-ai-slim==2.53.0->pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading pydantic-2.13.5-py3-none-any.whl.metadata (110 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 110.2/110.2 kB 1.2 MB/s eta 0:00:00
+Collecting typing-inspection>=0.4.0 (from pydantic-ai-slim==2.53.0->pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading typing_inspection-0.4.4-py3-none-any.whl.metadata (2.6 kB)
+Collecting cffi>=1.0 (from vosk==0.3.45->-r requirements-agent-audio.txt (line 2))
+  Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.5 kB)
+Requirement already satisfied: requests in /usr/lib/python3/dist-packages (from vosk==0.3.45->-r requirements-agent-audio.txt (line 2)) (2.31.0)
+Collecting tqdm (from vosk==0.3.45->-r requirements-agent-audio.txt (line 2))
+  Downloading tqdm-4.70.1-py3-none-any.whl.metadata (57 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 57.4/57.4 kB 1.2 MB/s eta 0:00:00
+Collecting srt (from vosk==0.3.45->-r requirements-agent-audio.txt (line 2))
+  Downloading srt-3.5.3.tar.gz (28 kB)
+  Preparing metadata (setup.py): started
+  Preparing metadata (setup.py): finished with status 'done'
+Collecting websockets (from vosk==0.3.45->-r requirements-agent-audio.txt (line 2))
+  Downloading websockets-17.2-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (6.3 kB)
+Collecting sherpa-onnx-core==1.13.8 (from sherpa-onnx==1.13.8->-r requirements-agent-audio.txt (line 3))
+  Downloading sherpa_onnx_core-1.13.8-py3-none-manylinux2014_x86_64.whl.metadata (628 bytes)
+Collecting openai>=3.19.0 (from pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading openai-3.24.0-py3-none-any.whl.metadata (44 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.3/44.3 kB 1.0 MB/s eta 0:00:00
+Collecting tiktoken>=0.12.0 (from pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading tiktoken-0.14.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (6.7 kB)
+Collecting logfire-api>=3.14.1 (from pydantic-graph==2.53.0->pydantic-ai-slim==2.53.0->pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading logfire_api-5.1.1-py3-none-any.whl.metadata (972 bytes)
+Collecting absl-py (from mujoco<4,>=3.3->-r requirements.txt (line 4))
+  Downloading absl_py-2.5.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting etils[epath] (from mujoco<4,>=3.3->-r requirements.txt (line 4))
+  Downloading etils-1.14.0-py3-none-any.whl.metadata (6.5 kB)
+Collecting glfw (from mujoco<4,>=3.3->-r requirements.txt (line 4))
+  Downloading glfw-2.10.2-py2.py3-none-manylinux_2_28_x86_64.whl.metadata (5.5 kB)
+Collecting pyopengl (from mujoco<4,>=3.3->-r requirements.txt (line 4))
+  Downloading pyopengl-3.1.10-py3-none-any.whl.metadata (3.3 kB)
+Requirement already satisfied: contourpy>=1.0.1 in /usr/lib/python3/dist-packages (from matplotlib<4,>=3.8->-r requirements.txt (line 6)) (1.0.7)
+Requirement already satisfied: cycler>=0.10 in /usr/lib/python3/dist-packages (from matplotlib<4,>=3.8->-r requirements.txt (line 6)) (0.11.0)
+Requirement already satisfied: fonttools>=4.28.2 in /usr/lib/python3/dist-packages (from matplotlib<4,>=3.8->-r requirements.txt (line 6)) (4.46.0)
+Collecting kiwisolver>=1.3.1 (from matplotlib<4,>=3.8->-r requirements.txt (line 6))
+  Downloading kiwisolver-1.5.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (5.2 kB)
+Requirement already satisfied: packaging>=20.0 in /usr/lib/python3/dist-packages (from matplotlib<4,>=3.8->-r requirements.txt (line 6)) (24.0)
+Requirement already satisfied: pillow>=9 in /usr/lib/python3/dist-packages (from matplotlib<4,>=3.8->-r requirements.txt (line 6)) (10.2.0)
+Requirement already satisfied: pyparsing>=3 in /usr/lib/python3/dist-packages (from matplotlib<4,>=3.8->-r requirements.txt (line 6)) (3.1.1)
+Requirement already satisfied: python-dateutil>=2.7 in /usr/lib/python3/dist-packages (from matplotlib<4,>=3.8->-r requirements.txt (line 6)) (2.8.2)
+Requirement already satisfied: iniconfig>=1 in /usr/lib/python3/dist-packages (from pytest<9,>=8->-r requirements.txt (line 7)) (1.1.1)
+Collecting pluggy<2,>=1.5 (from pytest<9,>=8->-r requirements.txt (line 7))
+  Downloading pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
+Requirement already satisfied: pygments>=2.7.2 in /usr/lib/python3/dist-packages (from pytest<9,>=8->-r requirements.txt (line 7)) (2.17.2)
+Requirement already satisfied: torch>=1.8.0 in ./.venv/lib/python3.12/site-packages (from ultralytics<9,>=8.4.0->-r requirements-yolo.txt (line 6)) (2.14.1+cpu)
+Requirement already satisfied: torchvision>=0.9.0 in ./.venv/lib/python3.12/site-packages (from ultralytics<9,>=8.4.0->-r requirements-yolo.txt (line 6)) (0.29.1+cpu)
+Requirement already satisfied: psutil>=5.8.0 in /usr/lib/python3/dist-packages (from ultralytics<9,>=8.4.0->-r requirements-yolo.txt (line 6)) (5.9.8)
+Collecting polars>=0.20.0 (from ultralytics<9,>=8.4.0->-r requirements-yolo.txt (line 6))
+  Downloading polars-1.44.2-py3-none-any.whl.metadata (11 kB)
+Collecting nvidia-ml-py>=12.0.0 (from ultralytics<9,>=8.4.0->-r requirements-yolo.txt (line 6))
+  Downloading nvidia_ml_py-13.615.71-py3-none-any.whl.metadata (9.7 kB)
+Collecting ultralytics-thop>=2.2.2 (from ultralytics<9,>=8.4.0->-r requirements-yolo.txt (line 6))
+  Downloading ultralytics_thop-2.2.2-py3-none-any.whl.metadata (14 kB)
+Collecting ultralytics-platform>=0.1.45 (from ultralytics<9,>=8.4.0->-r requirements-yolo.txt (line 6))
+  Downloading ultralytics_platform-0.1.80-py3-none-any.whl.metadata (16 kB)
+Requirement already satisfied: idna>=2.8 in /usr/lib/python3/dist-packages (from anyio>=4.7.0->pydantic-ai-slim==2.53.0->pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2)) (3.6)
+Collecting typing_extensions>=4.16.0 (from anyio>=4.7.0->pydantic-ai-slim==2.53.0->pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting pycparser (from cffi>=1.0->vosk==0.3.45->-r requirements-agent-audio.txt (line 2))
+  Downloading pycparser-3.0-py3-none-any.whl.metadata (8.2 kB)
+Collecting httpcore2==2.13.1 (from httpx2>=2.7->pydantic-ai-slim==2.53.0->pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading httpcore2-2.13.1-py3-none-any.whl.metadata (26 kB)
+Collecting idna>=2.8 (from anyio>=4.7.0->pydantic-ai-slim==2.53.0->pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+Collecting truststore>=0.10 (from httpx2>=2.7->pydantic-ai-slim==2.53.0->pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading truststore-0.10.4-py3-none-any.whl.metadata (4.4 kB)
+Collecting h11>=0.16 (from httpcore2==2.13.1->httpx2>=2.7->pydantic-ai-slim==2.53.0->pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+Collecting jiter<1,>=0.16.0 (from openai>=3.19.0->pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading jiter-0.17.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.2 kB)
+Collecting sniffio (from openai>=3.19.0->pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading sniffio-1.3.1-py3-none-any.whl.metadata (3.9 kB)
+Collecting polars-runtime-32==1.44.2 (from polars>=0.20.0->ultralytics<9,>=8.4.0->-r requirements-yolo.txt (line 6))
+  Downloading polars_runtime_32-1.44.2-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting annotated-types>=0.6.0 (from pydantic>=2.12->pydantic-ai-slim==2.53.0->pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+Collecting pydantic-core==2.46.5 (from pydantic>=2.12->pydantic-ai-slim==2.53.0->pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading pydantic_core-2.46.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.6 kB)
+Collecting regex (from tiktoken>=0.12.0->pydantic-ai-slim[openai]==2.53.0->-r requirements-agent.txt (line 2))
+  Downloading regex-2026.9.29-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.6/40.6 kB 1.7 MB/s eta 0:00:00
+Requirement already satisfied: filelock in ./.venv/lib/python3.12/site-packages (from torch>=1.8.0->ultralytics<9,>=8.4.0->-r requirements-yolo.txt (line 6)) (3.32.3)
+Requirement already satisfied: sympy>=1.13.3 in ./.venv/lib/python3.12/site-packages (from torch>=1.8.0->ultralytics<9,>=8.4.0->-r requirements-yolo.txt (line 6)) (1.14.0)
+Requirement already satisfied: networkx>=2.5.1 in ./.venv/lib/python3.12/site-packages (from torch>=1.8.0->ultralytics<9,>=8.4.0->-r requirements-yolo.txt (line 6)) (3.6.1)
+Requirement already satisfied: jinja2 in /usr/lib/python3/dist-packages (from torch>=1.8.0->ultralytics<9,>=8.4.0->-r requirements-yolo.txt (line 6)) (3.1.2)
+Requirement already satisfied: fsspec>=0.8.5 in ./.venv/lib/python3.12/site-packages (from torch>=1.8.0->ultralytics<9,>=8.4.0->-r requirements-yolo.txt (line 6)) (2026.7.0)
+Collecting httpx<1,>=0.28 (from ultralytics-platform>=0.1.45->ultralytics<9,>=8.4.0->-r requirements-yolo.txt (line 6))
+  Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+Requirement already satisfied: zipp in /usr/lib/python3/dist-packages (from etils[epath]->mujoco<4,>=3.3->-r requirements.txt (line 4)) (1.0.0)
+Requirement already satisfied: certifi in /usr/lib/python3/dist-packages (from httpx<1,>=0.28->ultralytics-platform>=0.1.45->ultralytics<9,>=8.4.0->-r requirements-yolo.txt (line 6)) (2023.11.17)
+Collecting httpcore==1.* (from httpx<1,>=0.28->ultralytics-platform>=0.1.45->ultralytics<9,>=8.4.0->-r requirements-yolo.txt (line 6))
+  Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in ./.venv/lib/python3.12/site-packages (from sympy>=1.13.3->torch>=1.8.0->ultralytics<9,>=8.4.0->-r requirements-yolo.txt (line 6)) (1.3.0)
+Requirement already satisfied: more-itertools in /usr/lib/python3/dist-packages (from zipp->etils[epath]->mujoco<4,>=3.3->-r requirements.txt (line 4)) (10.2.0)
+Downloading numpy-2.2.6-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (16.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.5/16.5 MB 10.0 MB/s eta 0:00:00
+Downloading scipy-1.14.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (40.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.8/40.8 MB 4.8 MB/s eta 0:00:00
+Downloading ruckig-0.19.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (1.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.1/1.1 MB 8.7 MB/s eta 0:00:00
+Downloading pydantic_ai_slim-2.53.0-py3-none-any.whl (2.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 9.4 MB/s eta 0:00:00
+Downloading rapidfuzz-3.14.3-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (3.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.2/3.2 MB 10.6 MB/s eta 0:00:00
+Downloading vosk-0.3.45-py3-none-manylinux_2_12_x86_64.manylinux2010_x86_64.whl (7.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.2/7.2 MB 12.4 MB/s eta 0:00:00
+Downloading sherpa_onnx-1.13.8-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.4/4.4 MB 13.3 MB/s eta 0:00:00
+Downloading pydantic_graph-2.53.0-py3-none-any.whl (52 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 52.8/52.8 kB 559.8 kB/s eta 0:00:00
+Downloading sherpa_onnx_core-1.13.8-py3-none-manylinux2014_x86_64.whl (10.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.6/10.6 MB 15.1 MB/s eta 0:00:00
+Downloading mujoco-3.14.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (28.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 28.7/28.7 MB 19.2 MB/s eta 0:00:00
+Downloading matplotlib-3.11.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (9.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 9.9/9.9 MB 20.5 MB/s eta 0:00:00
+Downloading pytest-8.4.2-py3-none-any.whl (365 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 365.8/365.8 kB 14.7 MB/s eta 0:00:00
+Downloading opencv_python-5.0.0.93-cp37-abi3-manylinux_2_28_x86_64.whl (73.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.8/73.8 MB 16.6 MB/s eta 0:00:00
+Downloading ultralytics-8.4.173-py3-none-any.whl (1.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.4/1.4 MB 17.8 MB/s eta 0:00:00
+Downloading lap-0.5.13-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (1.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.7/1.7 MB 12.2 MB/s eta 0:00:00
+Downloading sounddevice-0.5.6-py3-none-any.whl (32 kB)
+Downloading anyio-4.15.1-py3-none-any.whl (132 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 132.1/132.1 kB 6.4 MB/s eta 0:00:00
+Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 221.8/221.8 kB 10.5 MB/s eta 0:00:00
+Downloading genai_prices-0.1.9-py3-none-any.whl (125 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 125.5/125.5 kB 7.2 MB/s eta 0:00:00
+Downloading griffelib-2.3.0-py3-none-any.whl (169 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 169.4/169.4 kB 9.5 MB/s eta 0:00:00
+Downloading httpx2-2.13.1-py3-none-any.whl (95 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 95.6/95.6 kB 6.8 MB/s eta 0:00:00
+Downloading httpcore2-2.13.1-py3-none-any.whl (83 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 83.4/83.4 kB 4.7 MB/s eta 0:00:00
+Downloading kiwisolver-1.5.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.5/1.5 MB 18.8 MB/s eta 0:00:00
+Downloading nvidia_ml_py-13.615.71-py3-none-any.whl (58 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 58.1/58.1 kB 4.5 MB/s eta 0:00:00
+Downloading openai-3.24.0-py3-none-any.whl (2.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 20.1 MB/s eta 0:00:00
+Downloading opentelemetry_api-1.45.0-py3-none-any.whl (60 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 60.0/60.0 kB 3.4 MB/s eta 0:00:00
+Downloading pluggy-1.6.0-py3-none-any.whl (20 kB)
+Downloading polars-1.44.2-py3-none-any.whl (865 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 865.8/865.8 kB 7.5 MB/s eta 0:00:00
+Downloading polars_runtime_32-1.44.2-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (49.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 49.9/49.9 MB 12.3 MB/s eta 0:00:00
+Downloading pydantic-2.13.5-py3-none-any.whl (472 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 472.6/472.6 kB 12.1 MB/s eta 0:00:00
+Downloading pydantic_core-2.46.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 19.4 MB/s eta 0:00:00
+Downloading tiktoken-0.14.0-cp312-cp312-manylinux_2_28_x86_64.whl (1.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 18.1 MB/s eta 0:00:00
+Downloading typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+Downloading ultralytics_platform-0.1.80-py3-none-any.whl (95 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 96.0/96.0 kB 5.2 MB/s eta 0:00:00
+Downloading ultralytics_thop-2.2.2-py3-none-any.whl (32 kB)
+Downloading websockets-17.2-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (225 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 225.3/225.3 kB 11.0 MB/s eta 0:00:00
+Downloading absl_py-2.5.0-py3-none-any.whl (137 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 137.4/137.4 kB 8.6 MB/s eta 0:00:00
+Downloading glfw-2.10.2-py2.py3-none-manylinux_2_28_x86_64.whl (248 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 248.5/248.5 kB 6.6 MB/s eta 0:00:00
+Downloading pyopengl-3.1.10-py3-none-any.whl (3.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.2/3.2 MB 17.6 MB/s eta 0:00:00
+Downloading tqdm-4.70.1-py3-none-any.whl (80 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 80.2/80.2 kB 5.9 MB/s eta 0:00:00
+Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.5/73.5 kB 2.5 MB/s eta 0:00:00
+Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 78.8/78.8 kB 5.4 MB/s eta 0:00:00
+Downloading idna-3.20-py3-none-any.whl (69 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 69.6/69.6 kB 2.3 MB/s eta 0:00:00
+Downloading jiter-0.17.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (345 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 345.0/345.0 kB 11.2 MB/s eta 0:00:00
+Downloading logfire_api-5.1.1-py3-none-any.whl (148 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 148.1/148.1 kB 6.0 MB/s eta 0:00:00
+Downloading truststore-0.10.4-py3-none-any.whl (18 kB)
+Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 45.6/45.6 kB 3.2 MB/s eta 0:00:00
+Downloading etils-1.14.0-py3-none-any.whl (172 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 172.9/172.9 kB 10.8 MB/s eta 0:00:00
+Downloading pycparser-3.0-py3-none-any.whl (48 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 48.2/48.2 kB 1.2 MB/s eta 0:00:00
+Downloading regex-2026.9.29-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.8/807.8 kB 14.2 MB/s eta 0:00:00
+Downloading sniffio-1.3.1-py3-none-any.whl (10 kB)
+Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+Building wheels for collected packages: srt
+  Building wheel for srt (setup.py): started
+  Building wheel for srt (setup.py): finished with status 'done'
+  Created wheel for srt: filename=srt-3.5.3-py3-none-any.whl size=22512 sha256=8eac50052c05f62e4ebd798dee53f32ab8666eddda6f1e18efc910b0258bfddb
+  Stored in directory: /tmp/companionbot-pip-cache/wheels/7e/75/5b/e1d5c3756631e4bda806f6cc9640153b39484bb6f7b0b8def3
+Successfully built srt
+Installing collected packages: sherpa-onnx-core, pyopengl, nvidia-ml-py, glfw, websockets, typing_extensions, truststore, tqdm, srt, sniffio, sherpa-onnx, ruckig, regex, rapidfuzz, pycparser, polars-runtime-32, pluggy, numpy, logfire-api, kiwisolver, jiter, idna, h11, griffelib, etils, annotated-types, absl-py, typing-inspection, tiktoken, scipy, pytest, pydantic-core, polars, opentelemetry-api, opencv-python, lap, httpcore2, httpcore, cffi, anyio, vosk, ultralytics-thop, sounddevice, pydantic, matplotlib, httpx2, httpx, ultralytics-platform, pydantic-graph, openai, mujoco, genai-prices, ultralytics, pydantic-ai-slim
+  Attempting uninstall: typing_extensions
+    Found existing installation: typing_extensions 4.10.0
+    Not uninstalling typing-extensions at /usr/lib/python3/dist-packages, outside environment /home/kylian/projects/CompanionBot/.venv
+    Can't uninstall 'typing_extensions'. No files were found to uninstall.
+  Attempting uninstall: pluggy
+    Found existing installation: pluggy 1.4.0
+    Not uninstalling pluggy at /usr/lib/python3/dist-packages, outside environment /home/kylian/projects/CompanionBot/.venv
+    Can't uninstall 'pluggy'. No files were found to uninstall.
+  Attempting uninstall: numpy
+    Found existing installation: numpy 1.26.4
+    Not uninstalling numpy at /usr/lib/python3/dist-packages, outside environment /home/kylian/projects/CompanionBot/.venv
+    Can't uninstall 'numpy'. No files were found to uninstall.
+  Attempting uninstall: kiwisolver
+    Found existing installation: kiwisolver 0.0.0
+    Not uninstalling kiwisolver at /usr/lib/python3/dist-packages, outside environment /home/kylian/projects/CompanionBot/.venv
+    Can't uninstall 'kiwisolver'. No files were found to uninstall.
+  Attempting uninstall: idna
+    Found existing installation: idna 3.6
+    Not uninstalling idna at /usr/lib/python3/dist-packages, outside environment /home/kylian/projects/CompanionBot/.venv
+    Can't uninstall 'idna'. No files were found to uninstall.
+  Attempting uninstall: scipy
+    Found existing installation: SciPy 1.11.4
+    Not uninstalling scipy at /usr/lib/python3/dist-packages, outside environment /home/kylian/projects/CompanionBot/.venv
+    Can't uninstall 'SciPy'. No files were found to uninstall.
+  Attempting uninstall: pytest
+    Found existing installation: pytest 7.4.4
+    Not uninstalling pytest at /usr/lib/python3/dist-packages, outside environment /home/kylian/projects/CompanionBot/.venv
+    Can't uninstall 'pytest'. No files were found to uninstall.
+  Attempting uninstall: matplotlib
+    Found existing installation: matplotlib 3.6.3
+    Not uninstalling matplotlib at /usr/lib/python3/dist-packages, outside environment /home/kylian/projects/CompanionBot/.venv
+    Can't uninstall 'matplotlib'. No files were found to uninstall.
+Successfully installed absl-py-2.5.0 annotated-types-0.8.0 anyio-4.15.1 cffi-2.1.1 etils-1.14.0 genai-prices-0.1.9 glfw-2.10.2 griffelib-2.3.0 h11-0.16.0 httpcore-1.0.9 httpcore2-2.13.1 httpx-0.28.1 httpx2-2.13.1 idna-3.20 jiter-0.17.0 kiwisolver-1.5.1 lap-0.5.13 logfire-api-5.1.1 matplotlib-3.11.2 mujoco-3.14.0 numpy-2.2.6 nvidia-ml-py-13.615.71 openai-3.24.0 opencv-python-5.0.0.93 opentelemetry-api-1.45.0 pluggy-1.6.0 polars-1.44.2 polars-runtime-32-1.44.2 pycparser-3.0 pydantic-2.13.5 pydantic-ai-slim-2.53.0 pydantic-core-2.46.5 pydantic-graph-2.53.0 pyopengl-3.1.10 pytest-8.4.2 rapidfuzz-3.14.3 regex-2026.9.29 ruckig-0.19.4 scipy-1.14.1 sherpa-onnx-1.13.8 sherpa-onnx-core-1.13.8 sniffio-1.3.1 sounddevice-0.5.6 srt-3.5.3 tiktoken-0.14.0 tqdm-4.70.1 truststore-0.10.4 typing-inspection-0.4.4 typing_extensions-4.16.0 ultralytics-8.4.173 ultralytics-platform-0.1.80 ultralytics-thop-2.2.2 vosk-0.3.45 websockets-17.2
+Obtaining file:///home/kylian/projects/CompanionBot
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: companionbot-core
+  Building editable for companionbot-core (pyproject.toml): started
+  Building editable for companionbot-core (pyproject.toml): finished with status 'done'
+  Created wheel for companionbot-core: filename=companionbot_core-0.9.0-0.editable-py3-none-any.whl size=2960 sha256=629c920311ae67e37e3cb317f44e177c307f71a3fe3dada92619b5a40eca3d9f
+  Stored in directory: /tmp/pip-ephem-wheel-cache-m78dp7vr/wheels/0f/4f/61/30afbd5c04ce2ab7398f38c78aac257526bbc0a0fcf93f9971
+Successfully built companionbot-core
+Installing collected packages: companionbot-core
+Successfully installed companionbot-core-0.9.0

@@ -1,0 +1,9 @@
+std_msgs/Header header
+SourceStamp meta
+string state
+bool visible
+bool has_track_id
+int64 track_id
+uint32 width
+uint32 height
+bool hardware_execution_ready

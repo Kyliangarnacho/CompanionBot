@@ -1,8 +1,8 @@
 import math
 import unittest
 
-from sim.slip_estimation import LongitudinalSlipObserver, SlipObserverConfig
-from sim.slope_estimation import SlopePlantParameters
+from companionbot_control.estimation.slip_estimation import LongitudinalSlipObserver, SlipObserverConfig
+from companionbot_control.estimation.slope_estimation import SlopePlantParameters
 
 
 def plant() -> SlopePlantParameters:

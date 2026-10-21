@@ -1,0 +1,29 @@
+Exception in callback list.append('tts_started', {'generation': 1, 'started_at_s': 3140.923131649})
+handle: <Handle list.append('tts_started', {'generation': 1, 'started_at_s': 3140.923131649})>
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+TypeError: list.append() takes exactly one argument (2 given)
+Exception in callback SpeechOutput._finish(<Future finis...173934999577}>, {'generation': 1, 'status': 'COMPLETED', 'wall_s': 4.163173934999577})
+handle: <Handle SpeechOutput._finish(<Future finis...173934999577}>, {'generation': 1, 'status': 'COMPLETED', 'wall_s': 4.163173934999577})>
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/kylian/projects/CompanionBot/embodied_agent/audio.py", line 556, in _finish
+    self.on_event("tts_finished", result)
+TypeError: list.append() takes exactly one argument (2 given)
+Exception in callback list.append('tts_started', {'generation': 2, 'started_at_s': 3145.088335103})
+handle: <Handle list.append('tts_started', {'generation': 2, 'started_at_s': 3145.088335103})>
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+TypeError: list.append() takes exactly one argument (2 given)
+Exception in callback SpeechOutput._finish(<Future finis...613509997238}>, {'generation': 2, 'status': 'CANCEL', 'wall_s': 0.1030613509997238})
+handle: <Handle SpeechOutput._finish(<Future finis...613509997238}>, {'generation': 2, 'status': 'CANCEL', 'wall_s': 0.1030613509997238})>
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/kylian/projects/CompanionBot/embodied_agent/audio.py", line 556, in _finish
+    self.on_event("tts_finished", result)
+TypeError: list.append() takes exactly one argument (2 given)
+{"backend": {"voice": "eSpeak NG Mandarin (cmn)", "backend": "linux_espeak_ng", "output": "configured Linux audio output"}, "completed": {"status": "COMPLETED", "generation": 1, "wall_s": 4.163173934999577}, "cancelled": {"status": "CANCEL", "generation": 2, "wall_s": 0.1030613509997238}, "pending": 0, "worker_stopped": true, "acoustic_output_verified": false, "passed": true}

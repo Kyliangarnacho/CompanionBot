@@ -1,0 +1,14 @@
+std_msgs/Header header
+SourceStamp meta
+string status
+string reason
+string intent
+string task_id
+string backend
+string destination_id
+string input_id
+string turn_id
+string request_id
+bool has_progress
+float64 progress
+bool hardware_execution_ready
