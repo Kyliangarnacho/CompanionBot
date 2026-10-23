@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "map_id": "aws_bookstore",
+  "world_commit": "f5a2aaacd5418f9ecfa30f79e788856417f17c13",
+  "map_frame_contract": "saved SLAM map at known startup dock, x=0 y=0 yaw=0; no GT localization",
+  "destinations": {
+    "service_desk": {"x_m": 0.0, "y_m": 2.8, "yaw_rad": 1.5707963267948966, "description": "South approach to upstream InfoDesk_01_001"},
+    "bookshelf_west": {"x_m": -3.5, "y_m": -3.0, "yaw_rad": 0.0, "description": "West aisle between upstream A/C shelf rows"},
+    "bookshelf_east": {"x_m": 3.8, "y_m": -3.0, "yaw_rad": 3.141592653589793, "description": "East aisle facing the upstream C shelf row"},
+    "display_area": {"x_m": 0.0, "y_m": 0.0, "yaw_rad": 0.0, "description": "Central approach to upstream book/tablet display counters"},
+    "entrance": {"x_m": -2.5, "y_m": 6.2, "yaw_rad": 1.5707963267948966, "description": "Interior approach to upstream DoorB_01_001"}
+  }
+}

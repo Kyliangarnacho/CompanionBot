@@ -1,0 +1,72 @@
+{
+  "name": "bookstore_north_extension",
+  "duration_s": 79.5,
+  "description": "Known dock start; reload upstream pose graph and map entrance/upper service area through real reference-controlled motion.",
+  "commands": [
+    {
+      "time_s": 0.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 1.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.3141592653589793
+    },
+    {
+      "time_s": 6.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 8.0,
+      "v_m_s": 0.2,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 28.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 31.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.3141592653589793
+    },
+    {
+      "time_s": 36.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 38.0,
+      "v_m_s": 0.2,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 50.5,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 53.5,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": -0.3141592653589793
+    },
+    {
+      "time_s": 58.5,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 60.5,
+      "v_m_s": 0.2,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 71.5,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    }
+  ]
+}

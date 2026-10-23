@@ -1,0 +1,12 @@
+{
+  "name": "indoor_two_laps",
+  "description": "Authorized finite simulation intents; existing scheduler and MCU safety retain authority.",
+  "duration_s": 82.0,
+  "commands": [
+    {"time_s": 0.0, "v_m_s": 0.0, "yaw_rate_rad_s": 0.0},
+    {"time_s": 1.0, "v_m_s": 0.3, "yaw_rate_rad_s": 0.0},
+    {"time_s": 8.0, "v_m_s": 0.3, "yaw_rate_rad_s": 0.2},
+    {"time_s": 70.8318530718, "v_m_s": 0.3, "yaw_rate_rad_s": 0.0},
+    {"time_s": 73.0, "v_m_s": 0.0, "yaw_rate_rad_s": 0.0}
+  ]
+}

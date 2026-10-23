@@ -1,0 +1,11 @@
+# ROS adapter parameters only. Algorithms keep their existing frozen configs.
+# Wildcard namespaces support a launch namespace without rewriting this file.
+/**/interaction:
+  ros__parameters:
+    use_sim_time: false
+    diagnostics_period_s: 1.0
+/**/perception:
+  ros__parameters:
+    use_sim_time: false
+    diagnostics_period_s: 1.0
+    publish_period_s: 0.02

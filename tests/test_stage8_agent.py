@@ -508,8 +508,9 @@ def test_local_cancel_and_sleep_feedback_persist_without_text_or_secret(tmp_path
     asyncio.run(run())
 
 
-def test_cli_blank_line_and_eof_finish_offline_turn():
-    result = subprocess.run([sys.executable, "-m", "companionbot_behavior.runtime.session", "--fake"],
+def test_cli_blank_line_and_eof_finish_offline_turn(tmp_path):
+    result = subprocess.run([sys.executable, "-m", "companionbot_behavior.runtime.session", "--fake",
+                             "--output-dir", str(tmp_path)],
                             input="普通聊天\n\n你好小柒\n你好\n", text=True, encoding="utf-8",
                             capture_output=True, timeout=10)
     assert result.returncode == 0, result.stderr

@@ -8,6 +8,7 @@ setup(
         ("share/ament_index/resource_index/packages", ["resource/companionbot_bringup"]),
         ("share/companionbot_bringup", ["package.xml", "README.md"]),
         ("share/companionbot_bringup/launch", glob("launch/*.launch.py")),
+        ("share/companionbot_bringup/config", glob("config/*.yaml") + glob("config/*.json") + glob("config/*.xml")),
     ],
     install_requires=["setuptools"], extras_require={"test": ["pytest"]},
     zip_safe=False, maintainer="CompanionBot",

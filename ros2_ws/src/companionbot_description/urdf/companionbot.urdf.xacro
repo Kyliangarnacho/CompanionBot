@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<robot name="companionbot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="geometry_config" default="$(find companionbot_description)/config/minisegway.yaml"/>
+  <xacro:arg name="lidar_config" default="$(find companionbot_description)/config/sim_lidar.yaml"/>
+  <xacro:arg name="sim_lidar" default="false"/>
+  <xacro:arg name="provisional_camera" default="false"/>
+  <xacro:arg name="camera_xyz" default="0 0 0"/>
+  <xacro:arg name="camera_rpy" default="0 0 0"/>
+  <xacro:property name="g" value="${xacro.load_yaml('$(arg geometry_config)')}"/>
+  <!-- base_footprint is a navigation projection OUTSIDE this rigid body tree.
+       spatial_state alone owns its dynamic transform to base_link. -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0.045"/>
+      <geometry><box size="0.065 0.119 0.09"/></geometry>
+      <material name="body_blue"><color rgba="0.12 0.42 0.72 1"/></material>
+    </visual>
+    <visual>
+      <origin xyz="0.035 0 0.07"/>
+      <geometry><box size="0.01 0.04 0.015"/></geometry>
+      <material name="front_green"><color rgba="0.15 0.8 0.3 1"/></material>
+    </visual>
+    <inertial>
+      <origin xyz="${' '.join(str(x) for x in g['chassis_com_m'])}"/>
+      <mass value="${g['chassis_mass_kg']}"/>
+      <inertia ixx="${g['chassis_inertia'][0]}" iyy="${g['chassis_inertia'][1]}" izz="${g['chassis_inertia'][2]}"
+               ixy="${g['chassis_inertia'][3]}" ixz="${g['chassis_inertia'][4]}" iyz="${g['chassis_inertia'][5]}"/>
+    </inertial>
+  </link>
+  <xacro:macro name="wheel" params="side y">
+    <link name="${side}_wheel_link">
+      <visual>
+        <origin rpy="${pi/2} 0 0"/>
+        <geometry><cylinder radius="${g['wheel_radius_m']}" length="${g['wheel_width_m']}"/></geometry>
+        <material name="rubber"><color rgba="0.06 0.06 0.07 1"/></material>
+      </visual>
+      <visual>
+        <origin xyz="0 0 0.02"/>
+        <geometry><box size="0.008 0.026 0.024"/></geometry>
+        <material name="encoder_mark"><color rgba="0.9 0.55 0.1 1"/></material>
+      </visual>
+    </link>
+    <joint name="${side}_wheel_joint" type="continuous">
+      <parent link="base_link"/><child link="${side}_wheel_link"/>
+      <origin xyz="0 ${y} 0"/><axis xyz="0 1 0"/>
+    </joint>
+  </xacro:macro>
+  <xacro:wheel side="left" y="${g['wheel_separation_m']/2}"/>
+  <xacro:wheel side="right" y="${-g['wheel_separation_m']/2}"/>
+  <!-- Sensor adapter rotates native MJ vectors into this ROS-aligned frame. -->
+  <link name="imu_link"/>
+  <joint name="imu_mount" type="fixed">
+    <parent link="base_link"/><child link="imu_link"/>
+    <origin xyz="${' '.join(str(x) for x in g['imu_xyz_m'])}"/>
+  </joint>
+  <xacro:if value="$(arg sim_lidar)">
+    <xacro:property name="l" value="${xacro.load_yaml('$(arg lidar_config)')}"/>
+    <link name="lidar_link"/>
+    <joint name="sim_lidar_mount" type="fixed">
+      <parent link="base_link"/><child link="lidar_link"/>
+      <origin xyz="${' '.join(str(x) for x in l['xyz_m'])}" rpy="${' '.join(str(x) for x in l['rpy_rad'])}"/>
+    </joint>
+  </xacro:if>
+  <!-- No camera TF unless the caller explicitly supplies the existing
+       Stage7 provisional extrinsic. No second camera publisher is started. -->
+  <xacro:if value="$(arg provisional_camera)">
+    <link name="camera_link"/>
+    <joint name="provisional_camera_mount" type="fixed">
+      <parent link="base_link"/><child link="camera_link"/>
+      <origin xyz="$(arg camera_xyz)" rpy="$(arg camera_rpy)"/>
+    </joint>
+    <link name="camera_optical_frame"/>
+    <joint name="camera_optical_rotation" type="fixed">
+      <parent link="camera_link"/><child link="camera_optical_frame"/>
+      <origin rpy="${-pi/2} 0 ${-pi/2}"/>
+    </joint>
+  </xacro:if>
+</robot>

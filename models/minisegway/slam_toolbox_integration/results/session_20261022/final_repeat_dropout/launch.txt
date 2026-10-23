@@ -1,0 +1,46 @@
+[INFO] [launch]: All log files can be found below /home/kylian/projects/CompanionBot/models/minisegway/slam_toolbox_integration/results/session_20261022/final_repeat_dropout/ros_logs/2026-10-22-21-47-09-176919-Mbappe7-61513
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [async_slam_toolbox_node-1]: process started with pid [61557]
+[INFO] [robot_state_publisher-2]: process started with pid [61558]
+[INFO] [spatial_state-3]: process started with pid [61559]
+[INFO] [tf_authority-4]: process started with pid [61560]
+[INFO] [spatial_sim-5]: process started with pid [61561]
+[async_slam_toolbox_node-1] [INFO] [1792730829.556177977] [slam_toolbox]: Node using stack size 40000000
+[robot_state_publisher-2] [WARN] [1792730829.563556222] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[robot_state_publisher-2] [INFO] [1792730829.563641936] [companionbot.robot_state_publisher]: Robot initialized
+[async_slam_toolbox_node-1] [INFO] [1792730829.737579148] [slam_toolbox]: Configuring
+[async_slam_toolbox_node-1] [INFO] [1792730829.742336831] [slam_toolbox]: Using solver plugin solver_plugins::CeresSolver
+[async_slam_toolbox_node-1] [INFO] [1792730829.742583266] [slam_toolbox]: CeresSolver: Using SCHUR_JACOBI preconditioner.
+[INFO] [launch.user]: [LifecycleLaunch] Slamtoolbox node is activating.
+[async_slam_toolbox_node-1] [INFO] [1792730829.757562825] [slam_toolbox]: Activating
+[async_slam_toolbox_node-1] Info: clipped range threshold to be within minimum and maximum range!
+[async_slam_toolbox_node-1] Registering sensor: [Custom Described Lidar]
+[async_slam_toolbox_node-1] WARNING: Logging before InitGoogleLogging() is written to STDERR
+[async_slam_toolbox_node-1] W20261022 21:47:47.712952 61625 preprocessor.cc:67] Specified options.num_threads: 50 exceeds maximum available from the threading model Ceres was compiled with: 8.  Bounding to maximum number available.
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[async_slam_toolbox_node-1] [INFO] [1792730929.020229265] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [tf_authority-4]: process has finished cleanly [pid 61560]
+[INFO] [robot_state_publisher-2]: process has finished cleanly [pid 61558]
+[INFO] [async_slam_toolbox_node-1]: process has finished cleanly [pid 61557]
+[INFO] [spatial_state-3]: process has finished cleanly [pid 61559]
+[INFO] [spatial_sim-5]: process has finished cleanly [pid 61561]
+[robot_state_publisher-2] [INFO] [1792730929.020247537] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[tf_authority-4] [INFO] [1792730929.021092870] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[async_slam_toolbox_node-1] Save To File /home/kylian/projects/CompanionBot/models/minisegway/slam_toolbox_integration/results/session_20261022/final_repeat_dropout/maps/indoor.posegraph 
+[async_slam_toolbox_node-1] Mapper <- Module
+[async_slam_toolbox_node-1] Mapper <- m_pSequentialScanMatcher
+[async_slam_toolbox_node-1] Mapper <- m_pGraph
+[async_slam_toolbox_node-1] MapperGraph <- Graph; Graph <- m_Edges; Graph <- m_Vertices
+[async_slam_toolbox_node-1] MapperGraph <- m_pMapper; MapperGraph <- m_pLoopScanMatcher; MapperGraph <- m_pTraversal
+[async_slam_toolbox_node-1] Mapper <- m_pMapperSensorManager
+[async_slam_toolbox_node-1] MapperSensorManager <- m_ScanManagers; MapperSensorManager <- m_Scans
+[async_slam_toolbox_node-1] Mapper <- m_Listeners
+[async_slam_toolbox_node-1] **Finished serializing Mapper**
+[async_slam_toolbox_node-1] Save To File
+[async_slam_toolbox_node-1] **Serializing Dataset**
+[async_slam_toolbox_node-1] Dataset <- m_SensorNameLookup
+[async_slam_toolbox_node-1] Dataset <- m_Data
+[async_slam_toolbox_node-1] Dataset <- m_Lasers
+[async_slam_toolbox_node-1] Dataset <- m_pDatasetInfo
+[async_slam_toolbox_node-1] **Finished serializing Dataset**
+[async_slam_toolbox_node-1] Unregistering sensor: Custom Described Lidar

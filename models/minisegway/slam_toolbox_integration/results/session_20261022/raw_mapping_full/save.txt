@@ -1,0 +1,16 @@
+[INFO] [1792729228.127158499] [map_saver]: 
+	map_saver lifecycle node launched. 
+	Waiting on external lifecycle transitions to activate
+	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[INFO] [1792729228.127254456] [map_saver]: Creating
+[INFO] [1792729228.127301336] [map_saver]: Configuring
+[INFO] [1792729228.131604927] [map_saver]: Saving map from 'map' topic to '/home/kylian/projects/CompanionBot/models/minisegway/slam_toolbox_integration/results/session_20261022/raw_mapping_full/maps/indoor' file
+[WARN] [1792729228.131633195] [map_saver]: Free threshold unspecified. Setting it to default value: 0.250000
+[WARN] [1792729228.131641422] [map_saver]: Occupied threshold unspecified. Setting it to default value: 0.650000
+[WARN] [1792729228.310095236] [map_io]: Image format unspecified. Setting it to: pgm
+[INFO] [1792729228.310155313] [map_io]: Received a 161 X 161 map @ 0.05 m/pix
+[INFO] [1792729228.320779238] [map_io]: Writing map occupancy data to /home/kylian/projects/CompanionBot/models/minisegway/slam_toolbox_integration/results/session_20261022/raw_mapping_full/maps/indoor.pgm
+[INFO] [1792729228.321077097] [map_io]: Writing map metadata to /home/kylian/projects/CompanionBot/models/minisegway/slam_toolbox_integration/results/session_20261022/raw_mapping_full/maps/indoor.yaml
+[INFO] [1792729228.321156923] [map_io]: Map saved
+[INFO] [1792729228.321163862] [map_saver]: Map saved successfully
+[INFO] [1792729228.321743316] [map_saver]: Destroying

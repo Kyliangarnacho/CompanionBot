@@ -1,0 +1,4 @@
+RUN curved_lateral
+RUN turnaround_pass_by
+RUN asynchronous_safety
+{"backend": "native", "suite": "safety", "passed": true, "duration_s": 22.210259286999644, "parity": {"kind": "C_drives_plant_Python_arbitration_diagnostic_mirror", "arbiters": 3, "checked_control_ticks": 32000, "max_reference_delta": 4.163336342344337e-17, "native_rejections": [{}, {}, {"2": 1}], "core_library": "/home/kylian/projects/CompanionBot/ros2_ws/install/companionbot_control/lib/libcompanionbot_core.so", "real_hardware_verified": false}}

@@ -1,0 +1,60 @@
+{
+  "linorobot2": {
+    "repository": "https://github.com/linorobot/linorobot2.git",
+    "ref": "refs/heads/jazzy",
+    "commit": "f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711",
+    "files": {
+      "linorobot2_navigation/config/navigation.yaml": {
+        "url": "https://raw.githubusercontent.com/linorobot/linorobot2/f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711/linorobot2_navigation/config/navigation.yaml",
+        "sha256": "cba6c13344d43148bd78db8cfb06dc5bcc6e5173c140e06b70d4dc7b2fc64ea4"
+      },
+      "linorobot2_navigation/launch/navigation.launch.py": {
+        "url": "https://raw.githubusercontent.com/linorobot/linorobot2/f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711/linorobot2_navigation/launch/navigation.launch.py",
+        "sha256": "c3a952ec9d48901c75038e9caa1402538c8d9ff637971245272ec95fe04de979"
+      },
+      "linorobot2_bringup/launch/bringup.launch.py": {
+        "url": "https://raw.githubusercontent.com/linorobot/linorobot2/f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711/linorobot2_bringup/launch/bringup.launch.py",
+        "sha256": "e868fe9a90684a8fd18a6e5028687c72fc07ce8aac537655ea1585a5d1b75f37"
+      },
+      "linorobot2_description/launch/description.launch.py": {
+        "url": "https://raw.githubusercontent.com/linorobot/linorobot2/f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711/linorobot2_description/launch/description.launch.py",
+        "sha256": "f6acbf99d9de948ad81bcb51dc15bb31ca51d576eacd4f4d2ad1f7e723d8546a"
+      },
+      "linorobot2_bringup/package.xml": {
+        "url": "https://raw.githubusercontent.com/linorobot/linorobot2/f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711/linorobot2_bringup/package.xml",
+        "sha256": "98ffc4040ee7ba68f4957d8d0b138625695a59040f53d7fdb1456daecfe93ee5"
+      },
+      "LICENSE": {
+        "url": "https://raw.githubusercontent.com/linorobot/linorobot2/f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711/LICENSE",
+        "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+      }
+    }
+  },
+  "navigation2": {
+    "repository": "https://github.com/ros-navigation/navigation2.git",
+    "ref": "refs/tags/1.3.12^{}",
+    "commit": "6be3614013ec586051b86c97b919b293281490fe",
+    "files": {
+      "nav2_controller/src/controller_server.cpp": {
+        "url": "https://raw.githubusercontent.com/ros-navigation/navigation2/6be3614013ec586051b86c97b919b293281490fe/nav2_controller/src/controller_server.cpp",
+        "sha256": "feb23b98a5b2fab175b4954a9f3e307a293c27e0434e3c36b27382bfcb540109"
+      },
+      "nav2_regulated_pure_pursuit_controller/src/regulated_pure_pursuit_controller.cpp": {
+        "url": "https://raw.githubusercontent.com/ros-navigation/navigation2/6be3614013ec586051b86c97b919b293281490fe/nav2_regulated_pure_pursuit_controller/src/regulated_pure_pursuit_controller.cpp",
+        "sha256": "9f5f23dc174e2bfae10c502fdebecc37b65d5397039d0c2c4504404557101d85"
+      },
+      "nav2_controller/plugins/simple_goal_checker.cpp": {
+        "url": "https://raw.githubusercontent.com/ros-navigation/navigation2/6be3614013ec586051b86c97b919b293281490fe/nav2_controller/plugins/simple_goal_checker.cpp",
+        "sha256": "aebed7edd5f991b4b37ec3e8c9b7596bab80f68eebe7d4798c9fe2cc39b0ba06"
+      },
+      "nav2_bt_navigator/behavior_trees/navigate_w_replanning_only_if_path_becomes_invalid.xml": {
+        "url": "https://raw.githubusercontent.com/ros-navigation/navigation2/6be3614013ec586051b86c97b919b293281490fe/nav2_bt_navigator/behavior_trees/navigate_w_replanning_only_if_path_becomes_invalid.xml",
+        "sha256": "9c7394c9f2cf0314a88267a8578b3a213384b0f600aeccb233d791f2ba68a819"
+      },
+      "LICENSE": {
+        "url": "https://raw.githubusercontent.com/ros-navigation/navigation2/6be3614013ec586051b86c97b919b293281490fe/LICENSE",
+        "sha256": "e71fcb65bd31cdbdcf50cf43ab87a0c600ea3ec407495c2e15d1e68bc9c3bfc1"
+      }
+    }
+  }
+}

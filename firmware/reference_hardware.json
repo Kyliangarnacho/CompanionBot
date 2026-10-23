@@ -1,0 +1,44 @@
+{
+  "selection_date": "2026-10-21",
+  "sbc": {
+    "reference": "Raspberry Pi 5 4GB",
+    "os": "Ubuntu Server 24.04 LTS arm64",
+    "ros": "ROS 2 Jazzy",
+    "cooling": "Raspberry Pi Active Cooler",
+    "storage": "64GB A2 microSD initially; USB/NVMe SSD optional after measured I/O need",
+    "bench_power": "27W USB-C supply; battery buck/PD power design remains unselected",
+    "agent": "existing cloud provider, no local LLM assumption",
+    "perception": {
+      "frozen_detector": "yolo26n.pt at imgsz=640",
+      "frozen_reid": "OSNet x0.25 at 256x128; confirmation/reacquisition only",
+      "frozen_depth": "yolo26n-depth.pt at imgsz=768, independent latest-frame worker",
+      "candidate_optimization": "NCNN detector export via existing Ultralytics adapter; requires board and equivalence measurements",
+      "pi_measured": false,
+      "visual_motion_closed_loop_enabled": false
+    }
+  },
+  "mcu": {
+    "board": "NUCLEO-G474RE",
+    "device": "STM32G474RET6",
+    "core": "Cortex-M4F, 170MHz HSI/PLL, double control arithmetic pending measured WCET",
+    "flash_bytes": 524288,
+    "main_sram_bytes": 98304,
+    "ccm_bytes": 32768,
+    "hal_upstream": "STM32CubeG4 v1.6.1, commits in upstream.lock.json",
+    "controller_period_us": 2000,
+    "link": "ST-LINK VCP to USART2 PA2/PA3 AF7, DMA1 channels 1/2, 921600 8N1",
+    "control_timer": "TIM6, 1MHz counter / 2000 counts",
+    "watchdog": "IWDG, nominal 250ms, LSI tolerance unmeasured",
+    "debug": "SWD, on-board ST-LINK",
+    "imu": null,
+    "encoders": null,
+    "motor_driver": null,
+    "hardware_execution_ready": false
+  },
+  "portability": {
+    "sbc": "POSIX serial + rclcpp; model acceleration behind existing inference adapters",
+    "mcu": "board_io + HAL/MSP/clock/startup/linker; shared C algorithm and wire payload unchanged",
+    "f4_and_g431_board_targets_implemented": false,
+    "physical_sensor_axes_and_motor_sign_calibration_verified": false
+  }
+}

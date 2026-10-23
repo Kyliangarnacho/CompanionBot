@@ -8,4 +8,4 @@ Pi/上位机的跟随估计与数值规划库，不执行 actuator；没有单�
 
 运行依赖 interfaces/contracts 与既有数值库；不加载 MuJoCo/ROS/视觉库。synthetic observation/RobotState history 由 simulation 提供；Stage 7 真实观测尚未成为运行输入。source time、clock、history alignment、双窗口 cruise latch 保持。
 
-规划与 follow 共用生命周期，保留一包；MCU 消费/安全属于 control，plant/调度属于 simulation。参见 [架构](../../../models/minisegway/stage9/ARCHITECTURE.md)。
+规划与 follow 共用生命周期，保留一包；MCU 消费/安全属于 control，plant/调度属于 simulation。真实感知没有 DDS→follow 消费者，不应擅自接入 actuator。上下游与扩展位置见 [运行架构](../../../docs/RUNTIME_ARCHITECTURE.md)。

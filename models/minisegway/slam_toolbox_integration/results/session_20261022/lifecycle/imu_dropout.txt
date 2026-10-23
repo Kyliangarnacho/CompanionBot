@@ -1,0 +1,51 @@
+[INFO] [launch]: All log files can be found below /home/kylian/projects/CompanionBot/models/minisegway/slam_toolbox_integration/results/session_20261022/lifecycle/ros_logs/2026-10-22-21-33-30-326548-Mbappe7-54070
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [async_slam_toolbox_node-1]: process started with pid [54100]
+[INFO] [robot_state_publisher-2]: process started with pid [54101]
+[INFO] [spatial_state-3]: process started with pid [54102]
+[INFO] [tf_authority-4]: process started with pid [54103]
+[INFO] [spatial_sim-5]: process started with pid [54104]
+[robot_state_publisher-2] [WARN] [1792730010.643721442] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[robot_state_publisher-2] [INFO] [1792730010.643799381] [companionbot.robot_state_publisher]: Robot initialized
+[async_slam_toolbox_node-1] [INFO] [1792730010.663659505] [slam_toolbox]: Node using stack size 40000000
+[async_slam_toolbox_node-1] [INFO] [1792730010.860616574] [slam_toolbox]: Configuring
+[async_slam_toolbox_node-1] [INFO] [1792730010.865165434] [slam_toolbox]: Using solver plugin solver_plugins::CeresSolver
+[async_slam_toolbox_node-1] [INFO] [1792730010.865362965] [slam_toolbox]: CeresSolver: Using SCHUR_JACOBI preconditioner.
+[INFO] [launch.user]: [LifecycleLaunch] Slamtoolbox node is activating.
+[async_slam_toolbox_node-1] [INFO] [1792730010.880519952] [slam_toolbox]: Activating
+[async_slam_toolbox_node-1] Info: clipped range threshold to be within minimum and maximum range!
+[async_slam_toolbox_node-1] Registering sensor: [Custom Described Lidar]
+[spatial_sim-5] [ERROR] [1792730014.920133025] [companionbot.spatial_sim]: spatial simulation failed: ValueError('imu_packet_sample_gap_or_reversal')
+[spatial_sim-5] Traceback (most recent call last):
+[spatial_sim-5]   File "/home/kylian/projects/CompanionBot/ros2_ws/install/companionbot_simulation/lib/companionbot_simulation/spatial_sim", line 33, in <module>
+[spatial_sim-5]     sys.exit(load_entry_point('companionbot-simulation', 'console_scripts', 'spatial_sim')())
+[spatial_sim-5]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[spatial_sim-5]   File "/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_simulation/companionbot_simulation/ros/spatial_sim.py", line 225, in main
+[spatial_sim-5]     raise node.error
+[spatial_sim-5]   File "/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_simulation/companionbot_simulation/ros/spatial_sim.py", line 179, in run
+[spatial_sim-5]     self.session.run()
+[spatial_sim-5]   File "/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_simulation/companionbot_simulation/runtime/spatial_session.py", line 177, in run
+[spatial_sim-5]     result = baseline.run_case(scenario, yaw["K_psi_nm_per_rad"], yaw["K_r_nm_per_rad_s"],
+[spatial_sim-5]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[spatial_sim-5]   File "/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_simulation/companionbot_simulation/scenarios/run_stage3b_yaw_control.py", line 560, in run_case
+[spatial_sim-5]     control_observer.observe({
+[spatial_sim-5]   File "/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_simulation/companionbot_simulation/runtime/spatial_session.py", line 111, in observe
+[spatial_sim-5]     attitude = self.attitude.update(accel_ros, gyro_ros, estimate.theta_measurement_time_rad,
+[spatial_sim-5]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[spatial_sim-5]   File "/home/kylian/projects/CompanionBot/ros2_ws/install/companionbot_control/lib/python3.12/site-packages/companionbot_control/estimation/spatial.py", line 46, in update
+[spatial_sim-5]     raise ValueError("imu_packet_sample_gap_or_reversal")
+[spatial_sim-5] ValueError: imu_packet_sample_gap_or_reversal
+[ERROR] [spatial_sim-5]: process has died [pid 54104, exit code 1, cmd '/home/kylian/projects/CompanionBot/ros2_ws/install/companionbot_simulation/lib/companionbot_simulation/spatial_sim --ros-args -r __ns:=/companionbot --params-file /tmp/launch_params_gag_g5wd'].
+[ERROR] [launch]: Caught exception in launch (see debug for traceback): Required runtime exited with code 1
+[INFO] [tf_authority-4]: sending signal 'SIGINT' to process[tf_authority-4]
+[INFO] [spatial_state-3]: sending signal 'SIGINT' to process[spatial_state-3]
+[INFO] [robot_state_publisher-2]: sending signal 'SIGINT' to process[robot_state_publisher-2]
+[INFO] [async_slam_toolbox_node-1]: sending signal 'SIGINT' to process[async_slam_toolbox_node-1]
+[tf_authority-4] [INFO] [1792730015.894339994] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[robot_state_publisher-2] [INFO] [1792730015.894916957] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[async_slam_toolbox_node-1] [INFO] [1792730015.895301199] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[async_slam_toolbox_node-1] Unregistering sensor: Custom Described Lidar
+[INFO] [robot_state_publisher-2]: process has finished cleanly [pid 54101]
+[INFO] [tf_authority-4]: process has finished cleanly [pid 54103]
+[INFO] [async_slam_toolbox_node-1]: process has finished cleanly [pid 54100]
+[INFO] [spatial_state-3]: process has finished cleanly [pid 54102]

@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.16)
+project(companionbot_description)
+# The workspace pins both legacy and modern CMake Python variables.
+if(DEFINED PYTHON_EXECUTABLE)
+  set(Python3_EXECUTABLE "${PYTHON_EXECUTABLE}")
+endif()
+find_package(ament_cmake REQUIRED)
+install(DIRECTORY urdf config rviz DESTINATION share/${PROJECT_NAME})
+install(FILES README.md DESTINATION share/${PROJECT_NAME})
+ament_package()

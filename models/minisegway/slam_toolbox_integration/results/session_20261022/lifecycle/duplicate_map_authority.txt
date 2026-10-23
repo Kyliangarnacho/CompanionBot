@@ -1,0 +1,32 @@
+[INFO] [launch]: All log files can be found below /home/kylian/projects/CompanionBot/models/minisegway/slam_toolbox_integration/results/session_20261022/lifecycle/ros_logs/2026-10-22-21-33-36-483658-Mbappe7-54247
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [async_slam_toolbox_node-1]: process started with pid [54288]
+[INFO] [robot_state_publisher-2]: process started with pid [54289]
+[INFO] [spatial_state-3]: process started with pid [54290]
+[INFO] [tf_authority-4]: process started with pid [54291]
+[INFO] [spatial_sim-5]: process started with pid [54292]
+[async_slam_toolbox_node-1] [INFO] [1792730016.833495384] [slam_toolbox]: Node using stack size 40000000
+[robot_state_publisher-2] [WARN] [1792730016.856063138] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[robot_state_publisher-2] [INFO] [1792730016.856196253] [companionbot.robot_state_publisher]: Robot initialized
+[async_slam_toolbox_node-1] [INFO] [1792730017.032291127] [slam_toolbox]: Configuring
+[async_slam_toolbox_node-1] [INFO] [1792730017.036571539] [slam_toolbox]: Using solver plugin solver_plugins::CeresSolver
+[async_slam_toolbox_node-1] [INFO] [1792730017.036764780] [slam_toolbox]: CeresSolver: Using SCHUR_JACOBI preconditioner.
+[INFO] [launch.user]: [LifecycleLaunch] Slamtoolbox node is activating.
+[async_slam_toolbox_node-1] [INFO] [1792730017.050350248] [slam_toolbox]: Activating
+[async_slam_toolbox_node-1] Info: clipped range threshold to be within minimum and maximum range!
+[async_slam_toolbox_node-1] Registering sensor: [Custom Described Lidar]
+[tf_authority-4] [ERROR] [1792730018.516751571] [companionbot.tf_authority]: tf_multiple_authorities:odom
+[tf_authority-4] [ERROR] [1792730018.527153101] [tf_authority]: tf_multiple_authorities:odom
+[ERROR] [tf_authority-4]: process has died [pid 54291, exit code 1, cmd '/home/kylian/projects/CompanionBot/ros2_ws/install/companionbot_control/lib/companionbot_control/tf_authority --ros-args -r __ns:=/companionbot --params-file /tmp/launch_params_kd2xdbz9'].
+[ERROR] [launch]: Caught exception in launch (see debug for traceback): Required runtime exited with code 1
+[INFO] [spatial_sim-5]: sending signal 'SIGINT' to process[spatial_sim-5]
+[INFO] [spatial_state-3]: sending signal 'SIGINT' to process[spatial_state-3]
+[INFO] [robot_state_publisher-2]: sending signal 'SIGINT' to process[robot_state_publisher-2]
+[INFO] [async_slam_toolbox_node-1]: sending signal 'SIGINT' to process[async_slam_toolbox_node-1]
+[robot_state_publisher-2] [INFO] [1792730019.062711376] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[async_slam_toolbox_node-1] [INFO] [1792730019.063095079] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[async_slam_toolbox_node-1] Unregistering sensor: Custom Described Lidar
+[INFO] [robot_state_publisher-2]: process has finished cleanly [pid 54289]
+[INFO] [async_slam_toolbox_node-1]: process has finished cleanly [pid 54288]
+[INFO] [spatial_state-3]: process has finished cleanly [pid 54290]
+[INFO] [spatial_sim-5]: process has finished cleanly [pid 54292]

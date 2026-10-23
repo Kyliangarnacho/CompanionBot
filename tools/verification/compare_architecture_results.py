@@ -4,13 +4,18 @@ This compares existing complete results, never changes scenarios or tolerance.
 File paths and measured planner wall times are not controller outputs.
 """
 import json
+import argparse
+from pathlib import Path
 
 from companionbot_contracts.paths import repository_root
 
 
 def main():
-    base = repository_root() / "models/minisegway/stage9/results"
-    output = base / "architecture"
+    cli = argparse.ArgumentParser(description=__doc__)
+    cli.add_argument("--baseline-dir", type=Path, default=repository_root() / "models/minisegway/stage9/results/architecture")
+    cli.add_argument("--output-dir", type=Path, required=True)
+    args = cli.parse_args()
+    base, output = args.baseline_dir.resolve(), args.output_dir.resolve()
     comparisons = {}
     for name in ("stage3_moving_q_off.json", "stage3_moving_history.json",
                  "stage4_final_baseline_metrics.json", "stage4_final_baseline_history.json"):

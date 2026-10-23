@@ -462,6 +462,8 @@ def main(argv: Sequence[str] | None = None, *, pitch_provider_override=None,
         validate_calibration_resolution(calibration, args.width, args.height)
     os.environ.setdefault("YOLO_CONFIG_DIR", str(ROOT / ".venv"))
 
+    if shutdown_event is not None and shutdown_event.is_set():
+        return 0
     depth_adapter = None
     if perception_status:
         perception_status("MODELS_LOADING · Detector / Depth / ReID 权重加载中")
@@ -488,6 +490,10 @@ def main(argv: Sequence[str] | None = None, *, pitch_provider_override=None,
             stable_updates=reid_policy["minimum_stable_tracker_updates"],
         )
 
+    if shutdown_event is not None and shutdown_event.is_set():
+        if tracker is not None:
+            tracker.close()
+        return 0
     if perception_status:
         perception_status("MODELS_LOADED · 权重已加载，等待相机首帧与首次推理")
     inference_ready = False
@@ -745,6 +751,8 @@ def main(argv: Sequence[str] | None = None, *, pitch_provider_override=None,
 
     source = runtime.stats.snapshot()
     if source["produced_count"] < 1:
+        if shutdown_event is not None and shutdown_event.is_set():
+            return 0
         raise RuntimeError("source produced no ColorFrame")
     args.output_dir.mkdir(parents=True, exist_ok=True)
     depth_rows = depth_channel.snapshot()[1] if depth_channel else []

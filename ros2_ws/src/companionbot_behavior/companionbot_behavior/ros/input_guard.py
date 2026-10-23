@@ -15,7 +15,7 @@ class InputGuard:
         self.source = None
         self.sequence, self.source_time = -1, float("-inf")
 
-    def accept(self, meta):
+    def accept(self, meta, *, enqueue=None):
         if meta.contract_version != 2 or not meta.source_id or not meta.source_epoch or not meta.has_sequence:
             return "invalid_source_contract"
         if (meta.clock_domain != "host_perf_counter" or meta.clock_id != HOST_CLOCK_ID
@@ -28,6 +28,8 @@ class InputGuard:
             return "source_restart_requires_rebind"
         if meta.sequence <= self.sequence or meta.source_time_s < self.source_time:
             return "duplicate_or_out_of_order"
+        if enqueue is not None and enqueue() is False:
+            return "input_inbox_full_or_closed"
         self.source, self.sequence, self.source_time = source, meta.sequence, meta.source_time_s
         return None
 

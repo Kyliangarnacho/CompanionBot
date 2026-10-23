@@ -462,7 +462,7 @@ def fake_model() -> FunctionModel:
                                     "resolution_id": resolution["resolution_id"]}}
                 yield {0: DeltaToolCall(name="request_behavior", json_args=json.dumps(args), tool_call_id="fake-guide")}
                 return
-            yield "假后端反馈：" + json.dumps(tool_returns[0].content, ensure_ascii=False)
+            yield "工具反馈：" + json.dumps(tool_returns[0].content, ensure_ascii=False)
             return
         prompt = next((p.content for p in reversed(last.parts) if p.part_kind == "user-prompt"), "")
         if not isinstance(prompt, str):

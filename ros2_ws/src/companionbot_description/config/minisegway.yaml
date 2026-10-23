@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "source": "models/minisegway/mini_segway.xml",
+  "source_sha256": "d8ceaff1b6346a434dd860ac11ec40fc0b698b518c5a89ac37cdfa301bc6bf59",
+  "mj_to_ros": [
+    [
+      0,
+      -1,
+      0
+    ],
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1
+    ]
+  ],
+  "wheel_radius_m": 0.042,
+  "wheel_width_m": 0.024,
+  "wheel_separation_m": 0.177,
+  "ros_left_encoder_index": 1,
+  "ros_right_encoder_index": 0,
+  "imu_xyz_m": [
+    0.0,
+    0.0,
+    0.02
+  ],
+  "chassis_mass_kg": 0.8173706489,
+  "chassis_com_m": [
+    0.001394466535,
+    0.0001592717873,
+    0.03368627387
+  ],
+  "chassis_inertia": [
+    0.001636345835,
+    0.0009508052638,
+    0.0009938057434,
+    1.163464906e-07,
+    -3.454944565e-05,
+    -4.840496598e-06
+  ],
+  "wheel_mass_kg": 0.1051,
+  "geometry_id": "077a4c8ecdd59d3963486ff3742b22c0ae9e917cb42a6271315ca8f4219dfac8"
+}

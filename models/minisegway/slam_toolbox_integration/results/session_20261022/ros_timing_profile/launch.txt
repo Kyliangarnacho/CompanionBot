@@ -1,0 +1,29 @@
+[INFO] [launch]: All log files can be found below /home/kylian/projects/CompanionBot/models/minisegway/slam_toolbox_integration/results/session_20261022/ros_timing_profile/ros_logs/2026-10-22-21-43-05-174476-Mbappe7-58415
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [async_slam_toolbox_node-1]: process started with pid [58465]
+[INFO] [robot_state_publisher-2]: process started with pid [58466]
+[INFO] [spatial_state-3]: process started with pid [58467]
+[INFO] [tf_authority-4]: process started with pid [58468]
+[INFO] [spatial_sim-5]: process started with pid [58469]
+[robot_state_publisher-2] [WARN] [1792730585.503520357] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[robot_state_publisher-2] [INFO] [1792730585.503587106] [companionbot.robot_state_publisher]: Robot initialized
+[async_slam_toolbox_node-1] [INFO] [1792730585.514444590] [slam_toolbox]: Node using stack size 40000000
+[async_slam_toolbox_node-1] [INFO] [1792730585.721187753] [slam_toolbox]: Configuring
+[async_slam_toolbox_node-1] [INFO] [1792730585.725144502] [slam_toolbox]: Using solver plugin solver_plugins::CeresSolver
+[async_slam_toolbox_node-1] [INFO] [1792730585.725250321] [slam_toolbox]: CeresSolver: Using SCHUR_JACOBI preconditioner.
+[INFO] [launch.user]: [LifecycleLaunch] Slamtoolbox node is activating.
+[async_slam_toolbox_node-1] [INFO] [1792730585.738232210] [slam_toolbox]: Activating
+[async_slam_toolbox_node-1] Info: clipped range threshold to be within minimum and maximum range!
+[async_slam_toolbox_node-1] Registering sensor: [Custom Described Lidar]
+[async_slam_toolbox_node-1] WARNING: Logging before InitGoogleLogging() is written to STDERR
+[async_slam_toolbox_node-1] W20261022 21:43:44.321944 58531 preprocessor.cc:67] Specified options.num_threads: 50 exceeds maximum available from the threading model Ceres was compiled with: 8.  Bounding to maximum number available.
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[robot_state_publisher-2] [INFO] [1792730652.740213872] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [robot_state_publisher-2]: process has finished cleanly [pid 58466]
+[INFO] [tf_authority-4]: process has finished cleanly [pid 58468]
+[INFO] [async_slam_toolbox_node-1]: process has finished cleanly [pid 58465]
+[INFO] [spatial_state-3]: process has finished cleanly [pid 58467]
+[INFO] [spatial_sim-5]: process has finished cleanly [pid 58469]
+[tf_authority-4] [INFO] [1792730652.740221778] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[async_slam_toolbox_node-1] [INFO] [1792730652.740318455] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[async_slam_toolbox_node-1] Unregistering sensor: Custom Described Lidar

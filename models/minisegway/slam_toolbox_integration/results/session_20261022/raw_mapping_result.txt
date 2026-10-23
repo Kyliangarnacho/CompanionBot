@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/home/kylian/projects/CompanionBot/tools/verification/verify_slam_integration.py", line 166, in <module>
+    main()
+  File "/home/kylian/projects/CompanionBot/tools/verification/verify_slam_integration.py", line 121, in main
+    assert messages['map'], 'no actual OccupancyGrid; inspect launch log'
+           ~~~~~~~~^^^^^^^
+AssertionError: no actual OccupancyGrid; inspect launch log

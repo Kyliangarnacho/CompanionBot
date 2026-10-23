@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/home/kylian/projects/CompanionBot/tools/verification/verify_slam_integration.py", line 171, in <module>
+    main()
+  File "/home/kylian/projects/CompanionBot/tools/verification/verify_slam_integration.py", line 132, in main
+    assert summary['motion_authority_passed'], summary['motion_authority']
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'arbiter_state': 'SAFE_HOLD', 'arbiter_reason': 'REFERENCE_STARVATION_IMMINENT', 'safety_events': [{'event': 'safety_takeover', 'time_s': 39.58799999999844, 'issued_time_s': None, 'reason': 'REFERENCE_STARVATION_IMMINENT', 'action': 'HARD_STOP', 'invalidated_reference_epoch': 0, 'new_reference_epoch': 1, 'active_sequence_id': 791, 'next_cached': False, 'buffer_remaining_s': 0.012, 'heartbeat_age_s': 0.03799999999991144}, {'event': 'safe_hold', 'time_s': 41.927999999992984, 'reason': 'REFERENCE_STARVATION_IMMINENT', 'state': 'SAFE_HOLD'}]}

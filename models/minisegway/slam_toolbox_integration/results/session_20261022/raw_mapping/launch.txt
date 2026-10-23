@@ -1,0 +1,25 @@
+[INFO] [launch]: All log files can be found below /home/kylian/projects/CompanionBot/models/minisegway/slam_toolbox_integration/results/session_20261022/raw_mapping/ros_logs/2026-10-22-21-17-33-562632-Mbappe7-46083
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [async_slam_toolbox_node-1]: process started with pid [46124]
+[INFO] [robot_state_publisher-2]: process started with pid [46125]
+[INFO] [spatial_state-3]: process started with pid [46126]
+[INFO] [tf_authority-4]: process started with pid [46127]
+[INFO] [spatial_sim-5]: process started with pid [46128]
+[async_slam_toolbox_node-1] [ERROR] [1792729053.906956116] [rcl]: Failed to parse global arguments
+[async_slam_toolbox_node-1] terminate called after throwing an instance of 'rclcpp::exceptions::RCLInvalidROSArgsError'
+[async_slam_toolbox_node-1]   what():  failed to initialize rcl: Couldn't parse parameter override rule: '-p map_file_name:='. Error: error not set, at ./src/rcl/arguments.c:352
+[robot_state_publisher-2] [WARN] [1792729053.918719634] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[robot_state_publisher-2] [INFO] [1792729053.919090829] [companionbot.robot_state_publisher]: Robot initialized
+[ERROR] [async_slam_toolbox_node-1]: process has died [pid 46124, exit code -6, cmd '/opt/ros/jazzy/lib/slam_toolbox/async_slam_toolbox_node --ros-args -r __node:=slam_toolbox -r __ns:=/ -p map_file_name:= -p map_start_at_dock:=True --params-file /home/kylian/projects/CompanionBot/ros2_ws/install/companionbot_bringup/share/companionbot_bringup/config/slam.yaml --params-file /tmp/launch_params_otl372ff'].
+[ERROR] [launch]: Caught exception in launch (see debug for traceback): Required runtime exited with code -6
+[INFO] [spatial_sim-5]: sending signal 'SIGINT' to process[spatial_sim-5]
+[INFO] [tf_authority-4]: sending signal 'SIGINT' to process[tf_authority-4]
+[INFO] [spatial_state-3]: sending signal 'SIGINT' to process[spatial_state-3]
+[INFO] [robot_state_publisher-2]: sending signal 'SIGINT' to process[robot_state_publisher-2]
+[tf_authority-4] [INFO] [1792729054.863429209] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[robot_state_publisher-2] [INFO] [1792729054.864133591] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ERROR] [launch]: Caught exception in launch (see debug for traceback): cannot use Destroyable because destruction was requested
+[INFO] [tf_authority-4]: process has finished cleanly [pid 46127]
+[INFO] [robot_state_publisher-2]: process has finished cleanly [pid 46125]
+[INFO] [spatial_state-3]: process has finished cleanly [pid 46126]
+[INFO] [spatial_sim-5]: process has finished cleanly [pid 46128]

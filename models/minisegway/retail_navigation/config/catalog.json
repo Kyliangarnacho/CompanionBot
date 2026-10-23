@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "notice": "AWS Bookstore 仿真场馆区域目录。区域名称对应模型布局；不表示真实书目、商品库存或实体执行。地图坐标只由单独的已验证地图绑定提供。",
+  "destinations": [
+    {"id": "entrance", "name": "书店入口", "aliases": ["入口", "出口", "门口"]},
+    {"id": "service_desk", "name": "服务台", "aliases": ["咨询台", "接待处"]},
+    {"id": "bookshelf_west", "name": "西侧书架区", "aliases": ["西侧书架", "西区书架"]},
+    {"id": "bookshelf_east", "name": "东侧书架区", "aliases": ["东侧书架", "东区书架"]},
+    {"id": "display_area", "name": "展示区", "aliases": ["展示桌", "展示区域"]}
+  ],
+  "categories": [],
+  "items": []
+}

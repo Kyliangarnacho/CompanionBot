@@ -1,4 +1,4 @@
-"""Standalone text/optional offline microphone Agent; all robot execution is fake."""
+"""The sole interaction runtime, with explicit fake or Nav2 simulation execution."""
 from __future__ import annotations
 from companionbot_contracts.paths import repository_root
 
@@ -9,8 +9,10 @@ import json
 import os
 from pathlib import Path
 import sys
+import signal
 import threading
 import time
+from queue import Empty
 from uuid import uuid4
 
 ROOT = repository_root()
@@ -24,6 +26,7 @@ from companionbot_behavior.core.interaction import AgentSession, normalized, CON
 from companionbot_behavior.core.runtime import AgentRuntime, fake_model, qwen_runtime
 from companionbot_behavior.core.ui import input_feedback
 from companionbot_behavior.core.catalog import JsonCatalogProvider
+from companionbot_behavior.runtime.inbox import SessionInbox, TextInput
 
 
 async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
@@ -31,20 +34,51 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
     config = AgentConfig.load(args.config)
     if getattr(args, "idle_timeout", None) is not None:
         config = AgentConfig.model_validate(config.model_dump() | {"idle_timeout_s": args.idle_timeout})
-    catalog = JsonCatalogProvider.load(STAGE_DIR / "config/knowledge.json")
-    if master_status:
+    catalog = JsonCatalogProvider.load(getattr(args, "catalog_file", None) or STAGE_DIR / "config/knowledge.json")
+    navigation_mode = getattr(args, "navigation_mode", "fake")
+    if navigation_mode == "nav2":
+        if not getattr(args, "navigation_bindings", None) or not getattr(args, "catalog_file", None):
+            raise ValueError("nav2_mode_requires_explicit_venue_catalog_and_verified_map_bindings")
+        from companionbot_behavior.runtime.nav2_backend import Nav2NavigationBackend, NavigationRobotBackend
+        navigation = Nav2NavigationBackend(args.navigation_bindings)
+        if navigation.binding.get("catalog_revision", catalog.revision) != catalog.revision:
+            await navigation.close()
+            raise ValueError("navigation_catalog_revision_mismatch")
+        robot = NavigationRobotBackend(navigation)
+    elif master_status:
         from companionbot_behavior.core.perception import PerceptionAwareFakeRobot
         robot = PerceptionAwareFakeRobot(master_status)
     else:
         robot = FakeRobotBackend()
-    navigation = FakeNavigationBackend(catalog.destination_ids())
+    if navigation_mode == "fake":
+        navigation = FakeNavigationBackend(catalog.destination_ids())
+    execution_backend = "nav2_simulation" if navigation_mode == "nav2" else "fake"
     supervisor = BehaviorSupervisor(robot, navigation, max_state_age_s=config.robot_max_age_s)
     run_id = "interaction_" + uuid4().hex
     output_dir = getattr(args, "output_dir", None) or STAGE_DIR / "results"
+    args.output_dir = output_dir
+    output_dir.mkdir(parents=True, exist_ok=True)
     telemetry = output_dir / (run_id + ".jsonl")
+    manifest_path = output_dir / (run_id + "_runtime.json")
+    manifest = {"run_id": run_id, "state": "STARTING", "python": sys.executable,
+                "config": config.model_dump(mode="json"), "execution_backend": "nav2_simulation" if navigation_mode == "nav2" else "fake",
+                "hardware_execution_ready": False, "camera_enabled": camera_runner is not None,
+                "source": (str(getattr(args, "video", None) or getattr(args, "camera_device", None))
+                           if camera_runner else None),
+                "agent_config_path": str(args.config or STAGE_DIR / "config/agent.json"),
+                "errors": [], "started_at_s": time.perf_counter()}
+    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     ros_bridge = None
-    runtime = (AgentRuntime(fake_model(), supervisor, config, telemetry=telemetry, master_status=master_status, catalog=catalog) if args.fake
-               else qwen_runtime(supervisor, config, telemetry=telemetry, master_status=master_status, catalog=catalog))
+    ros_runtime = None
+    try:
+        runtime = (AgentRuntime(fake_model(), supervisor, config, telemetry=telemetry, master_status=master_status, catalog=catalog) if args.fake
+                   else qwen_runtime(supervisor, config, telemetry=telemetry, master_status=master_status, catalog=catalog))
+    except Exception as error:
+        manifest.update(state="ERROR", errors=[{"resource": "agent_setup", "error_type": type(error).__name__}])
+        manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+        if navigation_mode == "nav2":
+            await navigation.close()
+        raise
 
     def emit(kind, data):
         if ui:
@@ -138,38 +172,40 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
                            on_run_start=begin_turn, speech_metrics=speech_metrics,
                            preempt_on_input=True,
                            on_silence=lambda: speech.interrupt() if speech else None)
-    print(f"SLEEP | 唤醒短语：{config.wake_phrase} | robot/navigation=fake")
+    print(f"SLEEP | 唤醒短语：{config.wake_phrase} | robot/navigation={execution_backend}")
     print("/interrupt /cancel /stop /wait /sleep /status /complete /look 问题 /quit")
     print("自然视觉问题自动选帧；/look 问题；/look-roi x1 y1 x2 y2 问题（原图坐标）。")
     print("播放中可说“" + config.wake_phrase + "，打断回答”；只接收明确打断口令，没有 AEC。文字/空格始终可用。")
     source_label = "视频回放" if getattr(args, "video", None) else "相机"
     source_status = f"正在初始化{source_label}" if camera_runner else "无相机模式"
-    emit("response", source_status + "；Agent SLEEP。音频按配置启用，执行后端为 fake。")
-    queue = asyncio.Queue(maxsize=64)
+    emit("response", source_status + f"；Agent SLEEP。音频按配置启用，执行后端为 {execution_backend}。")
     consumed = threading.Event()
     input_stop = threading.Event()
     camera_stop = threading.Event()
     loop = asyncio.get_running_loop()
 
-    def enqueue(item):
-        def put():
-            text = item[0] if isinstance(item, tuple) else item
-            command = normalized(text)
-            prefix = normalized(config.wake_phrase)
-            if command.startswith(prefix):
-                command = command[len(prefix):]
-            if command in {normalized(key) for key in CONTROLS} or command == normalized("/quit"):
-                while not queue.empty():
-                    queue.get_nowait()
-            if queue.full():
-                # New input supersedes queued old intent; keep a bounded inbox.
-                queue.get_nowait()
-                runtime.record_event("input_queue", {"reason": "oldest_dropped_capacity", "capacity": 64})
-            queue.put_nowait(item)
-        try:
-            loop.call_soon_threadsafe(put)
-        except RuntimeError:
-            pass
+    def is_control(item):
+        text = item.text if isinstance(item, TextInput) else item[0] if isinstance(item, tuple) else item
+        command = normalized(text)
+        prefix = normalized(config.wake_phrase)
+        if command.startswith(prefix):
+            command = command[len(prefix):]
+        return command in {normalized(key) for key in CONTROLS} | {normalized("/quit")}
+
+    inbox = SessionInbox(is_control)
+    # Synchronous admission makes a ROS `queued` response truthful, even while
+    # the Agent loop is busy. No unbounded call_soon_threadsafe callback backlog.
+    enqueue = inbox.put
+
+    async def next_input():
+        deadline = loop.time() + 0.2
+        while True:
+            try:
+                return inbox.get_nowait()
+            except Empty:
+                if loop.time() >= deadline:
+                    raise TimeoutError
+                await asyncio.sleep(0.02)
 
     def read_text():
         # A blocking console read must not hold asyncio's executor open on preview
@@ -197,6 +233,8 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
             await supervisor.poll()
             if ros_bridge:
                 ros_bridge.publish_robot(await robot.latest_state())
+                ros_bridge.update_status(session_tick_s=time.perf_counter(), inbox=inbox.snapshot(),
+                                         session_state=session.state.value)
             await asyncio.sleep(0.5)
     monitor = asyncio.create_task(monitor_tasks())
     def show_status():
@@ -210,24 +248,33 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
         task_text = (f"{current.intent.value if current.intent else '-'}:{current.status}"
                      if current else "NONE")
         line = (f"{status} | 生成={'是' if generating else '否'} | Master={master_text} "
-                f"ID={master.get('track_id')} | task={task_text} | 模拟执行 fake")
+                f"ID={master.get('track_id')} | task={task_text} | 模拟执行 {execution_backend}")
         if line != last_status:
             last_status = line
             print("\n[状态] " + line)
             emit("state", line)
         if ui:
-            ui.preview_line = f"Agent {status} | Master {master_text} | task {task_text} | execution=fake"
-    ros_spin = expiry = None
+            ui.preview_line = f"Agent {status} | Master {master_text} | task {task_text} | execution={execution_backend}"
+    expiry = None
+    signal_installed = False
+    failed = False
+
+    def check_background():
+        if monitor.done():
+            monitor.result()
+            raise RuntimeError("Behavior monitor ended unexpectedly")
+        if ros_runtime:
+            ros_runtime.check_health()
+
     try:
         if getattr(args, "ros", False):
-            from companionbot_behavior.ros.interaction_bridge import InteractionBridge
-            ros_bridge = args.ros_bridge = InteractionBridge(enqueue)
-            async def spin_ros():
-                while ros_bridge.ok():
-                    ros_bridge.spin_once()
-                    await asyncio.sleep(0.02)
-                enqueue("/quit")
-            ros_spin = asyncio.create_task(spin_ros())
+            from companionbot_behavior.ros.runtime import InteractionROS
+            ros_runtime = args.ros_runtime = InteractionROS(enqueue, with_perception=camera_runner is not None,
+                                                          ros_args=getattr(args, "ros_args", None))
+            ros_bridge = ros_runtime.interaction
+        if sys.platform != "win32" and threading.current_thread() is threading.main_thread():
+            loop.add_signal_handler(signal.SIGTERM, enqueue, "/quit")
+            signal_installed = True
         if getattr(args, "exit_after", None):
             async def expire():
                 await asyncio.sleep(args.exit_after)
@@ -240,6 +287,16 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
             if camera_ready is not None:
                 deadline = loop.time() + 45
                 while not camera_ready.is_set():
+                    check_background()
+                    # Finite lifetime / SIGTERM also applies during model loading.
+                    try:
+                        pending = inbox.get_nowait()
+                    except Empty:
+                        pending = None
+                    if pending == "/quit":
+                        return
+                    if pending is not None:
+                        enqueue(pending)
                     if camera.done():
                         camera.result()
                         raise RuntimeError("Camera stopped before a valid frame")
@@ -328,7 +385,11 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
                                         is_self_echo=lambda text: speech.is_self_echo(text) if speech else False))
         if not ui and (not ros_bridge or sys.stdin.isatty()):
             reader.start()
+        manifest["state"] = "RUNNING"
+        if ros_bridge:
+            ros_bridge.update_status("RUNNING", session_tick_s=time.perf_counter())
         while True:
+            check_background()
             if ui:
                 while not ui.commands.empty():
                     enqueue(ui.commands.get_nowait())
@@ -346,7 +407,7 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
                 print("Stage 7 数据源已结束。")
                 break
             try:
-                item = await asyncio.wait_for(queue.get(), timeout=0.2)
+                item = await next_input()
             except TimeoutError:
                 if await session.expire_idle():
                     emit("response", f"空闲 {config.idle_timeout_s:g} 秒，已休眠。" + config.idle_sleep_message)
@@ -355,7 +416,16 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
                         speak(config.idle_sleep_message)
                 continue
             voice = isinstance(item, tuple)
-            line, kwargs = item if voice else (item.strip(), {})
+            received_input = item if isinstance(item, TextInput) else None
+            if received_input:
+                runtime.record_event("input_received", {"input_id": received_input.input_id,
+                    "provenance": received_input.provenance, "dispatch_at_s": time.perf_counter()})
+                if time.perf_counter() > received_input.expires_at_s:
+                    decision = {"input_id": received_input.input_id, "status": "REJECT", "reason": "stale_after_queue"}
+                    runtime.record_event("input_decision", decision)
+                    emit("input", decision)
+                    continue
+            line, kwargs = item if voice else ((received_input.text if received_input else item).strip(), {})
             if voice:
                 score = kwargs.get('confidence')
                 label = f"{score:.2f}" if isinstance(score, (float, int)) else "confidence 未提供"
@@ -385,7 +455,7 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
                 print(json.dumps(runtime.master_status(), ensure_ascii=False))
                 emit("input", input_feedback(line, state=session.state.value, local=True))
             elif line == "/complete":
-                if supervisor.active_task in navigation.tasks:
+                if navigation_mode == "fake" and supervisor.active_task in navigation.tasks:
                     task_id = supervisor.active_task
                     navigation.complete(task_id)
                     print((await supervisor.status(task_id)).model_dump(mode="json"))
@@ -419,7 +489,7 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
                 previous = session.task
                 if not voice and speech and session.state.value != "SLEEP":
                     speech.interrupt()
-                input_id = uuid4().hex
+                input_id = received_input.input_id if received_input else uuid4().hex
                 response = await session.receive(line, vision=vision, roi_xyxy=roi, input_id=input_id, **kwargs)
                 valid_voice = session.last_decision != "voice_rejected"
                 decision = input_feedback(line, state=session.state.value, valid_voice=valid_voice,
@@ -445,7 +515,17 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
                             speak(spoken)
             if not voice:
                 consumed.set()
+    except BaseException as error:
+        failed = not isinstance(error, (KeyboardInterrupt, asyncio.CancelledError))
+        if failed:
+            manifest["errors"].append({"resource": "runtime", "error_type": type(error).__name__})
+        raise
     finally:
+        # Admission closes before cancellation. Every cleanup runs even if an
+        # earlier resource fails; ROS stays alive for final typed task feedback.
+        inbox.close()
+        if ros_runtime:
+            ros_runtime.begin_stop(manifest["errors"][0]["error_type"] if failed else "")
         monitor.cancel()
         await asyncio.gather(monitor, return_exceptions=True)
         input_stop.set()
@@ -456,23 +536,43 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
         if audio:
             audio.cancel()
             await asyncio.gather(audio, return_exceptions=True)
-        await session.close()
+        async def cleanup(name, operation):
+            try:
+                await operation
+            except Exception as error:
+                manifest["errors"].append({"resource": name, "error_type": type(error).__name__})
+
+        await cleanup("session", session.close())
+        if navigation_mode == "nav2":
+            await cleanup("navigation", navigation.close())
         if speech:
-            await speech.close()
+            await cleanup("speech", speech.close())
         if drains:
-            await asyncio.gather(*drains, return_exceptions=True)
+            await cleanup("speech_drains", asyncio.gather(*drains))
         if camera:
-            await camera
+            await cleanup("perception", camera)
         buffer.clear()
-        for background in (ros_spin, expiry):
-            if background:
-                background.cancel()
-                await asyncio.gather(background, return_exceptions=True)
-        if ros_bridge:
-            ros_bridge.close()
-            ros_bridge = args.ros_bridge = None
-    print(f"阶段日志：{telemetry}")
-    emit("response", f"阶段日志：{telemetry}")
+        if expiry:
+            expiry.cancel()
+            await asyncio.gather(expiry, return_exceptions=True)
+        if signal_installed:
+            loop.remove_signal_handler(signal.SIGTERM)
+        if ros_runtime:
+            ros_bridge.update_status(inbox=inbox.snapshot(), session_state=session.state.value)
+            manifest["ros"] = ros_runtime.snapshot()
+            try:
+                ros_runtime.close()
+            except Exception as error:
+                manifest["errors"].append({"resource": "ros", "error_type": type(error).__name__})
+            manifest["ros"]["threads_stopped"] = all(not t.is_alive() for t in ros_runtime.threads)
+            ros_bridge = args.ros_runtime = None
+        manifest.update(state="ERROR" if manifest["errors"] else "CLOSED", inbox=inbox.snapshot(),
+                        ended_at_s=time.perf_counter())
+        manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+        if manifest["errors"] and not failed:
+            raise RuntimeError("Runtime cleanup failed; see " + str(manifest_path))
+    print(f"运行日志：{telemetry}")
+    emit("response", f"运行日志：{telemetry}")
 
 
 def parser():
@@ -480,6 +580,9 @@ def parser():
     parser.add_argument("--fake", action="store_true", help="Offline FunctionModel, no API key needed")
     parser.add_argument("--output-dir", type=Path, help="Explicit results directory for this run/stage")
     parser.add_argument("--config", type=Path)
+    parser.add_argument("--catalog-file", type=Path, help="Explicit venue catalog; destination semantics are preserved")
+    parser.add_argument("--navigation-mode", choices=("fake", "nav2"), default="fake")
+    parser.add_argument("--navigation-bindings", type=Path, help="Verified map and destination binding for explicit nav2 mode")
     parser.add_argument("--vosk-model", type=Path, help="Local unpacked Chinese Vosk model directory")
     parser.add_argument("--asr-backend", choices=["vosk", "sensevoice"], default="vosk", help="Question ASR; wake remains local Vosk")
     parser.add_argument("--asr-model-dir", type=Path, default=ROOT / ".venv/models/sensevoice")
@@ -503,7 +606,7 @@ def run_cli(args, **kwargs):
         pass
     except Exception as error:
         # Do not dump credential-bearing SDK exceptions or locals.
-        print(f"启动/音频错误：{type(error).__name__}", file=sys.stderr)
+        print(f"启动/运行错误：{type(error).__name__}", file=sys.stderr)
         if kwargs.get("ui"):
             kwargs["ui"].emit("error", f"启动/运行错误：{type(error).__name__}。请核对配置的数据源、音频设备、模型及阶段日志。")
         sys.exit(1)

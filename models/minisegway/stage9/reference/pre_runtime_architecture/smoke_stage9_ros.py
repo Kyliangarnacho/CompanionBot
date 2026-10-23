@@ -1,4 +1,7 @@
-"""Finite DDS/launch/service smoke, explicitly Fake execution; never opens GUI."""
+"""Archived migration DDS smoke; superseded by tools/verification/verify_runtime_ros.py.
+
+Historical source only. Its fixed Stage 9 output paths must not be run again.
+"""
 from companionbot_contracts.paths import repository_root
 
 import json

@@ -1,0 +1,133 @@
+{
+  "alignment": "one initial sensor/GT origin and yaw only; no trajectory or map best fit",
+  "gt_posthoc_only": true,
+  "path_length_m": 21.768472040892,
+  "xy_span_m": [
+    3.386581770188754,
+    2.999613882243383
+  ],
+  "yaw_accumulated_rad": 12.584185989515552,
+  "pitch_abs_peak_deg": 7.703283759822945,
+  "pose": {
+    "samples": 125,
+    "position_rmse_m": 0.011047371170165639,
+    "position_p95_m": 0.016417600859752426,
+    "position_peak_m": 0.043590437044049704,
+    "yaw_rmse_rad": 0.0011903240018932336,
+    "yaw_peak_rad": 0.003846073903592174
+  },
+  "odom": {
+    "samples": 4089,
+    "position_rmse_m": 0.009798437763868195,
+    "position_p95_m": 0.016545151846055404,
+    "position_peak_m": 0.016957972324566434,
+    "yaw_rmse_rad": 0.006142714544591621,
+    "yaw_peak_rad": 0.009552340758479836
+  },
+  "map": {
+    "resolution_m": 0.05000000074505806,
+    "shape_cells": [
+      161,
+      161
+    ],
+    "occupied_cells": 973,
+    "occupied_geometry_p50_m": 0.009700085027098918,
+    "occupied_geometry_p95_m": 0.059747788928355125,
+    "occupied_precision_within_0p10m": 1.0,
+    "room_boundary_coverage_within_0p10m": 1.0,
+    "known_interior_fraction": 0.989439513477975
+  },
+  "source_validity": {
+    "scans_with_source_time_tf": 801,
+    "scans_received": 801,
+    "tf_coverage_fraction": 1.0,
+    "unavailable": [],
+    "generated_scans": 820,
+    "received_fraction_of_generated": 0.9768292682926829
+  },
+  "physical_scan_posthoc": {
+    "finite_returns": 270476,
+    "floor_returns_within_2cm": 4537,
+    "floor_fraction": 0.016774131531078543,
+    "floor_returns_peak_per_scan": 105,
+    "runtime_compensation": "none; raw ranges and physical TF retained"
+  },
+  "performance": {
+    "scan_to_pose_arrival_wall_s_p50": 0.007616680999944947,
+    "scan_to_pose_arrival_wall_s_p95": 0.012038896699641553,
+    "pose_hz_wall": 1.6785718547459314,
+    "map_hz_wall": 1.0466293882807773,
+    "processes": {
+      "50786": {
+        "name": "async_slam_toolbox_node",
+        "mean_cpu_percent_one_core": 6.469053769319856,
+        "peak_rss_mib": 57.8359375
+      },
+      "50787": {
+        "name": "robot_state_publisher",
+        "mean_cpu_percent_one_core": 1.941886031674657,
+        "peak_rss_mib": 34.0234375
+      },
+      "50788": {
+        "name": "spatial_state",
+        "mean_cpu_percent_one_core": 9.463770345332026,
+        "peak_rss_mib": 108.734375
+      },
+      "50789": {
+        "name": "tf_authority",
+        "mean_cpu_percent_one_core": 2.7724519171093673,
+        "peak_rss_mib": 31.97265625
+      },
+      "50790": {
+        "name": "spatial_sim",
+        "mean_cpu_percent_one_core": 52.43092688733026,
+        "peak_rss_mib": 813.34765625
+      }
+    }
+  },
+  "tf_authorities": {
+    "imu_link": [
+      "base_link|robot_state_publisher|/tf_static|010f1ef863c6787d0000000000001603"
+    ],
+    "lidar_link": [
+      "base_link|robot_state_publisher|/tf_static|010f1ef863c6787d0000000000001603"
+    ],
+    "base_footprint": [
+      "odom|spatial_state|/tf|010f1ef864c6b4a60000000000001703"
+    ],
+    "base_link": [
+      "base_footprint|spatial_state|/tf|010f1ef864c6b4a60000000000001703"
+    ],
+    "left_wheel_link": [
+      "base_link|robot_state_publisher|/tf|010f1ef863c6787d0000000000001503"
+    ],
+    "right_wheel_link": [
+      "base_link|robot_state_publisher|/tf|010f1ef863c6787d0000000000001503"
+    ],
+    "odom": [
+      "map|slam_toolbox|/tf|010f1ef862c6d7dc0000000000002603"
+    ]
+  },
+  "pose_graph": {
+    "nodes": 125,
+    "edges": 208,
+    "cross_lap_edges_over_20s": 84,
+    "historical_pose_correction_peak_m": 0.012358375500185112,
+    "evidence": "installed Karto deserialization; cross-lap edges and historical correction; not a guessed event count"
+  },
+  "checks": {
+    "geometry_p95": true,
+    "occupied_precision": true,
+    "room_coverage": true,
+    "known_interior": true,
+    "position_rmse": true,
+    "yaw_rmse": true,
+    "actual_motion": true,
+    "map_authority": true,
+    "loop_closure": true,
+    "frozen_control": true,
+    "motion_authority": true,
+    "source_time_tf": true
+  },
+  "passed": true
+}

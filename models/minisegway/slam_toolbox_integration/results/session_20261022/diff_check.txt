@@ -1,0 +1,8 @@
+tests/test_stage8_agent.py:511: trailing whitespace.
++def test_cli_blank_line_and_eof_finish_offline_turn(tmp_path):
+tests/test_stage8_agent.py:512: trailing whitespace.
++    result = subprocess.run([sys.executable, "-m", "companionbot_behavior.runtime.session", "--fake",
+tests/test_stage8_agent.py:513: trailing whitespace.
++                             "--output-dir", str(tmp_path)],
+tests/test_stage8_interaction.py:421: trailing whitespace.
++                         audio_device=None, audio_samplerate=16000, output_dir=tmp_path)

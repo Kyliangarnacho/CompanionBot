@@ -1,5 +1,6 @@
 # Source time is never silently replaced by ROS time. Clock ID names one clock instance.
-# Header stamps elsewhere are ROS publication time, NOT source exposure time.
+# Legacy business-message Headers use ROS publication time. Standard spatial
+# messages and BalanceState explicitly use source time mapped into ROS time.
 uint32 contract_version
 string source_id
 string source_epoch

@@ -217,6 +217,7 @@ def run_case(
     reference_context_callback=None,
     mcu_local_state_callback=None,
     pre_reference_tick_callback=None,
+    feedback_function=None,
 ) -> dict:
     (
         manifest, config, dynamic_config, motion_config, offline,
@@ -463,7 +464,8 @@ def run_case(
                 raise ValueError("runtime equilibrium reference must be finite")
         x_plant = estimate.plant_state(theta_eq)
         error = x_plant - x_ref
-        u_fb = -float((K4 @ error).item())
+        u_fb = (-float((K4 @ error).item()) if feedback_function is None
+                else float(feedback_function(K4, error)))
         u_ff = lambda_ff * u_ff_after_lifecycle
         u_eq = 0.0
         if equilibrium_input_callback is not None:

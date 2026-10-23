@@ -4,3 +4,5 @@ string text
 ---
 bool queued
 string reason
+# Present only for an admitted request; retained in session/feedback telemetry.
+string input_id

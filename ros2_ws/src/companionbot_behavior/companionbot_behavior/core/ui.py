@@ -92,7 +92,7 @@ def launch_panel(bridge: DemoBridge, run_worker):
     device = tk.StringVar(value="等待配置的数据源与音频输入就绪")
     perception = tk.StringVar(value="感知：等待加载 Detector / Depth / ReID")
     asr = tk.StringVar(value="本地 ASR：等待音频；“你好小柒”允许同音名字变体")
-    acceptance = tk.StringVar(value="说“你好小柒”唤醒；可输入文字。执行后端为 fake，实体运动未接通。")
+    acceptance = tk.StringVar(value="说“你好小柒”唤醒；可输入文字。执行后端由启动配置选择；实体运动未接通。")
     ttk.Label(frame, textvariable=state, font=("Microsoft YaHei UI", 13, "bold"), wraplength=800).grid(row=0, column=0, sticky="w")
     ttk.Label(frame, textvariable=device, wraplength=800).grid(row=1, column=0, sticky="w", pady=(5, 8))
     ttk.Label(frame, textvariable=perception, wraplength=800).grid(row=2, column=0, sticky="w")

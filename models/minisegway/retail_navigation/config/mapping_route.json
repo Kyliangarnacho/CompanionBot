@@ -1,0 +1,173 @@
+{
+  "name": "bookstore_aisles_and_north_cross_aisle",
+  "description": "Finite route corrected against actual collision projection after retaining run1 obstruction failure; no baseline changes or online GT input.",
+  "duration_s": 270.75,
+  "world_commit": "f5a2aaacd5418f9ecfa30f79e788856417f17c13",
+  "commands": [
+    {
+      "time_s": 0.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 1.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.3141592653589793
+    },
+    {
+      "time_s": 11.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 13.0,
+      "v_m_s": 0.2,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 30.5,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 33.5,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.3141592653589793
+    },
+    {
+      "time_s": 38.5,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 40.5,
+      "v_m_s": 0.2,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 71.5,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 74.5,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.3141592653589793
+    },
+    {
+      "time_s": 79.5,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 81.5,
+      "v_m_s": 0.2,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 118.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 121.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.3141592653589793
+    },
+    {
+      "time_s": 126.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 128.0,
+      "v_m_s": 0.2,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 157.75,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 160.75,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.3141592653589793
+    },
+    {
+      "time_s": 165.75,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 167.75,
+      "v_m_s": 0.2,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 186.75,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 189.75,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": -0.3141592653589793
+    },
+    {
+      "time_s": 194.75,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 196.75,
+      "v_m_s": 0.2,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 208.75,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 211.75,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.3141592653589793
+    },
+    {
+      "time_s": 216.75,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 218.75,
+      "v_m_s": 0.2,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 233.25,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 236.25,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.3141592653589793
+    },
+    {
+      "time_s": 246.25,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 248.25,
+      "v_m_s": 0.2,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 262.75,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    }
+  ]
+}

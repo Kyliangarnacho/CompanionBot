@@ -14,14 +14,13 @@ ROOT = repository_root()
 
 
 
-def extended_baseline():
+def extended_baseline(output):
     """Original Stage 4 closeout and frozen Stage 3 moving-payload Q-OFF arm."""
     import numpy as np
     import companionbot_simulation.scenarios.run_stage4_final_closeout as stage4
     import companionbot_simulation.scenarios.run_stage4c_slope_estimation as resolver
     import companionbot_simulation.scenarios.run_stage3c_mechanical_payload_q_revalidation as moving
     from companionbot_control.core.full_state_identification import DiscreteStateSpaceModel
-    output = ROOT / "models/minisegway/stage9/results/architecture/extended_control"
     output.mkdir(parents=True, exist_ok=True)
     stage4.RESULT_DIR = output
     stage4.METRICS_PATH = output / "stage4_final_baseline_metrics.json"
@@ -58,13 +57,14 @@ def main():
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument("--reuse-recorded", action="store_true", help="Re-audit this stage's recorded runs without repeating physics")
     cli.add_argument("--extended-baseline", action="store_true", help="Replay Stage 4 closeout and Stage 3 moving-payload Q-OFF instead of radial cases")
+    cli.add_argument("--output-dir", type=Path, required=True, help="This engineering session's results, never frozen evidence")
     args = cli.parse_args()
     if args.extended_baseline:
-        extended_baseline()
+        extended_baseline(args.output_dir.resolve())
         return
     import companionbot_simulation.scenarios.run_stage6_5_radial_kf as stage6
     stage5 = stage6.stage5
-    output = ROOT / "models/minisegway/stage9/results/architecture/control"
+    output = args.output_dir.resolve()
     output.mkdir(parents=True, exist_ok=True)
     config = stage5.load_json(stage6.CONFIG_PATH)
     stage6_config = stage5.load_json(stage6.stage6_4.CONFIG_PATH)

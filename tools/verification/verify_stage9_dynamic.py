@@ -8,16 +8,21 @@ from companionbot_contracts.paths import repository_root
 import importlib.util
 import importlib
 import json
+import argparse
 from pathlib import Path
 import sys
 
 ROOT = repository_root()
 
 ORIGINAL = ROOT / "models/minisegway/stage6/results/governor_dynamic_rate_validation"
-OUTPUT = ROOT / "models/minisegway/stage9/results/architecture/dynamic_control"
+OUTPUT: Path  # Assigned from the required --output-dir before any execution.
 
 
 def main():
+    global OUTPUT
+    cli = argparse.ArgumentParser(description=__doc__)
+    cli.add_argument("--output-dir", type=Path, required=True)
+    OUTPUT = cli.parse_args().output_dir.resolve()
     OUTPUT.mkdir(parents=True, exist_ok=True)
     # The frozen evidence runner imports this historical bare module name.
     # Bind just that dependency to its sole relocated implementation; the

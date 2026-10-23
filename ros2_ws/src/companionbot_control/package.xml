@@ -5,9 +5,21 @@
   <description>Frozen MCU-side control, estimation and reference safety libraries</description>
   <maintainer email="maintainer@companionbot.local">CompanionBot</maintainer>
   <license>LicenseRef-CompanionBot</license>
-  <exec_depend>companionbot_interfaces</exec_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+  <depend>companionbot_interfaces</depend>
+  <depend>rclcpp</depend>
+  <depend>diagnostic_msgs</depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>rcl_interfaces</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <depend>tf2_msgs</depend>
+  <exec_depend>companionbot_description</exec_depend>
+  <test_depend>ament_cmake_pytest</test_depend>
   <test_depend>python3-pytest</test_depend>
-  <test_depend>rclpy</test_depend>
   <test_depend>companionbot_follow</test_depend>
-  <export><build_type>ament_python</build_type></export>
+  <export><build_type>ament_cmake</build_type></export>
 </package>

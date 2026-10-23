@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "source": "models/minisegway/mini_segway.xml",
+  "source_sha256": "d8ceaff1b6346a434dd860ac11ec40fc0b698b518c5a89ac37cdfa301bc6bf59",
+  "method": "MuJoCo geom_rbound + distance from axle; attitude-invariant triangle inequality",
+  "mujoco_version": "3.2.0",
+  "physical_radius_bound_m": 0.15401692559127272,
+  "geometric_margin_m": 0.02,
+  "robot_radius_m": 0.17401692559127271,
+  "collision_geometry": [
+    {
+      "geom": "wheel_base_collision",
+      "center_distance_from_axle_m": 0.004229657196511322,
+      "primitive_bounding_sphere_radius_m": 0.07919627516493435,
+      "attitude_invariant_radius_bound_m": 0.08342593236144567
+    },
+    {
+      "geom": "lower_chassis_collision",
+      "center_distance_from_axle_m": 0.03804273912325451,
+      "primitive_bounding_sphere_radius_m": 0.07772065362566118,
+      "attitude_invariant_radius_bound_m": 0.11576339274891569
+    },
+    {
+      "geom": "upper_chassis_collision",
+      "center_distance_from_axle_m": 0.09601692559127273,
+      "primitive_bounding_sphere_radius_m": 0.058,
+      "attitude_invariant_radius_bound_m": 0.15401692559127272
+    },
+    {
+      "geom": "left_wheel_collision",
+      "center_distance_from_axle_m": 0.0885,
+      "primitive_bounding_sphere_radius_m": 0.04368065933568311,
+      "attitude_invariant_radius_bound_m": 0.1321806593356831
+    },
+    {
+      "geom": "right_wheel_collision",
+      "center_distance_from_axle_m": 0.0885,
+      "primitive_bounding_sphere_radius_m": 0.04368065933568311,
+      "attitude_invariant_radius_bound_m": 0.1321806593356831
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "STM32CubeG4": {
+    "url": "https://github.com/STMicroelectronics/STM32CubeG4.git",
+    "tag": "v1.6.1",
+    "commit": "1e6984e6cdeb9e5c01f5badbfd18e5cf4345d02f",
+    "license": "ST per-component BSD-3-Clause / Apache-2.0; retain upstream notices",
+    "sparse_paths": ["Drivers/CMSIS/Include", "Drivers/CMSIS/Core/Include", "Drivers/CMSIS/Device/ST/STM32G4xx", "Drivers/STM32G4xx_HAL_Driver", "Projects/NUCLEO-G474RE/Templates", "Projects/NUCLEO-G474RE/Examples/UART/UART_ReceptionToIdle_CircularDMA"]
+  },
+  "submodules": {
+    "Drivers/CMSIS/Device/ST/STM32G4xx": "84d8c1d2e301e873bccd9f4b9a544f1930f66d42",
+    "Drivers/STM32G4xx_HAL_Driver": "d69997c6dcdc2d672afae31fee03713fb033c4a8"
+  }
+}

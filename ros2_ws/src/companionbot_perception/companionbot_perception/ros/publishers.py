@@ -16,9 +16,10 @@ class PerceptionPublishers:
         header.stamp = self.node.get_clock().now().to_msg()
         header.frame_id = frame
 
-    def publish_color(self, frame):
+    def publish_color(self, frame, *, received_at_s=None):
         message = ColorFrame()
-        message.meta = source_stamp(frame.source_id, self.epoch, frame.sequence_id, frame.host_receive_time_s)
+        message.meta = source_stamp(frame.source_id, self.epoch, frame.sequence_id, frame.host_receive_time_s,
+                                   received_at_s=received_at_s)
         self._header(message.image.header, "camera_optical_frame")
         message.image.width, message.image.height = frame.width, frame.height
         message.image.encoding, message.image.is_bigendian = "bgr8", 0
@@ -26,21 +27,23 @@ class PerceptionPublishers:
         message.image.data = np.ascontiguousarray(frame.bgr).tobytes()
         self.color.publish(message)
 
-    def publish_master(self, result):
+    def publish_master(self, result, *, received_at_s=None):
         message = MasterStatus()
         self._header(message.header, "camera_optical_frame")
-        message.meta = source_stamp(result.source_id, self.epoch, result.source_sequence_id, result.source_time_s)
+        message.meta = source_stamp(result.source_id, self.epoch, result.source_sequence_id, result.source_time_s,
+                                   received_at_s=received_at_s)
         message.state, message.visible = result.state.value, result.master_track is not None
         message.has_track_id, message.track_id = result.bound_track_id is not None, result.bound_track_id or 0
         message.width, message.height = result.frame_width, result.frame_height
         message.hardware_execution_ready = False
         self.master.publish(message)
 
-    def publish_observation(self, result):
+    def publish_observation(self, result, *, received_at_s=None):
         message = RelativeObservation()
         self._header(message.header, "robot_leveled_axle")
         message.meta = source_stamp(result.source_id, self.epoch, result.source_sequence_id, result.source_time_s,
                                    time_semantics=result.time_semantics, clock_domain=result.clock_domain,
+                                   received_at_s=received_at_s,
                                    produced_at_s=result.result_ready_time_s,
                                    produced_clock_domain="host_perf_counter")
         message.master_track_id = result.master_track_id

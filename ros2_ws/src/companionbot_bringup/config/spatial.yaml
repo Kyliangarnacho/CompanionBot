@@ -1,0 +1,12 @@
+# Passive spatial output assumptions. No controller / planner / MCU parameter.
+/**/spatial_state:
+  ros__parameters:
+    use_sim_time: true
+    expected_source_id: "mujoco:spatial"
+    expected_clock_domain: "mujoco_sim"
+    expected_device_mapping_id: ""
+    velocity_std: 0.03
+    yaw_rate_std: 0.02
+    position_rw: 0.005
+    yaw_rw: 0.002
+    max_gap_s: 0.12

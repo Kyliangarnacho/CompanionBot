@@ -1,0 +1,166 @@
+{
+  "alignment": "one initial sensor/GT origin and yaw only; no trajectory or map best fit",
+  "gt_posthoc_only": true,
+  "path_length_m": 21.768472040892,
+  "xy_span_m": [
+    3.386581770188754,
+    2.999613882243383
+  ],
+  "yaw_accumulated_rad": 12.584185989515552,
+  "pitch_abs_peak_deg": 7.703283759822945,
+  "pose": {
+    "samples": 124,
+    "position_rmse_m": 0.011091506110882856,
+    "position_p95_m": 0.016422731544591066,
+    "position_peak_m": 0.043590437044049704,
+    "yaw_rmse_rad": 0.0011916214823231386,
+    "yaw_peak_rad": 0.003846073903592174
+  },
+  "odom": {
+    "samples": 4058,
+    "position_rmse_m": 0.009835759702515672,
+    "position_p95_m": 0.016552687370486978,
+    "position_peak_m": 0.016957972324566434,
+    "yaw_rmse_rad": 0.006166049087207416,
+    "yaw_peak_rad": 0.009552340758479836
+  },
+  "map": {
+    "resolution_m": 0.05000000074505806,
+    "shape_cells": [
+      161,
+      161
+    ],
+    "occupied_cells": 973,
+    "occupied_geometry_p50_m": 0.009700085027098918,
+    "occupied_geometry_p95_m": 0.059747788928355125,
+    "occupied_precision_within_0p10m": 1.0,
+    "room_boundary_coverage_within_0p10m": 1.0,
+    "known_interior_fraction": 0.989439513477975
+  },
+  "source_validity": {
+    "scans_with_source_time_tf": 812,
+    "scans_received": 820,
+    "tf_coverage_fraction": 0.9902439024390244,
+    "unavailable": [
+      {
+        "time_s": 0.1,
+        "reason": "Lookup would require extrapolation into the past.  Requested time 0.100000 but the earliest data is at time 1.000000, when looking up transform from frame [lidar_link] to frame [odom]"
+      },
+      {
+        "time_s": 0.2,
+        "reason": "Lookup would require extrapolation into the past.  Requested time 0.200000 but the earliest data is at time 1.000000, when looking up transform from frame [lidar_link] to frame [odom]"
+      },
+      {
+        "time_s": 0.30000000000000004,
+        "reason": "Lookup would require extrapolation into the past.  Requested time 0.300000 but the earliest data is at time 1.000000, when looking up transform from frame [lidar_link] to frame [odom]"
+      },
+      {
+        "time_s": 0.4,
+        "reason": "Lookup would require extrapolation into the past.  Requested time 0.400000 but the earliest data is at time 1.000000, when looking up transform from frame [lidar_link] to frame [odom]"
+      },
+      {
+        "time_s": 0.5,
+        "reason": "Lookup would require extrapolation into the past.  Requested time 0.500000 but the earliest data is at time 1.000000, when looking up transform from frame [lidar_link] to frame [odom]"
+      },
+      {
+        "time_s": 0.6000000000000001,
+        "reason": "Lookup would require extrapolation into the past.  Requested time 0.600000 but the earliest data is at time 1.000000, when looking up transform from frame [lidar_link] to frame [odom]"
+      },
+      {
+        "time_s": 0.7000000000000001,
+        "reason": "Lookup would require extrapolation into the past.  Requested time 0.700000 but the earliest data is at time 1.000000, when looking up transform from frame [lidar_link] to frame [odom]"
+      },
+      {
+        "time_s": 0.8,
+        "reason": "Lookup would require extrapolation into the past.  Requested time 0.800000 but the earliest data is at time 1.000000, when looking up transform from frame [lidar_link] to frame [odom]"
+      }
+    ],
+    "generated_scans": 820,
+    "received_fraction_of_generated": 1.0
+  },
+  "physical_scan_posthoc": {
+    "finite_returns": 276794,
+    "floor_returns_within_2cm": 4541,
+    "floor_fraction": 0.01640570243574644,
+    "floor_returns_peak_per_scan": 105,
+    "runtime_compensation": "none; raw ranges and physical TF retained"
+  },
+  "performance": {
+    "scan_to_pose_arrival_wall_s_p50": 0.007312818000173138,
+    "scan_to_pose_arrival_wall_s_p95": 0.01280111809955997,
+    "pose_hz_wall": 1.7297992838893803,
+    "map_hz_wall": 1.0484689959005238,
+    "processes": {
+      "59464": {
+        "name": "async_slam_toolbox_node",
+        "mean_cpu_percent_one_core": 6.084662061541758,
+        "peak_rss_mib": 58.2421875
+      },
+      "59465": {
+        "name": "robot_state_publisher",
+        "mean_cpu_percent_one_core": 1.7930061504265309,
+        "peak_rss_mib": 34.01171875
+      },
+      "59466": {
+        "name": "spatial_state",
+        "mean_cpu_percent_one_core": 9.31205693026711,
+        "peak_rss_mib": 108.89453125
+      },
+      "59467": {
+        "name": "tf_authority",
+        "mean_cpu_percent_one_core": 2.417661851267797,
+        "peak_rss_mib": 32.0
+      },
+      "59468": {
+        "name": "spatial_sim",
+        "mean_cpu_percent_one_core": 51.48809064663586,
+        "peak_rss_mib": 883.55078125
+      }
+    }
+  },
+  "tf_authorities": {
+    "imu_link": [
+      "base_link|robot_state_publisher|/tf_static|010f1ef849e856580000000000001603"
+    ],
+    "lidar_link": [
+      "base_link|robot_state_publisher|/tf_static|010f1ef849e856580000000000001603"
+    ],
+    "base_footprint": [
+      "odom|spatial_state|/tf|010f1ef84ae83bea0000000000001703"
+    ],
+    "base_link": [
+      "base_footprint|spatial_state|/tf|010f1ef84ae83bea0000000000001703"
+    ],
+    "left_wheel_link": [
+      "base_link|robot_state_publisher|/tf|010f1ef849e856580000000000001503"
+    ],
+    "right_wheel_link": [
+      "base_link|robot_state_publisher|/tf|010f1ef849e856580000000000001503"
+    ],
+    "odom": [
+      "map|slam_toolbox|/tf|010f1ef848e8e12b0000000000002603"
+    ]
+  },
+  "pose_graph": {
+    "nodes": 125,
+    "edges": 208,
+    "cross_lap_edges_over_20s": 84,
+    "historical_pose_correction_peak_m": 0.012358375500185112,
+    "evidence": "installed Karto deserialization; cross-lap edges and historical correction; not a guessed event count"
+  },
+  "checks": {
+    "geometry_p95": true,
+    "occupied_precision": true,
+    "room_coverage": true,
+    "known_interior": true,
+    "position_rmse": true,
+    "yaw_rmse": true,
+    "actual_motion": true,
+    "map_authority": true,
+    "loop_closure": true,
+    "frozen_control": true,
+    "motion_authority": true,
+    "source_time_tf": true
+  },
+  "passed": true
+}

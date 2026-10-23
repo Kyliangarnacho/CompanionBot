@@ -1,0 +1,44 @@
+{
+  "sources_sha256": {
+    "models/minisegway/stage3/results/config/baseline.json": "f7aeb34cfba6233d7599e05485907d2c2ab9f71d951c706c16418fdfa5b7c010",
+    "models/minisegway/stage2/results/full_state_identification_results.json": "6d56f8b74edbde4015fd142b6658e2142eab1d61173932834a31cea5f3df316d",
+    "models/minisegway/stage3/results/config/stage3a_velocity_feedforward_lean_tail_config.json": "6cbf13506e5676899960455847a61c03ac66f5e1480873a64234e077d47fe6c3",
+    "models/minisegway/stage6/config/stage6_4_2d_follow_config.json": "eed9f48a57ffe8cc00c76e79f97ac9dddebbe89256cd698c7f8f97702ebe45ef",
+    "models/minisegway/longitudinal_estimator_config.json": "6ba931372363fd1af58b3e4e3639191a203f1cb465a6380ce33ab717e390e190",
+    "models/minisegway/encoder_profile.json": "f6ff78d04c2361959488864eb2de41cf10b2107ca7cf82962e622c8112c49319",
+    "models/minisegway/reduced_twip.json": "17724699da80a7b5ba82cd09e7bb146a187ac67ed7bdadc6a6b9c0792e9b3f45",
+    "models/minisegway/plant_parameters.json": "14f1cd5e77e82ddf1edb4e50247a7d4905768c41f241e67594e397985183d284",
+    "ros2_ws/src/companionbot_control/companionbot_control/estimation/longitudinal_estimation.py": "6bb5a022a79bbe76006d644f3cb2f20232cb0f3ebc779d83ca07fa796e4d0e53"
+  },
+  "K_id": [
+    -2.960185163806781,
+    -4.940194755152595,
+    -8.661980390084155,
+    -0.4921046440134705
+  ],
+  "values": {
+    "CB_NOMINAL_PITCH": -0.04137206857258165,
+    "CB_WHEEL_RADIUS": 0.042,
+    "CB_WHEEL_LIMIT": 0.63,
+    "CB_LAMBDA_FF": 0.6,
+    "CB_YAW_KP": 0.55,
+    "CB_YAW_KR": 0.2,
+    "CB_PITCH_TAU": 0.5,
+    "CB_PLL_BANDWIDTH": 80.0,
+    "CB_PLL_SNAP": 1,
+    "CB_COUNTS_PER_REV": 2248.8576,
+    "CB_LEFT_SIGN": 1,
+    "CB_RIGHT_SIGN": 1,
+    "CB_ACCEL_TAU": 0.05,
+    "CB_ACCEL_SCALE": 0.25,
+    "CB_SAFE_DECEL": 0.5,
+    "CB_SAFE_JERK": 0.8,
+    "CB_SAFE_HANDOFF": 1.0,
+    "CB_HEARTBEAT_TIMEOUT": 0.15,
+    "CB_STARVATION_MARGIN": 0.012,
+    "CB_YAW_TIMEOUT": 0.2,
+    "CB_YAW_DECAY": 0.8
+  },
+  "Q_actuator": false,
+  "hardware_calibration_validated": false
+}

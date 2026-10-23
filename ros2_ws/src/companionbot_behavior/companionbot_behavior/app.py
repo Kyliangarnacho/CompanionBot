@@ -6,6 +6,7 @@ import sys
 import os
 import threading
 import json
+import math
 from uuid import uuid4
 
 # OpenCV's documented Windows option avoids slow MSMF hardware-transform startup.
@@ -24,17 +25,27 @@ from companionbot_behavior.core.ui import DemoBridge, launch_panel
 
 
 def camera_runner(args, frames, shutdown, enqueue, run_id, ready=None, masters=None, ui=None):
-    import companionbot_perception.runtime.session as stage7
+    from companionbot_perception.runtime.owner import run_perception
+    ros = getattr(args, "ros_runtime", None)
+    perception = ros.perception if ros else None
+    if perception:
+        # One capture run has one source epoch across local and ROS observers.
+        frames.source_epoch = perception.epoch
+        if masters:
+            masters.source_epoch = perception.epoch
     def publish(frame):
         try:
             frames.publish(frame)
-            if getattr(args, "ros_bridge", None):
-                args.ros_bridge.perception.publish_color(frame)
+            if perception:
+                # Reuse the immutable Agent snapshot; no extra RGB copy or DDS in capture.
+                perception.publish_color(frames.latest().frame)
             if ready:
                 ready.set()
-        except Exception:
+        except Exception as error:
             # Failed publication cannot leave a previous snapshot apparently valid.
             frames.clear()
+            if perception:
+                perception.set_state("ERROR", type(error).__name__)
             raise
 
     def key(value):
@@ -43,32 +54,21 @@ def camera_runner(args, frames, shutdown, enqueue, run_id, ready=None, masters=N
         if command:
             enqueue(command)
 
-    source = (["--video", str(args.video), "--realtime-playback"] if args.video
-              else ["--camera-device", str(args.camera_device)])
-    argv = ["--mode", "full", *source,
-            "--opencv-backend", str({"auto": stage7.cv2.CAP_ANY,
-                                     "msmf": stage7.cv2.CAP_MSMF,
-                                     "dshow": stage7.cv2.CAP_DSHOW,
-                                     "v4l2": stage7.cv2.CAP_V4L2}[args.camera_backend]),
-            "--output-dir", str(args.output_dir or STAGE_DIR / "results"),
-            "--run-name", run_id]
-    if args.preview:
-        argv += ["--preview"]
-    if args.max_source_frames:
-        argv += ["--max-source-frames", str(args.max_source_frames)]
     def publish_master(result):
         if masters:
             masters.publish(result)
-        if getattr(args, "ros_bridge", None):
-            args.ros_bridge.perception.publish_master(result)
+        if perception:
+            perception.publish_master(result)
+    def status(text):
+        if perception and text.startswith("PERCEPTION_READY"):
+            perception.set_state("RUNNING")
+        if ui:
+            ui.emit("perception", text)
     try:
-        return stage7.main(argv, frame_observer=publish, shutdown_event=shutdown,
-                           on_key=key, write_report=False, log_progress=False,
-                           perception_observer=publish_master,
-                           robot_observation_observer=(args.ros_bridge.perception.publish_observation
-                               if getattr(args, "ros_bridge", None) else None),
-                           perception_status=(lambda text: ui.emit("perception", text)) if ui else None,
-                           preview_status=(lambda: ui.preview_line) if ui else None)
+        return run_perception(args, shutdown, run_id, on_color=publish, on_master=publish_master,
+                              on_observation=perception.publish_observation if perception else None,
+                              on_key=key, status=status,
+                              preview_status=(lambda: ui.preview_line) if ui else None)
     finally:
         frames.clear()
         if masters:
@@ -95,11 +95,22 @@ def main(argv=None):
     cli.set_defaults(tts=True, vosk_model=ROOT / ".venv/models/vosk-model-small-cn-0.22", asr_backend="sensevoice")
     cli.add_argument("--no-tts", action="store_false", dest="tts")
     cli.add_argument("--no-mic", action="store_const", const=None, dest="vosk_model")
-    args = cli.parse_args(argv)
+    raw_args = list(sys.argv[1:] if argv is None else argv)
+    if "--ros" in raw_args:
+        from rclpy.utilities import remove_ros_args
+        args = cli.parse_args(remove_ros_args(args=["interaction", *raw_args])[1:])
+        args.ros_args = ["interaction", *raw_args]
+    else:
+        args = cli.parse_args(raw_args)
     if sys.platform != "win32" and args.camera_backend in ("msmf", "dshow"):
         cli.error("MSMF/DShow are Windows-only; use auto or v4l2 on Linux")
-    if args.exit_after is not None and args.exit_after <= 0:
-        cli.error("--exit-after must be positive")
+    if args.exit_after is not None and (not math.isfinite(args.exit_after) or args.exit_after <= 0):
+        cli.error("--exit-after must be finite and positive")
+    if args.video is not None and not args.video.is_file():
+        cli.error("video file does not exist: " + str(args.video))
+    if args.output_dir is None:
+        args.output_dir = ROOT / "models/minisegway/runtime_architecture/results/sessions" / uuid4().hex
+    args.output_dir = args.output_dir.resolve()
     if args.diagnose_audio:
         from companionbot_behavior.core.devices import microphone_diagnostics
         result = microphone_diagnostics(args.audio_device, samplerate=args.audio_samplerate)
@@ -114,6 +125,7 @@ def main(argv=None):
         args.preview = False
     frames = Stage7FrameBuffer()
     ready, masters = threading.Event(), MasterStatusBuffer()
+    masters.source_epoch = frames.source_epoch
     ui = None if args.headless else DemoBridge()
     def run():
         run_cli(args, frames=frames, camera_ready=ready, ui=ui, master_status=masters.status,

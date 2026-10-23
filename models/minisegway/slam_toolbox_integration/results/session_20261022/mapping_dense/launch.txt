@@ -1,0 +1,51 @@
+[INFO] [launch]: All log files can be found below /home/kylian/projects/CompanionBot/models/minisegway/slam_toolbox_integration/results/session_20261022/mapping_dense/ros_logs/2026-10-22-21-28-50-727648-Mbappe7-50756
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [async_slam_toolbox_node-1]: process started with pid [50786]
+[INFO] [robot_state_publisher-2]: process started with pid [50787]
+[INFO] [spatial_state-3]: process started with pid [50788]
+[INFO] [tf_authority-4]: process started with pid [50789]
+[INFO] [spatial_sim-5]: process started with pid [50790]
+[robot_state_publisher-2] [WARN] [1792729731.057197244] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[robot_state_publisher-2] [INFO] [1792729731.057279955] [companionbot.robot_state_publisher]: Robot initialized
+[async_slam_toolbox_node-1] [INFO] [1792729731.069751184] [slam_toolbox]: Node using stack size 40000000
+[async_slam_toolbox_node-1] [INFO] [1792729731.270524744] [slam_toolbox]: Configuring
+[async_slam_toolbox_node-1] [INFO] [1792729731.275082507] [slam_toolbox]: Using solver plugin solver_plugins::CeresSolver
+[async_slam_toolbox_node-1] [INFO] [1792729731.275262239] [slam_toolbox]: CeresSolver: Using SCHUR_JACOBI preconditioner.
+[INFO] [launch.user]: [LifecycleLaunch] Slamtoolbox node is activating.
+[async_slam_toolbox_node-1] [INFO] [1792729731.290234449] [slam_toolbox]: Activating
+[async_slam_toolbox_node-1] Info: clipped range threshold to be within minimum and maximum range!
+[async_slam_toolbox_node-1] Registering sensor: [Custom Described Lidar]
+[async_slam_toolbox_node-1] WARNING: Logging before InitGoogleLogging() is written to STDERR
+[async_slam_toolbox_node-1] W20261022 21:29:28.870850 50846 preprocessor.cc:67] Specified options.num_threads: 50 exceeds maximum available from the threading model Ceres was compiled with: 8.  Bounding to maximum number available.
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [spatial_sim-5]: sending signal 'SIGINT' to process[spatial_sim-5]
+[INFO] [tf_authority-4]: sending signal 'SIGINT' to process[tf_authority-4]
+[INFO] [spatial_state-3]: sending signal 'SIGINT' to process[spatial_state-3]
+[INFO] [robot_state_publisher-2]: sending signal 'SIGINT' to process[robot_state_publisher-2]
+[INFO] [async_slam_toolbox_node-1]: sending signal 'SIGINT' to process[async_slam_toolbox_node-1]
+[async_slam_toolbox_node-1] [INFO] [1792729830.303213353] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ERROR] [tf_authority-4]: process has died [pid 50789, exit code -2, cmd '/home/kylian/projects/CompanionBot/ros2_ws/install/companionbot_control/lib/companionbot_control/tf_authority --ros-args -r __ns:=/companionbot --params-file /tmp/launch_params_rgsc7_v1'].
+[ERROR] [robot_state_publisher-2]: process has died [pid 50787, exit code -2, cmd '/opt/ros/jazzy/lib/robot_state_publisher/robot_state_publisher --ros-args -r __node:=robot_state_publisher -r __ns:=/companionbot --params-file /tmp/launch_params_q1zl_w9d -r joint_states:=joint_states'].
+[robot_state_publisher-2] [INFO] [1792729830.303212018] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[tf_authority-4] [INFO] [1792729830.303189096] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[async_slam_toolbox_node-1] Save To File /home/kylian/projects/CompanionBot/models/minisegway/slam_toolbox_integration/results/session_20261022/mapping_dense/maps/indoor.posegraph 
+[async_slam_toolbox_node-1] Mapper <- Module
+[async_slam_toolbox_node-1] Mapper <- m_pSequentialScanMatcher
+[async_slam_toolbox_node-1] Mapper <- m_pGraph
+[async_slam_toolbox_node-1] MapperGraph <- Graph; Graph <- m_Edges; Graph <- m_Vertices
+[async_slam_toolbox_node-1] MapperGraph <- m_pMapper; MapperGraph <- m_pLoopScanMatcher; MapperGraph <- m_pTraversal
+[async_slam_toolbox_node-1] Mapper <- m_pMapperSensorManager
+[async_slam_toolbox_node-1] MapperSensorManager <- m_ScanManagers; MapperSensorManager <- m_Scans
+[async_slam_toolbox_node-1] Mapper <- m_Listeners
+[async_slam_toolbox_node-1] **Finished serializing Mapper**
+[async_slam_toolbox_node-1] Save To File
+[async_slam_toolbox_node-1] **Serializing Dataset**
+[async_slam_toolbox_node-1] Dataset <- m_SensorNameLookup
+[async_slam_toolbox_node-1] Dataset <- m_Data
+[async_slam_toolbox_node-1] Dataset <- m_Lasers
+[async_slam_toolbox_node-1] Dataset <- m_pDatasetInfo
+[async_slam_toolbox_node-1] **Finished serializing Dataset**
+[async_slam_toolbox_node-1] Unregistering sensor: Custom Described Lidar
+[ERROR] [async_slam_toolbox_node-1]: process has died [pid 50786, exit code -2, cmd '/opt/ros/jazzy/lib/slam_toolbox/async_slam_toolbox_node --ros-args -r __node:=slam_toolbox -r __ns:=/ --params-file /home/kylian/projects/CompanionBot/ros2_ws/install/companionbot_bringup/share/companionbot_bringup/config/slam.yaml --params-file /tmp/launch_params_ndc6zx2o'].
+[INFO] [spatial_state-3]: process has finished cleanly [pid 50788]
+[INFO] [spatial_sim-5]: process has finished cleanly [pid 50790]

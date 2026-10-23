@@ -8,10 +8,11 @@ CompanionBot 是面向双轮自平衡陪伴机器人的研究项目，结合自�
 | --- | --- | --- |
 | 视觉感知与目标锁定 | 人物检测、持续跟踪、人工选择 Master、丢失后 ReID 重绑定、深度与机器人相对位置观测 | 真实 C920；外参、pitch 与深度几何仍有待实机确认的参数 |
 | 目标跟随与运动规划 | 相对运动估计、追赶/巡航/减速、二维转向、平滑运动参考与安全接管 | MuJoCo 仿真；尚未与真实视觉闭环连接 |
-| 自平衡与轮端控制 | 状态估计、纵向 LQR、yaw PD、轮端转矩分配及抗扰验证 | 冻结的仿真 baseline；Pi/MCU 完整实机链仍待接入 |
-| 自然交互与行为请求 | 本地语音唤醒、多轮对话、按需视觉问答、商品/场馆语义检索与歧义澄清、带路请求、流式文字与语音、打断/取消/休眠 | 真实相机、内置麦克风与本地语音；目录为虚构示例，行为由确定性 Supervisor 审核，运动/导航使用 Fake Backend |
+| 自平衡与轮端控制 | 状态估计、纵向 LQR、yaw PD、轮端转矩分配、共享 C 控制核心及 STM32 HAL 工程 | 冻结仿真与主机对照；Pi/MCU 完整实机链仍待接入 |
+| 商业场景与自主导航 | AWS Bookstore 完整资产、SLAM Toolbox 建图、AMCL、官方 Nav2 规划/避障与多目标导航 | WSL2 MuJoCo 真实物理与传感器估计；实体 LiDAR、Pi/MCU 执行与 GUI 人工验收待完成 |
+| 自然交互与行为请求 | 本地语音唤醒、多轮对话、按需视觉问答、场馆检索与歧义澄清、带路、流式语音、打断/取消/休眠 | Supervisor 审核；默认 Fake，显式 Nav2 模式接版本化地图目标与原平衡控制链 |
 
-当前主开发环境是 Ubuntu 24.04 + ROS 2 Jazzy。Windows 的真实设备证据保留；WSL2 当前使用无设备交互或感知回放，音频可通过 WSLg 桥检查。实机视觉→运动控制尚未接通；带路已预留目的地与任务接口，后续采用 SLAM + Navigation，当前没有实际地图导航。
+当前主开发环境是 Ubuntu 24.04 + ROS 2 Jazzy。Windows 的真实设备证据保留；WSL2 使用无设备交互或感知回放，音频可通过 WSLg 桥检查。Bookstore 的实际建图、定位、多目标物理导航和 Agent 带路已验证，见 [商业场景导航与运行方式](docs/RETAIL_NAVIGATION.md)；原房间建图回归见 [二维建图说明](docs/SLAM_MAPPING.md)。实机视觉跟随及硬件执行尚未接通。
 
 ## 系统架构
 
@@ -37,7 +38,9 @@ flowchart TD
     A -->|按需视觉问答| V[新鲜关键帧 / 云端视觉模型]
     C --> V
     A --> B[高层行为 Supervisor]
-    B --> E[Fake Robot / Navigation Backend]
+    B --> E[默认 Fake / 显式 Nav2 Backend]
+    E -->|版本化目标 / Action / motion lease| N[官方 Nav2 / AMCL / Costmap]
+    N -->|受限速度意图| S
 ```
 
 | 层 | 职责与边界 |
@@ -49,9 +52,9 @@ flowchart TD
 | MCU 侧实时控制 | 状态估计、reference 消费、safety merge、纵向 LQR、yaw PD 与轮端 torque 分配 |
 | Interaction / Agent | PydanticAI Slim + Qwen；本地唤醒、流式问答、按需图像与高层行为请求，不直接控制速度或轮端转矩 |
 
-Pi/MCU 是职责划分；感知性能数字来自 Windows 开发机，控制与通信时序验证来自仿真，还没有 Pi 5/STM32 的完整实机认证。MuJoCo physics 为 1 kHz，冻结 controller 为 500 Hz。ROS 包装现有 runtime，不调度高频控制 tick；[接口与职责边界](models/minisegway/stage9/INTERFACES.md)保留独立时钟、source/sequence 和 frame 语义。
+Pi/MCU 是职责划分；感知性能数字来自 Windows 开发机，控制与通信时序验证来自仿真，还没有 Pi 5/STM32 的完整实机认证。MuJoCo physics 为 1 kHz，冻结 controller 为 500 Hz。ROS 不调度高频控制 tick；[运行架构与接口](docs/RUNTIME_ARCHITECTURE.md)保留独立时钟、source/sequence 和 frame 语义。
 
-代码按 interfaces、perception、follow、control、behavior、simulation、bringup 七个 package 归属到 `ros2_ws/src`；算法 core/runtime 与 ROS adapter 分目录，库包不强制启动 node。完整布局、依赖与数据流见 [软件架构](models/minisegway/stage9/ARCHITECTURE.md)。
+代码按 interfaces、perception、follow、control、behavior、simulation、bringup、description 八个 package 归属到 `ros2_ws/src`。正式 app 静态组合 interaction 与可选 perception Node，各有独立 ROS executor；帧与 Master 在本地共享，发布使用有界槽。control 含 C++ 串口基础设施和主机/STM32共用C核心；参考板为Pi 5 4GB＋NUCLEO-G474RE，外设与真机实时性未验证。导航使用原射线 LaserScan、传感器估计 odometry 和保留物理倾角的 TF，见 [空间状态](docs/SPATIAL_STATE.md)。完整进程与数据流见 [运行架构](docs/RUNTIME_ARCHITECTURE.md)，协议、硬件选择及构建见 [跨语言工程](docs/CROSS_LANGUAGE_EMBEDDED.md)。
 
 ## 已验证能力与关键数据
 
@@ -80,7 +83,7 @@ Pi/MCU 是职责划分；感知性能数字来自 Windows 开发机，控制与�
 
 ## 快速运行
 
-在 Linux 使用仓库虚拟环境与 Jazzy overlay。首次安装、设备检查和详细命令见 [Linux / ROS 运行说明](models/minisegway/stage9/RUNNING.md)；Windows 维护命令仍见原感知/交互运行文档。
+在 Linux 使用仓库虚拟环境与 Jazzy overlay。当前入口、配置与调试命令见 [Linux / ROS 运行说明](docs/RUNTIME_ARCHITECTURE.md)；其中保留首次安装与设备检查索引，Windows 维护命令仍见原感知/交互运行文档。
 
 ```bash
 cd ~/projects/CompanionBot
@@ -99,7 +102,7 @@ python -m companionbot_perception.runtime.session --mode full --camera-device /d
 
 点击人物框后等待 `PENDING_LOCK → LOCKED`；`c` 清除，`q`/Escape 退出。设备路径必须按实测替换并核对标定设备身份。默认从 [final_demo.json](models/minisegway/stage7/config/final_demo.json) 加载 calibration、ReID policy 和 provisional geometry；可用 `--config`、`--opencv-backend`、`--reid-weights` 等参数覆盖对应入口。
 
-当前配置与诊断命令见 [Linux / ROS 运行说明](models/minisegway/stage9/RUNNING.md)；原设备与分层实验记录见 [历史感知运行说明](models/minisegway/stage7/RUNNING.md)。
+当前配置与诊断命令见 [Linux / ROS 运行说明](docs/RUNTIME_ARCHITECTURE.md)；原设备与分层实验记录见 [历史感知运行说明](models/minisegway/stage7/RUNNING.md)。
 
 **仿真跟随可视化（由用户操作）：**
 
@@ -117,7 +120,7 @@ python scripts/demo_stage8_interaction.py --no-camera --fake --headless --no-mic
 ros2 launch companionbot_bringup interaction.launch.py
 ```
 
-当前终端模式输入“你好小柒”唤醒；无相机时 Master 不可用，FOLLOW 会被拒绝。找商品可用口语名称或功能描述，必要时补充条件；运动/导航仍为模拟执行。设备就绪后，同一入口可用 `--camera-device`、本地麦克风/TTS 与用户操作的 GUI；相机在休眠中继续感知，FOLLOW 前需选择 Master。模型和原交互语义见 [交互运行说明](models/minisegway/stage8/RUNNING.md)，Linux 设备与 launch 参数见 [Linux / ROS 运行说明](models/minisegway/stage9/RUNNING.md)。
+当前终端模式输入“你好小柒”唤醒；无相机时 Master 不可用，FOLLOW 会被拒绝。找商品可用口语名称或功能描述，必要时补充条件；运动/导航仍为模拟执行。设备就绪后，同一入口可用 `--camera-device`、本地麦克风/TTS 与用户操作的 GUI；相机在休眠中继续感知，FOLLOW 前需选择 Master。模型和原交互语义见 [交互运行说明](models/minisegway/stage8/RUNNING.md)，Linux 设备与 launch 参数见 [Linux / ROS 运行说明](docs/RUNTIME_ARCHITECTURE.md)。
 
 **无相机、无 API 的旧文字诊断：**
 
@@ -138,8 +141,10 @@ ros2_ws/src/
   companionbot_bringup/        正式 interaction launch 与有限 simulation 诊断
 scripts/                       唯一正式 Demo 薄入口、env/build helper
 tools/environment/             Linux 安装与资产恢复
+tools/embedded/                ST依赖、冻结参数与CubeMX/Keil配置工具
 tools/verification/            软件自动验收与审计
 tests/                         跨模块回归
+firmware/                      STM32 C/HAL、板级适配、ARM/Keil工程
 models/minisegway/
   stage3/ ... stage6/           冻结控制/规划/跟随配置与结果
   stage7/

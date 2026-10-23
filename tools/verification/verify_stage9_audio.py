@@ -2,6 +2,7 @@
 from companionbot_contracts.paths import repository_root
 
 import asyncio
+import argparse
 import json
 from pathlib import Path
 import sys
@@ -10,7 +11,7 @@ ROOT = repository_root()
 
 
 
-async def main():
+async def main(output):
     from companionbot_behavior.core.audio import SpeechOutput
     states, events = [], []
     speech = SpeechOutput(states.append, on_event=lambda kind, data: events.append((kind, data)))
@@ -30,11 +31,12 @@ async def main():
               "pending": len(speech.pending), "worker_stopped": True,
               "events": events,
               "acoustic_output_verified": False, "passed": True}
-    output = ROOT / "models/minisegway/stage9/results/architecture/audio/tts.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, indent=2, ensure_ascii=False))
     print(json.dumps(report, ensure_ascii=False))
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    cli = argparse.ArgumentParser(description=__doc__)
+    cli.add_argument("--output-dir", type=Path, required=True)
+    asyncio.run(main(cli.parse_args().output_dir.resolve() / "tts.json"))

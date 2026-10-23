@@ -1,0 +1,102 @@
+ M .gitignore
+ M AGENTS.md
+ M CURRENT_STATE.md
+ M README.md
+ M ros2_ws/README.md
+ M ros2_ws/src/companionbot_behavior/README.md
+ M ros2_ws/src/companionbot_behavior/companionbot_behavior/app.py
+ M ros2_ws/src/companionbot_behavior/companionbot_behavior/ros/entry.py
+ M ros2_ws/src/companionbot_behavior/companionbot_behavior/ros/input_guard.py
+ M ros2_ws/src/companionbot_behavior/companionbot_behavior/ros/interaction_bridge.py
+ M ros2_ws/src/companionbot_behavior/companionbot_behavior/runtime/session.py
+ M ros2_ws/src/companionbot_behavior/package.xml
+ M ros2_ws/src/companionbot_behavior/setup.cfg
+ M ros2_ws/src/companionbot_behavior/test/test_ros_input.py
+ M ros2_ws/src/companionbot_bringup/README.md
+ M ros2_ws/src/companionbot_bringup/launch/interaction.launch.py
+ M ros2_ws/src/companionbot_bringup/launch/simulation.launch.py
+ M ros2_ws/src/companionbot_bringup/package.xml
+ M ros2_ws/src/companionbot_bringup/setup.py
+ M ros2_ws/src/companionbot_control/README.md
+ M ros2_ws/src/companionbot_control/package.xml
+ M ros2_ws/src/companionbot_follow/README.md
+ M ros2_ws/src/companionbot_interfaces/CMakeLists.txt
+ M ros2_ws/src/companionbot_interfaces/README.md
+ M ros2_ws/src/companionbot_interfaces/msg/SourceStamp.msg
+ M ros2_ws/src/companionbot_interfaces/package.xml
+ M ros2_ws/src/companionbot_interfaces/srv/UserInput.srv
+ M ros2_ws/src/companionbot_perception/README.md
+ M ros2_ws/src/companionbot_perception/companionbot_perception/ros/publishers.py
+ M ros2_ws/src/companionbot_perception/companionbot_perception/runtime/session.py
+ M ros2_ws/src/companionbot_perception/package.xml
+ M ros2_ws/src/companionbot_simulation/README.md
+ M ros2_ws/src/companionbot_simulation/companionbot_simulation/ros/frozen_sim.py
+ M ros2_ws/src/companionbot_simulation/companionbot_simulation/scenarios/run_stage3b_yaw_control.py
+ M ros2_ws/src/companionbot_simulation/package.xml
+ M ros2_ws/src/companionbot_simulation/setup.py
+ M scripts/env.sh
+ M tests/test_stage8_agent.py
+ M tests/test_stage8_interaction.py
+ M tools/README.md
+ M tools/verification/compare_architecture_results.py
+ M tools/verification/smoke_stage9_perception_ros.py
+ D tools/verification/smoke_stage9_ros.py
+ M tools/verification/verify_stage9_audio.py
+ M tools/verification/verify_stage9_control.py
+ M tools/verification/verify_stage9_dynamic.py
+ M tools/verification/verify_stage9_models.py
+ M tools/verification/verify_stage9_stream.py
+?? docs/
+?? firmware/
+?? log/
+?? models/minisegway/cross_language_embedded/
+?? models/minisegway/runtime_architecture/
+?? models/minisegway/spatial_slam_foundation/
+?? models/minisegway/stage9/reference/pre_runtime_architecture/
+?? ros2_ws/src/companionbot_behavior/companionbot_behavior/ros/runtime.py
+?? ros2_ws/src/companionbot_behavior/companionbot_behavior/runtime/inbox.py
+?? ros2_ws/src/companionbot_behavior/test/test_runtime_ros.py
+?? ros2_ws/src/companionbot_bringup/companionbot_bringup/processes.py
+?? ros2_ws/src/companionbot_bringup/config/
+?? ros2_ws/src/companionbot_bringup/launch/mcu_transport.launch.py
+?? ros2_ws/src/companionbot_bringup/launch/spatial_simulation.launch.py
+?? ros2_ws/src/companionbot_control/CMakeLists.txt
+?? ros2_ws/src/companionbot_control/companionbot_control/estimation/spatial.py
+?? ros2_ws/src/companionbot_control/companionbot_control/ros/spatial_state.py
+?? ros2_ws/src/companionbot_control/companionbot_control/runtime/embedded_link.py
+?? ros2_ws/src/companionbot_control/companionbot_control/runtime/native.py
+?? ros2_ws/src/companionbot_control/include/
+?? ros2_ws/src/companionbot_control/native/
+?? ros2_ws/src/companionbot_control/scripts/
+?? ros2_ws/src/companionbot_control/src/
+?? ros2_ws/src/companionbot_description/
+?? ros2_ws/src/companionbot_interfaces/companionbot_contracts/ros_diagnostics.py
+?? ros2_ws/src/companionbot_interfaces/companionbot_contracts/spatial_geometry.py
+?? ros2_ws/src/companionbot_interfaces/msg/BalanceState.msg
+?? ros2_ws/src/companionbot_interfaces/msg/McuFrame.msg
+?? ros2_ws/src/companionbot_perception/companionbot_perception/ros/node.py
+?? ros2_ws/src/companionbot_perception/companionbot_perception/runtime/owner.py
+?? ros2_ws/src/companionbot_simulation/companionbot_simulation/core/spatial_scene.py
+?? ros2_ws/src/companionbot_simulation/companionbot_simulation/ros/spatial_sim.py
+?? ros2_ws/src/companionbot_simulation/companionbot_simulation/runtime/native_backend.py
+?? ros2_ws/src/companionbot_simulation/companionbot_simulation/runtime/spatial_session.py
+?? scripts/build_firmware.sh
+?? tests/test_embedded_native.py
+?? tests/test_runtime_inbox.py
+?? tests/test_runtime_lifecycle.py
+?? tests/test_spatial_state.py
+?? tools/embedded/
+?? tools/verification/analyze_embedded_timing.py
+?? tools/verification/audit_runtime_architecture.py
+?? tools/verification/benchmark_embedded_perception.py
+?? tools/verification/compare_cross_language.py
+?? tools/verification/export_spatial_geometry.py
+?? tools/verification/probe_native_roundoff.py
+?? tools/verification/serial_fault_inject.c
+?? tools/verification/stress_embedded_uart.py
+?? tools/verification/verify_cross_language.py
+?? tools/verification/verify_embedded_bridge.py
+?? tools/verification/verify_runtime_ros.py
+?? tools/verification/verify_spatial_foundation.py
+?? tools/verification/verify_spatial_protocol.py
+?? tools/verification/verify_spatial_ros.py

@@ -1,0 +1,14 @@
+# High-level motion authority, never MCU resume or physical arm authorization.
+# Lease age uses server-local monotonic receipt time; no cross-clock subtraction.
+string task_id
+string source_epoch
+uint64 sequence
+string command
+# Commands: CHECK (read-only), ACQUIRE, RENEW, RELEASE, STOP, WAIT.
+float64 lease_duration_s
+string map_id
+string map_version
+---
+bool accepted
+string reason
+uint64 authority_epoch

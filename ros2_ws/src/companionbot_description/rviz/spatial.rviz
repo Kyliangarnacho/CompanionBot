@@ -1,0 +1,47 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Global Options:
+    Fixed Frame: odom
+    Frame Rate: 30
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Ground
+      Enabled: true
+      Cell Size: 0.25
+    - Class: rviz_default_plugins/RobotModel
+      Name: Balancing Body
+      Enabled: true
+      Description Source: Topic
+      Description Topic:
+        Value: /companionbot/robot_description
+        Durability Policy: Transient Local
+    - Class: rviz_default_plugins/TF
+      Name: Frames
+      Enabled: true
+    - Class: rviz_default_plugins/LaserScan
+      Name: Physical Tilted Scan
+      Enabled: true
+      Topic:
+        Value: /companionbot/scan
+        Reliability Policy: Best Effort
+      Size (m): 0.015
+      Style: Points
+    - Class: rviz_default_plugins/Odometry
+      Name: Estimated Planar Odometry
+      Enabled: true
+      Topic:
+        Value: /companionbot/odom
+        Reliability Policy: Best Effort
+      Keep: 100
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 2
+      Pitch: 0.5
+      Yaw: 0.7
+Window Geometry:
+  Width: 1200
+  Height: 800

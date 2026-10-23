@@ -1,0 +1,30 @@
+[INFO] [launch]: All log files can be found below /home/kylian/projects/CompanionBot/models/minisegway/slam_toolbox_integration/results/session_20261022/raw_initial/ros_logs/2026-10-22-21-12-40-333560-Mbappe7-43270
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [robot_state_publisher-1]: process started with pid [43326]
+[INFO] [spatial_state-2]: process started with pid [43327]
+[INFO] [tf_authority-3]: process started with pid [43328]
+[INFO] [spatial_sim-4]: process started with pid [43329]
+[robot_state_publisher-1] [WARN] [1792728760.852143833] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[robot_state_publisher-1] [INFO] [1792728760.852224597] [companionbot.robot_state_publisher]: Robot initialized
+[spatial_state-2] [ERROR] [1792728764.843957342] [companionbot.spatial_state]: spatial output inhibited: sequence_time_reversal_or_gap
+[spatial_state-2] Traceback (most recent call last):
+[spatial_state-2]   File "/home/kylian/projects/CompanionBot/ros2_ws/install/companionbot_control/lib/companionbot_control/spatial_state", line 5, in <module>
+[spatial_state-2]     main()
+[spatial_state-2]   File "/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_control/companionbot_control/ros/spatial_state.py", line 218, in main
+[spatial_state-2]     raise node.error
+[spatial_state-2]   File "/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_control/companionbot_control/ros/spatial_state.py", line 124, in receive
+[spatial_state-2]     estimate = self.odom.update(sample)
+[spatial_state-2]                ^^^^^^^^^^^^^^^^^^^^^^^^
+[spatial_state-2]   File "/home/kylian/projects/CompanionBot/ros2_ws/build/companionbot_control/companionbot_control/estimation/spatial.py", line 146, in update
+[spatial_state-2]     raise ValueError("sequence_time_reversal_or_gap")
+[spatial_state-2] ValueError: sequence_time_reversal_or_gap
+[ERROR] [spatial_state-2]: process has died [pid 43327, exit code 1, cmd '/home/kylian/projects/CompanionBot/ros2_ws/install/companionbot_control/lib/companionbot_control/spatial_state --ros-args -r __ns:=/companionbot --params-file /home/kylian/projects/CompanionBot/ros2_ws/install/companionbot_bringup/share/companionbot_bringup/config/spatial.yaml --params-file /tmp/launch_params_5r4f25ti'].
+[ERROR] [launch]: Caught exception in launch (see debug for traceback): Required runtime exited with code 1
+[INFO] [spatial_sim-4]: sending signal 'SIGINT' to process[spatial_sim-4]
+[INFO] [tf_authority-3]: sending signal 'SIGINT' to process[tf_authority-3]
+[INFO] [robot_state_publisher-1]: sending signal 'SIGINT' to process[robot_state_publisher-1]
+[tf_authority-3] [INFO] [1792728765.091808749] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[robot_state_publisher-1] [INFO] [1792728765.092051891] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [tf_authority-3]: process has finished cleanly [pid 43328]
+[INFO] [robot_state_publisher-1]: process has finished cleanly [pid 43326]
+[INFO] [spatial_sim-4]: process has finished cleanly [pid 43329]

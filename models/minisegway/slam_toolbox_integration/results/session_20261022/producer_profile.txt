@@ -1,0 +1,9 @@
+NORMAL []
+{'event': 'block_generated', 'sequence_id': 61, 'start_control_tick': 1525, 'generated_time_s': 2.9999999999997806, 'compute_time_s': 0.000884705999851576, 'thread_cpu_time_s': 0.0010133649999999328, 'gc_collections_delta': [0, 1, 0]}
+{'event': 'block_generated', 'sequence_id': 1465, 'start_control_tick': 36625, 'generated_time_s': 73.19999999998547, 'compute_time_s': 0.0008387389989366056, 'thread_cpu_time_s': 0.0009624989999998945, 'gc_collections_delta': [1, 0, 0]}
+{'event': 'block_generated', 'sequence_id': 25, 'start_control_tick': 625, 'generated_time_s': 1.1999999999999786, 'compute_time_s': 0.0007459070002369117, 'thread_cpu_time_s': 0.0008633909999999911, 'gc_collections_delta': [0, 0, 0]}
+{'event': 'block_generated', 'sequence_id': 1130, 'start_control_tick': 28250, 'generated_time_s': 56.44999999995914, 'compute_time_s': 0.0006749330004822696, 'thread_cpu_time_s': 0.0007854639999997914, 'gc_collections_delta': [0, 0, 0]}
+{'event': 'block_generated', 'sequence_id': 493, 'start_control_tick': 12325, 'generated_time_s': 24.600000000007082, 'compute_time_s': 0.0005196319998503895, 'thread_cpu_time_s': 0.0006282670000006263, 'gc_collections_delta': [0, 1, 0]}
+{'event': 'block_generated', 'sequence_id': 205, 'start_control_tick': 5125, 'generated_time_s': 10.199999999999786, 'compute_time_s': 0.00047451000136788934, 'thread_cpu_time_s': 0.0005695970000001438, 'gc_collections_delta': [0, 1, 0]}
+{'event': 'block_generated', 'sequence_id': 781, 'start_control_tick': 19525, 'generated_time_s': 38.99999999999981, 'compute_time_s': 0.0004458839994185837, 'thread_cpu_time_s': 0.0005356629999990759, 'gc_collections_delta': [0, 1, 0]}
+{'event': 'block_generated', 'sequence_id': 637, 'start_control_tick': 15925, 'generated_time_s': 31.80000000001588, 'compute_time_s': 0.00044345999958750326, 'thread_cpu_time_s': 0.0005338090000002182, 'gc_collections_delta': [0, 1, 0]}

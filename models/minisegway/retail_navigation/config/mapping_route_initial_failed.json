@@ -1,0 +1,133 @@
+{
+  "name": "bookstore_aisle_loop",
+  "description": "Finite sensorized-control experiment through original reference chain. Designed against offline canonical collision geometry; no runtime ground-truth/pose feedback. Failures are retained.",
+  "duration_s": 219.75,
+  "world_commit": "f5a2aaacd5418f9ecfa30f79e788856417f17c13",
+  "commands": [
+    {
+      "time_s": 0.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 1.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.3141592653589793
+    },
+    {
+      "time_s": 6.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 8.0,
+      "v_m_s": 0.2,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 18.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 21.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.3141592653589793
+    },
+    {
+      "time_s": 26.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 28.0,
+      "v_m_s": 0.2,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 45.5,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 48.5,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.3141592653589793
+    },
+    {
+      "time_s": 53.5,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 55.5,
+      "v_m_s": 0.2,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 96.5,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 99.5,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.3141592653589793
+    },
+    {
+      "time_s": 104.5,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 106.5,
+      "v_m_s": 0.2,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 143.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 146.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.3141592653589793
+    },
+    {
+      "time_s": 151.0,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 153.0,
+      "v_m_s": 0.2,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 182.75,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 185.75,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.3141592653589793
+    },
+    {
+      "time_s": 190.75,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 192.75,
+      "v_m_s": 0.2,
+      "yaw_rate_rad_s": 0.0
+    },
+    {
+      "time_s": 211.75,
+      "v_m_s": 0.0,
+      "yaw_rate_rad_s": 0.0
+    }
+  ]
+}

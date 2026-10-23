@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "scope": "Retail navigation acceptance. Existing frozen-room/control thresholds remain unchanged.",
+  "mapping": {
+    "occupied_geometry_p95_limit_m": 0.10,
+    "occupied_precision_within_0p10m_min": 0.95,
+    "slam_position_rmse_limit_m": 0.10,
+    "slam_yaw_rmse_limit_rad": 0.10,
+    "all_semantic_destinations_have_stock_planner_reachability": true
+  },
+  "navigation": {
+    "goal_position_error_limit_m": 0.15,
+    "goal_yaw_error_limit_rad": 0.20,
+    "unrequested_mcu_takeovers_max": 0,
+    "actual_robot_obstacle_contact_max": 0,
+    "repeated_multi_goal_runs_min": 2,
+    "frozen_control_gates_required": true
+  },
+  "required_faults": ["STOP", "CANCEL", "command_expiry", "scan_dropout", "localization_loss", "obstacle_blockage", "planning_failure", "duplicate_goal"]
+}

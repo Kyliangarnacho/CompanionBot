@@ -1,0 +1,404 @@
+RUN balance
+RUN forward
+RUN turn
+RUN mixed
+RUN pitch
+{
+  "cases": {
+    "balance": {
+      "sample_count": 200,
+      "position_error_peak_m": 0.0011160680184409198,
+      "position_error_final_m": 0.0010757121916350964,
+      "yaw_error_peak_rad": 0.0011578438524832047,
+      "yaw_error_final_rad": -0.00010567073782034994,
+      "roll_error_rms_rad": 0.016658886367120193,
+      "pitch_error_rms_rad": 0.012632900871262722,
+      "imu_age_peak_s": 0.0010000000000000009,
+      "estimate_is_ground_truth": false,
+      "covariance_calibrated": false,
+      "short_run_envelope": {
+        "position_peak_limit_m": 0.1,
+        "yaw_peak_limit_rad": 0.1,
+        "passed": true
+      },
+      "termination": {
+        "terminated_early": false,
+        "reason": null,
+        "actual_duration_s": 3.9999999999996705,
+        "requested_duration_s": 4.0
+      },
+      "actual_torque": {
+        "u_sum_nm": {
+          "mean": -0.001949182943545135,
+          "rms": 0.023213329938304272,
+          "peak_abs": 0.39492881316717593
+        },
+        "u_diff_request_nm": {
+          "mean": 4.6917511448284104e-06,
+          "rms": 0.002251203489558647,
+          "peak_abs": 0.007685053044860693
+        },
+        "u_diff_used_nm": {
+          "mean": 4.6917511448284104e-06,
+          "rms": 0.002251203489558647,
+          "peak_abs": 0.007685053044860693
+        },
+        "u_diff_first_difference_RMS_nm": 0.0032487449731333664,
+        "differential_clipping_fraction": 0.0,
+        "final_guard_clipping_fraction": 0.0,
+        "requested_wheel_peak_nm": 0.19907005798436353,
+        "actual_wheel_peak_nm": 0.19907005798436353,
+        "per_wheel_saturation_fraction": 0.0,
+        "yaw_feedback_opposes_longitudinal_feedback_fraction": 0.4895,
+        "combined_cancellation_fraction_diagnostic": 0.0882732475259761
+      },
+      "control_gates": {
+        "checks": {
+          "finite": true,
+          "no_fall": true,
+          "no_runtime_gt_dependency": true,
+          "q_actuator_off": true,
+          "full_duration": true,
+          "zero_wheel_saturation": true,
+          "zero_differential_clipping": true,
+          "zero_final_guard_clipping": true
+        },
+        "passed": true
+      },
+      "source_gates": {
+        "checks": {
+          "complete_50hz_source_history": true,
+          "source_horizon_cadence": true,
+          "500hz_control_sequence": true,
+          "one_declared_epoch": true,
+          "source_imu_delay_1ms": true,
+          "raw_imu_finite": true,
+          "evaluation_finite": true,
+          "covariance_symmetric_psd": true,
+          "frozen_configuration": true
+        },
+        "passed": true
+      }
+    },
+    "forward": {
+      "sample_count": 700,
+      "position_error_peak_m": 0.00812756467046378,
+      "position_error_final_m": 0.007673505105053035,
+      "yaw_error_peak_rad": 0.0025894056733508164,
+      "yaw_error_final_rad": 0.0004056058369921908,
+      "roll_error_rms_rad": 0.014771668083531569,
+      "pitch_error_rms_rad": 0.012091303228707688,
+      "imu_age_peak_s": 0.001000000000000334,
+      "estimate_is_ground_truth": false,
+      "covariance_calibrated": false,
+      "short_run_envelope": {
+        "position_peak_limit_m": 0.1,
+        "yaw_peak_limit_rad": 0.1,
+        "passed": true
+      },
+      "termination": {
+        "terminated_early": false,
+        "reason": null,
+        "actual_duration_s": 13.99999999999768,
+        "requested_duration_s": 14.0
+      },
+      "actual_torque": {
+        "u_sum_nm": {
+          "mean": 0.033027141868944614,
+          "rms": 0.04711962746349332,
+          "peak_abs": 0.39492881316717593
+        },
+        "u_diff_request_nm": {
+          "mean": -4.8017507304791175e-06,
+          "rms": 0.0022570144018920772,
+          "peak_abs": 0.008745742930408749
+        },
+        "u_diff_used_nm": {
+          "mean": -4.8017507304791175e-06,
+          "rms": 0.0022570144018920772,
+          "peak_abs": 0.008745742930408749
+        },
+        "u_diff_first_difference_RMS_nm": 0.0032451400801524113,
+        "differential_clipping_fraction": 0.0,
+        "final_guard_clipping_fraction": 0.0,
+        "requested_wheel_peak_nm": 0.19907005798436353,
+        "actual_wheel_peak_nm": 0.19907005798436353,
+        "per_wheel_saturation_fraction": 0.0,
+        "yaw_feedback_opposes_longitudinal_feedback_fraction": 0.497,
+        "combined_cancellation_fraction_diagnostic": -0.012146789968071392
+      },
+      "control_gates": {
+        "checks": {
+          "finite": true,
+          "no_fall": true,
+          "no_runtime_gt_dependency": true,
+          "q_actuator_off": true,
+          "full_duration": true,
+          "zero_wheel_saturation": true,
+          "zero_differential_clipping": true,
+          "zero_final_guard_clipping": true
+        },
+        "passed": true
+      },
+      "source_gates": {
+        "checks": {
+          "complete_50hz_source_history": true,
+          "source_horizon_cadence": true,
+          "500hz_control_sequence": true,
+          "one_declared_epoch": true,
+          "source_imu_delay_1ms": true,
+          "raw_imu_finite": true,
+          "evaluation_finite": true,
+          "covariance_symmetric_psd": true,
+          "frozen_configuration": true
+        },
+        "passed": true
+      }
+    },
+    "turn": {
+      "sample_count": 400,
+      "position_error_peak_m": 0.0012154382392366805,
+      "position_error_final_m": 0.0011193346808909502,
+      "yaw_error_peak_rad": 0.0017303112630298045,
+      "yaw_error_final_rad": -0.0013176237725653908,
+      "roll_error_rms_rad": 0.014130681002683923,
+      "pitch_error_rms_rad": 0.011624712567064606,
+      "imu_age_peak_s": 0.001000000000000334,
+      "estimate_is_ground_truth": false,
+      "covariance_calibrated": false,
+      "short_run_envelope": {
+        "position_peak_limit_m": 0.1,
+        "yaw_peak_limit_rad": 0.1,
+        "passed": true
+      },
+      "termination": {
+        "terminated_early": false,
+        "reason": null,
+        "actual_duration_s": 8.000000000001005,
+        "requested_duration_s": 8.0
+      },
+      "actual_torque": {
+        "u_sum_nm": {
+          "mean": -0.00018714510737756983,
+          "rms": 0.02356865087945313,
+          "peak_abs": 0.39492881316717593
+        },
+        "u_diff_request_nm": {
+          "mean": 0.026111138216698068,
+          "rms": 0.03222010976847859,
+          "peak_abs": 0.1033032242590279
+        },
+        "u_diff_used_nm": {
+          "mean": 0.026111138216698068,
+          "rms": 0.03222010976847859,
+          "peak_abs": 0.1033032242590279
+        },
+        "u_diff_first_difference_RMS_nm": 0.004026709892230367,
+        "differential_clipping_fraction": 0.0,
+        "final_guard_clipping_fraction": 0.0,
+        "requested_wheel_peak_nm": 0.19907005798436353,
+        "actual_wheel_peak_nm": 0.19907005798436353,
+        "per_wheel_saturation_fraction": 0.0,
+        "yaw_feedback_opposes_longitudinal_feedback_fraction": 0.5105,
+        "combined_cancellation_fraction_diagnostic": 0.29773737800945765
+      },
+      "control_gates": {
+        "checks": {
+          "finite": true,
+          "no_fall": true,
+          "no_runtime_gt_dependency": true,
+          "q_actuator_off": true,
+          "full_duration": true,
+          "zero_wheel_saturation": true,
+          "zero_differential_clipping": true,
+          "zero_final_guard_clipping": true
+        },
+        "passed": true
+      },
+      "source_gates": {
+        "checks": {
+          "complete_50hz_source_history": true,
+          "source_horizon_cadence": true,
+          "500hz_control_sequence": true,
+          "one_declared_epoch": true,
+          "source_imu_delay_1ms": true,
+          "raw_imu_finite": true,
+          "evaluation_finite": true,
+          "covariance_symmetric_psd": true,
+          "frozen_configuration": true
+        },
+        "passed": true
+      }
+    },
+    "mixed": {
+      "sample_count": 700,
+      "position_error_peak_m": 0.007700257389971964,
+      "position_error_final_m": 0.007335337546481231,
+      "yaw_error_peak_rad": 0.0027887762639488426,
+      "yaw_error_final_rad": 0.0009512316868915597,
+      "roll_error_rms_rad": 0.018212389513994304,
+      "pitch_error_rms_rad": 0.01205631562841079,
+      "imu_age_peak_s": 0.001000000000000334,
+      "estimate_is_ground_truth": false,
+      "covariance_calibrated": false,
+      "short_run_envelope": {
+        "position_peak_limit_m": 0.1,
+        "yaw_peak_limit_rad": 0.1,
+        "passed": true
+      },
+      "termination": {
+        "terminated_early": false,
+        "reason": null,
+        "actual_duration_s": 13.99999999999768,
+        "requested_duration_s": 14.0
+      },
+      "actual_torque": {
+        "u_sum_nm": {
+          "mean": 0.033037380243536085,
+          "rms": 0.04706175525164954,
+          "peak_abs": 0.39492881316717593
+        },
+        "u_diff_request_nm": {
+          "mean": 2.45758131149937e-05,
+          "rms": 0.01975310069707581,
+          "peak_abs": 0.1007234906549648
+        },
+        "u_diff_used_nm": {
+          "mean": 2.45758131149937e-05,
+          "rms": 0.01975310069707581,
+          "peak_abs": 0.1007234906549648
+        },
+        "u_diff_first_difference_RMS_nm": 0.004112278436192921,
+        "differential_clipping_fraction": 0.0,
+        "final_guard_clipping_fraction": 0.0,
+        "requested_wheel_peak_nm": 0.19907005798436353,
+        "actual_wheel_peak_nm": 0.19907005798436353,
+        "per_wheel_saturation_fraction": 0.0,
+        "yaw_feedback_opposes_longitudinal_feedback_fraction": 0.5012857142857143,
+        "combined_cancellation_fraction_diagnostic": 0.1604042586936767
+      },
+      "control_gates": {
+        "checks": {
+          "finite": true,
+          "no_fall": true,
+          "no_runtime_gt_dependency": true,
+          "q_actuator_off": true,
+          "full_duration": true,
+          "zero_wheel_saturation": true,
+          "zero_differential_clipping": true,
+          "zero_final_guard_clipping": true
+        },
+        "passed": true
+      },
+      "source_gates": {
+        "checks": {
+          "complete_50hz_source_history": true,
+          "source_horizon_cadence": true,
+          "500hz_control_sequence": true,
+          "one_declared_epoch": true,
+          "source_imu_delay_1ms": true,
+          "raw_imu_finite": true,
+          "evaluation_finite": true,
+          "covariance_symmetric_psd": true,
+          "frozen_configuration": true
+        },
+        "passed": true
+      }
+    },
+    "pitch": {
+      "sample_count": 200,
+      "position_error_peak_m": 0.0025671617456165404,
+      "position_error_final_m": 0.0019074496305634947,
+      "yaw_error_peak_rad": 0.0040838693370122,
+      "yaw_error_final_rad": 0.0013257497356816768,
+      "roll_error_rms_rad": 0.011580163158744498,
+      "pitch_error_rms_rad": 0.00514605126093518,
+      "imu_age_peak_s": 0.0010000000000000009,
+      "estimate_is_ground_truth": false,
+      "covariance_calibrated": false,
+      "short_run_envelope": {
+        "position_peak_limit_m": 0.1,
+        "yaw_peak_limit_rad": 0.1,
+        "passed": true
+      },
+      "termination": {
+        "terminated_early": false,
+        "reason": null,
+        "actual_duration_s": 3.9999999999996705,
+        "requested_duration_s": 4.0
+      },
+      "actual_torque": {
+        "u_sum_nm": {
+          "mean": 0.0009107748406592842,
+          "rms": 0.02695121010305174,
+          "peak_abs": 0.7958653711679222
+        },
+        "u_diff_request_nm": {
+          "mean": 4.039387188476262e-05,
+          "rms": 0.002222225435823386,
+          "peak_abs": 0.007527597870662748
+        },
+        "u_diff_used_nm": {
+          "mean": 4.039387188476262e-05,
+          "rms": 0.002222225435823386,
+          "peak_abs": 0.007527597870662748
+        },
+        "u_diff_first_difference_RMS_nm": 0.0031957943376107953,
+        "differential_clipping_fraction": 0.0,
+        "final_guard_clipping_fraction": 0.0,
+        "requested_wheel_peak_nm": 0.39797998238501403,
+        "actual_wheel_peak_nm": 0.39797998238501403,
+        "per_wheel_saturation_fraction": 0.0,
+        "yaw_feedback_opposes_longitudinal_feedback_fraction": 0.5005,
+        "combined_cancellation_fraction_diagnostic": 0.11115063356108079
+      },
+      "control_gates": {
+        "checks": {
+          "finite": true,
+          "no_fall": true,
+          "no_runtime_gt_dependency": true,
+          "q_actuator_off": true,
+          "full_duration": true,
+          "zero_wheel_saturation": true,
+          "zero_differential_clipping": true,
+          "zero_final_guard_clipping": true
+        },
+        "passed": true
+      },
+      "source_gates": {
+        "checks": {
+          "complete_50hz_source_history": true,
+          "source_horizon_cadence": true,
+          "500hz_control_sequence": true,
+          "one_declared_epoch": true,
+          "source_imu_delay_1ms": true,
+          "raw_imu_finite": true,
+          "evaluation_finite": true,
+          "covariance_symmetric_psd": true,
+          "frozen_configuration": true
+        },
+        "passed": true
+      }
+    }
+  },
+  "passive_sensor_ablation": {
+    "exact": true,
+    "rows": 7000,
+    "maximum_numeric_delta": 0.0
+  },
+  "original_control_gates": {
+    "checks": {
+      "finite": true,
+      "no_fall": true,
+      "no_runtime_gt_dependency": true,
+      "q_actuator_off": true,
+      "full_duration": true,
+      "zero_wheel_saturation": true,
+      "zero_differential_clipping": true,
+      "zero_final_guard_clipping": true
+    },
+    "passed": true
+  },
+  "evaluation_mode": "physical_run",
+  "passed": true
+}

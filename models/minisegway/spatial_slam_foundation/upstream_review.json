@@ -1,0 +1,187 @@
+{
+  "reviewed_at": "2026-10-21",
+  "method": "GitHub connector file contents; metadata only retained, no upstream source vendored",
+  "files": [
+    {
+      "repository": "linorobot/linorobot2",
+      "revision": "f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711",
+      "path": "linorobot2_base/config/ekf.yaml",
+      "blob_sha": "4d3e85b78db6b32bce4b8fa51f33f7bc3ea0d637",
+      "url": "https://github.com/linorobot/linorobot2/blob/f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711/linorobot2_base/config/ekf.yaml"
+    },
+    {
+      "repository": "linorobot/linorobot2",
+      "revision": "f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711",
+      "path": "linorobot2_bringup/launch/bringup.launch.py",
+      "blob_sha": "007630e56631e533ca4c29223de854e3051a3bbb",
+      "url": "https://github.com/linorobot/linorobot2/blob/f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711/linorobot2_bringup/launch/bringup.launch.py"
+    },
+    {
+      "repository": "linorobot/linorobot2",
+      "revision": "f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711",
+      "path": "linorobot2_description/urdf/controllers/diff_drive.urdf.xacro",
+      "blob_sha": "60fcdcb3770295b87a23e83ee9f1111fb4b771e7",
+      "url": "https://github.com/linorobot/linorobot2/blob/f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711/linorobot2_description/urdf/controllers/diff_drive.urdf.xacro"
+    },
+    {
+      "repository": "linorobot/linorobot2",
+      "revision": "f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711",
+      "path": "linorobot2_description/urdf/mech/base.urdf.xacro",
+      "blob_sha": "b772af2dcc9f9931489e7a3a903be294a7074a5c",
+      "url": "https://github.com/linorobot/linorobot2/blob/f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711/linorobot2_description/urdf/mech/base.urdf.xacro"
+    },
+    {
+      "repository": "linorobot/linorobot2",
+      "revision": "f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711",
+      "path": "linorobot2_description/urdf/robots/2wd.urdf.xacro",
+      "blob_sha": "7cbff5985b9584d74085c04709a60003fa0eada3",
+      "url": "https://github.com/linorobot/linorobot2/blob/f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711/linorobot2_description/urdf/robots/2wd.urdf.xacro"
+    },
+    {
+      "repository": "linorobot/linorobot2",
+      "revision": "f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711",
+      "path": "linorobot2_description/urdf/sensors/generic_laser.urdf.xacro",
+      "blob_sha": "63d7d93454514599237f1337cea69d4290d4d7dd",
+      "url": "https://github.com/linorobot/linorobot2/blob/f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711/linorobot2_description/urdf/sensors/generic_laser.urdf.xacro"
+    },
+    {
+      "repository": "linorobot/linorobot2",
+      "revision": "f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711",
+      "path": "linorobot2_description/urdf/sensors/imu.urdf.xacro",
+      "blob_sha": "37c1c295ff8fd32d906ab03356950fdf11b62e50",
+      "url": "https://github.com/linorobot/linorobot2/blob/f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711/linorobot2_description/urdf/sensors/imu.urdf.xacro"
+    },
+    {
+      "repository": "linorobot/linorobot2",
+      "revision": "f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711",
+      "path": "linorobot2_gazebo/launch/gazebo.launch.py",
+      "blob_sha": "9344df9dd2dc5b8c01444b4f9937e905377ba712",
+      "url": "https://github.com/linorobot/linorobot2/blob/f6b0bd0350c4a9d6b815ef4bb5c701a1e5129711/linorobot2_gazebo/launch/gazebo.launch.py"
+    },
+    {
+      "repository": "linorobot/linorobot2_hardware",
+      "revision": "1ed605af61a806f6bb593709da8bc8f9cec0cbdf",
+      "path": "LICENSE",
+      "blob_sha": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+      "url": "https://github.com/linorobot/linorobot2_hardware/blob/1ed605af61a806f6bb593709da8bc8f9cec0cbdf/LICENSE"
+    },
+    {
+      "repository": "linorobot/linorobot2_hardware",
+      "revision": "1ed605af61a806f6bb593709da8bc8f9cec0cbdf",
+      "path": "firmware/lib/imu/imu_interface.h",
+      "blob_sha": "f21e1216261807b99cf1d343fa4a0b686a8a7f19",
+      "url": "https://github.com/linorobot/linorobot2_hardware/blob/1ed605af61a806f6bb593709da8bc8f9cec0cbdf/firmware/lib/imu/imu_interface.h"
+    },
+    {
+      "repository": "linorobot/linorobot2_hardware",
+      "revision": "1ed605af61a806f6bb593709da8bc8f9cec0cbdf",
+      "path": "firmware/lib/kinematics/kinematics.cpp",
+      "blob_sha": "c1e18189054c38abffbff4eada3477a8df5b0097",
+      "url": "https://github.com/linorobot/linorobot2_hardware/blob/1ed605af61a806f6bb593709da8bc8f9cec0cbdf/firmware/lib/kinematics/kinematics.cpp"
+    },
+    {
+      "repository": "linorobot/linorobot2_hardware",
+      "revision": "1ed605af61a806f6bb593709da8bc8f9cec0cbdf",
+      "path": "firmware/lib/odometry/odometry.cpp",
+      "blob_sha": "cd6f6e4535ed6d78e205d9b132d654d44425dce6",
+      "url": "https://github.com/linorobot/linorobot2_hardware/blob/1ed605af61a806f6bb593709da8bc8f9cec0cbdf/firmware/lib/odometry/odometry.cpp"
+    },
+    {
+      "repository": "linorobot/linorobot2_hardware",
+      "revision": "1ed605af61a806f6bb593709da8bc8f9cec0cbdf",
+      "path": "firmware/src/firmware.ino",
+      "blob_sha": "3ccfc1840748191fd3fc8e8470481bfab60cdc34",
+      "url": "https://github.com/linorobot/linorobot2_hardware/blob/1ed605af61a806f6bb593709da8bc8f9cec0cbdf/firmware/src/firmware.ino"
+    },
+    {
+      "repository": "rlxai/rbot",
+      "revision": "47af3fc3780bd582837f48ce3785d3d68834a1b7",
+      "path": "LICENSE",
+      "blob_sha": "8a60afa6ab98b63cd106783da47466c25d35260d",
+      "url": "https://github.com/rlxai/rbot/blob/47af3fc3780bd582837f48ce3785d3d68834a1b7/LICENSE"
+    },
+    {
+      "repository": "rlxai/rbot",
+      "revision": "47af3fc3780bd582837f48ce3785d3d68834a1b7",
+      "path": "src/bringup/rlai_bringup/launch/simulation.launch.py",
+      "blob_sha": "732d7cf5ded1a8bdfb4212048a2582bd3145e385",
+      "url": "https://github.com/rlxai/rbot/blob/47af3fc3780bd582837f48ce3785d3d68834a1b7/src/bringup/rlai_bringup/launch/simulation.launch.py"
+    },
+    {
+      "repository": "rlxai/rbot",
+      "revision": "47af3fc3780bd582837f48ce3785d3d68834a1b7",
+      "path": "src/control/rlai_control/config/controllers.yaml",
+      "blob_sha": "f265d5e30d85d0c78a8bb4bc0a2790d1b8d5c715",
+      "url": "https://github.com/rlxai/rbot/blob/47af3fc3780bd582837f48ce3785d3d68834a1b7/src/control/rlai_control/config/controllers.yaml"
+    },
+    {
+      "repository": "rlxai/rbot",
+      "revision": "47af3fc3780bd582837f48ce3785d3d68834a1b7",
+      "path": "src/localization/rlai_localization/config/ekf.yaml",
+      "blob_sha": "d438ffbe20d4365cda0b2a9cf4e9b9a958f47f32",
+      "url": "https://github.com/rlxai/rbot/blob/47af3fc3780bd582837f48ce3785d3d68834a1b7/src/localization/rlai_localization/config/ekf.yaml"
+    },
+    {
+      "repository": "rlxai/rbot",
+      "revision": "47af3fc3780bd582837f48ce3785d3d68834a1b7",
+      "path": "src/robot/rlai_description/urdf/base/base.urdf.xacro",
+      "blob_sha": "36241f8e772d62f607800c60b4f0e657f2581331",
+      "url": "https://github.com/rlxai/rbot/blob/47af3fc3780bd582837f48ce3785d3d68834a1b7/src/robot/rlai_description/urdf/base/base.urdf.xacro"
+    },
+    {
+      "repository": "rlxai/rbot",
+      "revision": "47af3fc3780bd582837f48ce3785d3d68834a1b7",
+      "path": "src/robot/rlai_description/urdf/gazebo/gazebo_sensors.urdf.xacro",
+      "blob_sha": "c604b67ed9282f8b013a04dfd6a83a5fcc001ed6",
+      "url": "https://github.com/rlxai/rbot/blob/47af3fc3780bd582837f48ce3785d3d68834a1b7/src/robot/rlai_description/urdf/gazebo/gazebo_sensors.urdf.xacro"
+    },
+    {
+      "repository": "rlxai/rbot",
+      "revision": "47af3fc3780bd582837f48ce3785d3d68834a1b7",
+      "path": "src/robot/rlai_description/urdf/sensors/lidar_2d.urdf.xacro",
+      "blob_sha": "fad9afb93907dbe60dfeb12843a400a56727f32a",
+      "url": "https://github.com/rlxai/rbot/blob/47af3fc3780bd582837f48ce3785d3d68834a1b7/src/robot/rlai_description/urdf/sensors/lidar_2d.urdf.xacro"
+    },
+    {
+      "repository": "rlxai/rbot",
+      "revision": "47af3fc3780bd582837f48ce3785d3d68834a1b7",
+      "path": "src/simulation/rlai_gazebo/config/ros_gz_bridge.yaml",
+      "blob_sha": "5607c050ea114f24093f41c4aaa98d757a3b015e",
+      "url": "https://github.com/rlxai/rbot/blob/47af3fc3780bd582837f48ce3785d3d68834a1b7/src/simulation/rlai_gazebo/config/ros_gz_bridge.yaml"
+    },
+    {
+      "repository": "rlxai/rbot",
+      "revision": "47af3fc3780bd582837f48ce3785d3d68834a1b7",
+      "path": "src/simulation/rlai_gazebo/launch/gazebo.launch.py",
+      "blob_sha": "4b77a08d470cf82daef22ecb522ba5a6d20ba8c8",
+      "url": "https://github.com/rlxai/rbot/blob/47af3fc3780bd582837f48ce3785d3d68834a1b7/src/simulation/rlai_gazebo/launch/gazebo.launch.py"
+    },
+    {
+      "reference": "robot_localization_config",
+      "encoding": "utf-8",
+      "sha": "621a9d25441db1a2db3db8751f705cddb3629278",
+      "display_url": "https://github.com/cra-ros-pkg/robot_localization/blob/rolling-devel/doc/configuring_robot_localization.rst",
+      "display_title": "configuring_robot_localization.rst"
+    },
+    {
+      "reference": "rep-0103.rst",
+      "encoding": "utf-8",
+      "sha": "a37ae881ee57dfdb95094d7315d04c263dce9a26",
+      "display_url": "https://github.com/ros-infrastructure/rep/blob/master/rep-0103.rst",
+      "display_title": "rep-0103.rst"
+    },
+    {
+      "reference": "rep-0105.rst",
+      "encoding": "utf-8",
+      "sha": "4fc08c2a370d965136f96474cffd331bd9e75a82",
+      "display_url": "https://github.com/ros-infrastructure/rep/blob/master/rep-0105.rst",
+      "display_title": "rep-0105.rst"
+    },
+    {
+      "reference": "rclpy_jazzy_subscription_message_info",
+      "sha": "c0a377f228223ff9b077bc7d18d84f30234e3eca",
+      "url": "https://github.com/ros2/rclpy/blob/jazzy/rclpy/src/rclpy/subscription.cpp",
+      "finding": "take_message returns source/received timestamps and sequence numbers, no publisher_gid"
+    }
+  ]
+}

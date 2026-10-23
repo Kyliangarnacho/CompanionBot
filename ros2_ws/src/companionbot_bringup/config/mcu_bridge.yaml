@@ -1,0 +1,7 @@
+# Communication commissioning only; no planner/Agent/motor arming is started.
+/**:
+  ros__parameters:
+    use_sim_time: false
+    device: ""
+    baud: 921600
+    allow_command_tx: false

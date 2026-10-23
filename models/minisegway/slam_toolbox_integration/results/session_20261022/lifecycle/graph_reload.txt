@@ -1,0 +1,48 @@
+[INFO] [launch]: All log files can be found below /home/kylian/projects/CompanionBot/models/minisegway/slam_toolbox_integration/results/session_20261022/lifecycle/ros_logs/2026-10-22-21-33-23-267837-Mbappe7-53842
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [async_slam_toolbox_node-1]: process started with pid [53883]
+[INFO] [robot_state_publisher-2]: process started with pid [53884]
+[INFO] [spatial_state-3]: process started with pid [53885]
+[INFO] [tf_authority-4]: process started with pid [53886]
+[INFO] [spatial_sim-5]: process started with pid [53887]
+[async_slam_toolbox_node-1] [INFO] [1792730003.575180167] [slam_toolbox]: Node using stack size 40000000
+[robot_state_publisher-2] [WARN] [1792730003.576227309] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[robot_state_publisher-2] [INFO] [1792730003.576310617] [companionbot.robot_state_publisher]: Robot initialized
+[async_slam_toolbox_node-1] [INFO] [1792730003.794133131] [slam_toolbox]: Configuring
+[async_slam_toolbox_node-1] [INFO] [1792730003.802818828] [slam_toolbox]: Using solver plugin solver_plugins::CeresSolver
+[async_slam_toolbox_node-1] [INFO] [1792730003.803171059] [slam_toolbox]: CeresSolver: Using SCHUR_JACOBI preconditioner.
+[async_slam_toolbox_node-1] Load From File /home/kylian/projects/CompanionBot/models/minisegway/slam_toolbox_integration/results/session_20261022/mapping_dense/maps/indoor.posegraph 
+[async_slam_toolbox_node-1] Mapper <- Module
+[async_slam_toolbox_node-1] Mapper <- m_pSequentialScanMatcher
+[async_slam_toolbox_node-1] Mapper <- m_pGraph
+[async_slam_toolbox_node-1] MapperGraph <- Graph; Graph <- m_Edges; Graph <- m_Vertices
+[async_slam_toolbox_node-1] MapperGraph <- m_pMapper; MapperGraph <- m_pLoopScanMatcher; MapperGraph <- m_pTraversal
+[async_slam_toolbox_node-1] Mapper <- m_pMapperSensorManager
+[async_slam_toolbox_node-1] MapperSensorManager <- m_ScanManagers; MapperSensorManager <- m_Scans
+[async_slam_toolbox_node-1] Mapper <- m_Listeners
+[async_slam_toolbox_node-1] **Finished serializing Mapper**
+[async_slam_toolbox_node-1] Load From File
+[async_slam_toolbox_node-1] **Serializing Dataset**
+[async_slam_toolbox_node-1] Dataset <- m_SensorNameLookup
+[async_slam_toolbox_node-1] Dataset <- m_Data
+[async_slam_toolbox_node-1] Dataset <- m_Lasers
+[async_slam_toolbox_node-1] Dataset <- m_pDatasetInfo
+[async_slam_toolbox_node-1] **Finished serializing Dataset**
+[async_slam_toolbox_node-1] Registering sensor: [Custom Described Lidar]
+[async_slam_toolbox_node-1] WARNING: Logging before InitGoogleLogging() is written to STDERR
+[async_slam_toolbox_node-1] W20261022 21:33:23.863000 53883 preprocessor.cc:67] Specified options.num_threads: 50 exceeds maximum available from the threading model Ceres was compiled with: 8.  Bounding to maximum number available.
+[INFO] [launch.user]: [LifecycleLaunch] Slamtoolbox node is activating.
+[async_slam_toolbox_node-1] [INFO] [1792730003.877827629] [slam_toolbox]: Activating
+[async_slam_toolbox_node-1] Info: clipped range threshold to be within minimum and maximum range!
+[async_slam_toolbox_node-1] Registering sensor: [Custom Described Lidar]
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [spatial_sim-5]: sending signal 'SIGINT' to process[spatial_sim-5]
+[INFO] [tf_authority-4]: process has finished cleanly [pid 53886]
+[INFO] [robot_state_publisher-2]: process has finished cleanly [pid 53884]
+[INFO] [async_slam_toolbox_node-1]: process has finished cleanly [pid 53883]
+[INFO] [spatial_state-3]: process has finished cleanly [pid 53885]
+[INFO] [spatial_sim-5]: process has finished cleanly [pid 53887]
+[async_slam_toolbox_node-1] [INFO] [1792730008.930479334] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[tf_authority-4] [INFO] [1792730008.930501362] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[robot_state_publisher-2] [INFO] [1792730008.930520950] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[async_slam_toolbox_node-1] Unregistering sensor: Custom Described Lidar

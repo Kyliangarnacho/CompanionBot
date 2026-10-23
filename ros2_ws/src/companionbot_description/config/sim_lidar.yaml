@@ -1,0 +1,14 @@
+{
+  "mount_id": "massless_sim_lidar_v1",
+  "hardware_calibrated": false,
+  "xyz_m": [0.0, 0.0, 0.18],
+  "rpy_rad": [0.0, 0.0, 0.0],
+  "rays": 360,
+  "period_s": 0.1,
+  "range_min_m": 0.05,
+  "range_max_m": 8.0,
+  "range_noise_std_m": 0.005,
+  "seed": 210103,
+  "acquisition": "instantaneous_all_rays",
+  "geometry_groups": [0, 3, 4]
+}

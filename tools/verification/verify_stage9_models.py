@@ -2,6 +2,7 @@
 from companionbot_contracts.paths import repository_root
 
 import json
+import argparse
 from pathlib import Path
 import sys
 import time
@@ -9,10 +10,14 @@ import wave
 
 ROOT = repository_root()
 
-OUTPUT = ROOT / "models/minisegway/stage9/results/architecture/models"
+OUTPUT: Path  # Assigned from the required --output-dir before any execution.
 
 
 def main():
+    global OUTPUT
+    cli = argparse.ArgumentParser(description=__doc__)
+    cli.add_argument("--output-dir", type=Path, required=True)
+    OUTPUT = cli.parse_args().output_dir.resolve()
     import cv2
     import numpy as np
     from companionbot_perception.core.camera import ColorFrame

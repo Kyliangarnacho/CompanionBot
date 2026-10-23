@@ -1,7 +1,7 @@
 # Source this file from bash; all project Python/ROS commands use the Linux .venv.
 companionbot_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 if [ ! -x "$companionbot_root/.venv/bin/python" ] || [ ! -f /opt/ros/jazzy/setup.bash ]; then
-    echo "Missing Linux .venv or ROS 2 Jazzy; see models/minisegway/stage9/RUNNING.md" >&2
+    echo "Missing Linux .venv or ROS 2 Jazzy; see docs/RUNTIME_ARCHITECTURE.md" >&2
     return 1
 fi
 source /opt/ros/jazzy/setup.bash
@@ -18,7 +18,7 @@ if [ -f "$companionbot_root/ros2_ws/install/setup.bash" ]; then
     source "$companionbot_root/ros2_ws/install/setup.bash"
 fi
 export ROS_AUTOMATIC_DISCOVERY_RANGE="${ROS_AUTOMATIC_DISCOVERY_RANGE:-LOCALHOST}"
-export ROS_LOG_DIR="$companionbot_root/models/minisegway/stage9/results/architecture/ros_logs"
+export ROS_LOG_DIR="${ROS_LOG_DIR:-$companionbot_root/models/minisegway/runtime_architecture/results/ros_logs}"
 export YOLO_CONFIG_DIR="$companionbot_root/.venv/ultralytics"
 export MPLCONFIGDIR="$companionbot_root/.venv/matplotlib"
 export PIP_CACHE_DIR="$companionbot_root/.venv/pip-cache"

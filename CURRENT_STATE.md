@@ -1,6 +1,69 @@
 # CompanionBot current state — Ubuntu / ROS 2 Jazzy
 
-## Stage 9 当前状态：迁移与职责架构整理（2026-10-05）
+## 当前：商业书店场景与完整自主导航集成（2026-10-23）
+
+- AWS Bookstore ros2 固定commit `f5a2aaac`：26原型、138实例、完整纹理/真实接触与射线几何；成熟库转换，非凸货架分解/开放墙面薄凸体保留通道。第三方和派生mesh仅在ignored cache，196源hash及派生manifest验证；原件不覆盖，Gazebo不接入。
+- 原SLAM链实走37.737m主图和9.225m补图，标准地图/posegraph保存加载通过；最终5cm地图，几何P95=4.333cm，occupied precision=99.816%，补图SLAM位置RMSE=2.364cm。正式map version `b48c61b3b2bf76d5`，五个语义目标均经真实Smac Action验证；mapping/AMCL的map→odom互斥，GT只事后评价。
+- 官方AMCL＋Smac2D＋RPP＋Costmap＋BT，经单authority租约/健康检查接原LIGHTWEIGHT Ruckig→ReferenceBlock→MCU safety；无第二速度平滑器、Spin/BackUp恢复。最终代码两轮“起始区→西书架→东书架→服务台”分别21.257/21.347m，六目标全成功，3s停稳误差6.13–11.55cm，零障碍接触/非预期接管；最大pitch4.443°，原控制门禁全部通过。
+- 唯一正式app显式`--navigation-mode nav2`接实际Action，默认Fake保持。正式UserInput带路与同地点新task、实际误差、正常释放、10个目标markers均验；既有Agent取消及同task幂等通过。ACCEPT不等于完成，地图坐标不由LLM生成；本轮语言层为离线FunctionModel，未新增云端Qwen/语音验收。Nav2模式FOLLOW明确拒绝，hardware_execution_ready=false。
+- STOP/WAIT/CANCEL、cmd/lease过期、scan/localization失效及resume等待窗口取消共8项物理夹具通过；5项实际DDS故障、显式重新授权、真实货架目标ABORTED(error208)与正常退出通过。保留初始碰柜、评分alias、BT/误差、启动gap、pending-resume及terminal轮询竞态的失败证据；只修职责/时序，不改安全门限。
+- 八包build、397 pytest、colcon417 tests/0 errors/0 failures/0 skipped、五套native冻结回归通过；199300仲裁tick，reference最大差4.1633e−17。原空间、SLAM、typed协议、C++ PTY和正式Fake回归通过，587保护文件SHA不变。1ms physics/2ms control、冻结LQR、Q OFF与协议保持。
+- WSL2 Ryzen 9 / 8 CPU的有限物理仿真；最终导航观测RTF约0.995–0.997，scan约10Hz/odom约50Hz，Nav2 controller10Hz。Pi 5/STM32实体、长期运行、真实传感器/玻璃与矮障碍覆盖、动态行人、GUI人工验收仍未完成。提供同模型passive MuJoCo viewer和RViz入口，由用户手动开启，Codex未操作桌面。
+- 运行与完整数据流：[RETAIL_NAVIGATION](docs/RETAIL_NAVIGATION.md)。唯一 [final_report](models/minisegway/retail_navigation/final_report.md) / [learning_log](models/minisegway/retail_navigation/learning_log.md)；证据根`models/minisegway/retail_navigation/results/session_20261022/`，`evidence_index.json`区分最终通过和被审计否决的旧run。桌面独立副本`stage report/Retail_Navigation/`，SHA见`report_delivery.json`。未commit/push，保留用户已有改动。
+
+## 历史：SLAM Toolbox 建图与机器人地图系统集成（2026-10-22）
+
+- 八个 ROS package 保持；Jazzy 原版 SLAM Toolbox 2.8.5 接入 MuJoCo、原 sensorized odom/TF、VirtualPlanarLidar 和 /clock。`slam_simulation.launch.py` 是建图功能组合，有限运动走既有 planner→ReferenceBlock→packet_link→MCU safety→冻结控制，不改正式交互 Demo 或 Agent/Fake 权限。
+- 两次82 s真实物理运行均通过：路径21.768 m、双圈、最大pitch7.703°；normal / 0.5 s主动scan dropout地图均为161×161、5 cm，四墙覆盖100%、occupied precision100%、几何P95为5.975/5.969 cm、位置RMSE为1.109/1.030 cm。图为125/124节点、208/206边、84/83跨圈约束，并有历史节点优化修正。
+- 原始倾斜扫描直接输入，未增加补偿/地面投影/过滤算法；地面回波保留。map→odom只由SLAM发布，原spatial_state/RSP职责保持，C++实际GID审计扩展到该边。标准YAML/PGM和posegraph/data保存、map_server逐cell加载、上游图加载均实测；手动RViz配置已提供，未作GUI人工验收。
+- 正常8包build、**389 pytest passed / 0 skipped**、colcon **417 tests / 0 errors / 0 failures / 0 skipped**通过（含外层，不相加计coverage）。五套原native冻结回归通过，199300仲裁tick、reference最大差4.1633e−17；原空间五场景/被动ablation通过，1083保护文件SHA不变。
+- 异常IMU、重复map TF authority、SLAM进程失败、缺失图均预期非零退出且Graph无遗留；两个最终run正常CLOSED。normal收到820/820 scan、source-time TF覆盖812/820（8帧启动历史unavailable）；dropout发布815/收到798、已收帧TF覆盖100%，接收损失未隐藏。
+- 有限调查定位并保留早期失败：wall catch-up数据突发、空参数、near-linked质心导致无回环、上游栅格最大边界缺墙，以及Gen2 GC导致52.39 ms reference停顿。只调整主机pacing/readiness、有限physics loop循环GC策略与有因果依据的SLAM参数；原deadline/gains/plant/truth/tolerance不变。GC策略恢复，41000控制tick对照逐值相等。
+- WSL2 Ryzen 9 7945HX / 8 CPU下，SLAM平均CPU约6%单核、peak RSS约58 MiB、地图约1.05Hz、scan→pose观察到达P95约11–13ms；simulation进程883–958 MiB。不是Pi5/MCU实测。真实旋转LiDAR、非平地/大pitch、长期运行、实体安装/时钟/输出与Nav2仍待验证；upstream边界/动态二维外参限制保留。
+- 运行：[SLAM_MAPPING](docs/SLAM_MAPPING.md)。唯一工程 [final_report](models/minisegway/slam_toolbox_integration/final_report.md) / [learning_log](models/minisegway/slam_toolbox_integration/learning_log.md)，[上游取舍](models/minisegway/slam_toolbox_integration/UPSTREAM_DECISIONS.md)；原始证据 `models/minisegway/slam_toolbox_integration/results/session_20261022/`，正式文字副本目录 `stage report/SLAM_Toolbox_Integration/`，SHA见会话report_delivery.json。未commit/push，用户已有改动保留。
+
+## 历史：自平衡机器人空间状态与 SLAM 数据基座（2026-10-22）
+
+- 新增 companionbot_description 后为八个 ROS package；新增 MJCF 派生几何/Xacro、JointState、raw IMU、估计 Odometry、保留物理 roll/pitch 的动态 TF、室内虚拟 LiDAR/LaserScan、diagnostics 与用户手动 RViz 配置。有限 spatial_simulation 诊断不替代唯一正式交互 Demo，也不接 Agent/actuator。
+- 正旋转 MJ→ROS=[−Y,X,Z]，历史轮名只在空间 adapter 显式换序；复用原 encoder＋pitch 路径估计并按弧长积分。body-z control yaw 与 Euler navigation yaw 分开；没有 map、GT odom、假 identity TF 或清零 pitch。标准空间 Header 使用 source/horizon time，旧业务 publication-time 合同保持。
+- 五组平衡/前进/转向/组合/俯仰物理验证通过，2200个50 Hz状态；最大 peak xy误差8.128 mm、yaw误差0.004084 rad，仅为固定seed平地短时评测。原控制门禁无跌倒/饱和，Q OFF；新增被动sensor/scene的7000行控制历史与原plant逐值完全一致。
+- 正常与独立干净八包 ROS 构建通过；全仓/各owner **388 pytest passed / 0 skipped**，独立 colcon **397 tests / 0 errors / 0 failures / 0 skipped**（含CTest/pytest外层，不重复计coverage）。pip、rosdep、派生几何、冻结配置与板工程检查通过。
+- 实际 ROS/DDS 验收通过：698组state/odom/joints/IMU、140 scan；8个TF child的实际GID/parent/owner唯一，source-time查询只缺首个0.019 s IMU早于TF历史的覆盖。IMU断流后最后odom为3.0 s，错误parent/重复GID非零退出；重复SIGINT下worker停止、runtime CLOSED、Graph无遗留。
+- 10项独立typed DDS协议故障检查通过；clock暂停不推进，clock前进而源停止则timeout。Jazzy rclpy无GID，审计放在C++；发现Graph姓名可晚于GID，最多1 s限时等待且不批准unknown。原启动/数据流/清理失败日志保留，未改算法或放宽既有控制门限。
+- 原native baseline/radial/safety/dynamic/stream五套回归及正式交互Fake/视频回放ROS运行回归通过；199300个C/Python仲裁tick维持旧parity，reference最大差4.1633e−17。四份baseline JSON和九份控制history完全一致；主机计时/arrival差异保留。
+- 根 AGENTS 已去重重组为长期原则，动态状态留在本文件，接口由 [空间合同](docs/SPATIAL_STATE.md) 维护（含TF、节点和数据流图）。[final_report](models/minisegway/spatial_slam_foundation/final_report.md)、[learning_log](models/minisegway/spatial_slam_foundation/learning_log.md)、[上游取舍](models/minisegway/spatial_slam_foundation/UPSTREAM_DECISIONS.md)；原始证据为 `models/minisegway/spatial_slam_foundation/results/session_20261021/`，桌面独立副本目录为 `stage report/Spatial_SLAM_Foundation/`，SHA核对见报告。
+- SLAM/地图/Nav2、真实传感器与设备时钟适配、Pi实时性、STM32运行/物理输出、GUI人工验收仍未完成。当前为会漂移的平面支持baseline，轴高固定轮半径、covariance未标定，倾斜scan的二维SLAM兼容性待验；hardware_execution_ready=false。冻结算法/资产与用户改动保留，未commit/push。
+
+## 历史：Python / C++ / STM32 C/HAL 混合工程（2026-10-21）
+
+- 七个 ROS package 保持；control 转 ament_cmake＋ament_cmake_python。C++ rclcpp 串口桥实际实现独占设备、worker、有界队列、session/clock/双 deadline、错误退出和 diagnostics；默认 TX off，不代发 heartbeat。500 Hz 控制留在 MCU 本地，不穿 DDS。
+- 同一份独立 C99 源码实现 receiver、safety/resume、brake、互补姿态/encoder PLL/gyro yaw、固定 LQR、yaw PD 和 allocator，供主机 shared library 与 ARM 固件共用。Python 保留 AI/视觉/Agent、Pi planning、冻结对照和高级 slope/payload/Q 研究模块；正式 Demo 和默认 Python 行为不变。
+- 参考硬件确定为 **Pi 5 4GB＋NUCLEO-G474RE**。真实 HAL 工程使用锁定 ST CubeG4 v1.6.1；170 MHz、USART2 DMA 921600、TIM6 2 ms、IWDG、SWD、调度与物理 gate 已实现并交叉编译。补充验证后的 Flash **39,140 B**，主 RAM **18,280 B**（含 8 KiB 栈），CCM 未占用。提供 `.ioc` / MDK5 Compiler 6 工程，尚未运行 CubeMX/MDK、未烧录。
+- 新嵌入式 wire v2 使用有界 COBS/CRC32，完整复用原 640B ReferenceBlock v1；status 分开 requested/limited/allocated/actual、saturation、故障和拒绝原因。未知 IMU/encoder/motor/physical arm 只在 board_io 返回 unavailable，actual NaN，实体输出禁用；hardware_execution_ready=false。
+- 正常七包 ROS 构建、独立空目录七包构建及重建通过；全量 **365 pytest passed / 0 skipped**。clean colcon **373 tests / 0 errors / 0 failures / 0 skipped**（含独立 C case 与 7 个 pytest 外层，不重复计 coverage）。19 项原生 C/Python回归、C CTest、ASan/UBSan、19 项实际 C++/DDS＋PTY 软件链路检查通过；pip/rosdep/上游锁/冻结配置检查通过。
+- 原 moving Q-OFF、payload/slope/impulse、五 radial、三 safety、八 dynamic、stream/原 4 ms delay 验收复用通过；C 仲裁实际驱动 plant 并逐 tick 对照，共 **199,300 tick**，state/epoch 一致，reference 最大差 **4.17e-17**。原 Python 对旧 Linux 结果仍为 **76 项 exact checks** 一致，1538 个开工冻结文件 SHA256 不变。
+- 数值差异未掩盖：恢复 encoder 原运算顺序后正式 governor 事件对齐；诊断 shadow 仍有一次 50 ms 变化。接触/冲激轨迹非逐位相等，pitch-rate 最大差约 0.025204 rad/s，terminal pitch 指标最大差约 0.005838°；全字段差异及初始不利证据保留，未改 gains/plant/truth/tolerance，Q actuator OFF。
+- Pi 视觉吞吐、实体 UART/传感器/电机/供电、clock mapping、板上 WCET/栈/看门狗/arm 未实测；当前 PyTorch 三模型完整 20 Hz 未获证明。主机容量夹具不称作 Pi benchmark；真实视觉→follow、SLAM/Nav2、Agent 真机执行仍未开发。
+- UART补充验证：921600 8N1最坏块664B/7.205ms；当前正向流15.54%、反向status9.01%。修复逐帧固定poll等待、kernel接受不等于线速完成的积压问题，保留原期限；12组严格限速PTY/C协议检查通过，120s标称7200/7200、60s高负载13200/13200，过载/带宽下降/失联/partial/阻塞均正确拒绝或本地降级。115200不适合现有流，不提高默认baud。
+- 500Hz补充验证：修复只量函数体而遗漏释放等待/跨周期的漏洞，输出前检查本次ISR释放age/下一tick并锁存故障；新增SWD可读DWT分段最大值。9个真实app host逻辑case＋1个C core case经ASan/UBSan全部通过，365 pytest及原19项bridge复测通过。分析/正常ARM BIN相同，保留double；340,000cycles是待验收预算，尚不能认证板上2ms执行余量。C核心7个源码/头文件及1538冻结文件SHA不变。
+- 当前合同及架构/数据流/协议/构建烧录：[CROSS_LANGUAGE_EMBEDDED](docs/CROSS_LANGUAGE_EMBEDDED.md)；[调研与选型](models/minisegway/cross_language_embedded/UPSTREAM_AND_HARDWARE.md)；唯一正式 [final_report](models/minisegway/cross_language_embedded/final_report.md) / [learning_log](models/minisegway/cross_language_embedded/learning_log.md)。原始证据在该目录 `results/session_20261021/`，补充验证在 `results/uart_timing_20261021/`；桌面独立报告副本目录为 `stage report/Cross_Language_Embedded/`，最新SHA256见补充验证目录 `report_delivery.json`。测试输出隔离、用户已有改动、冻结证据和有效 workspace 构建保留，未 commit/push。
+
+## 历史：ROS 2 运行架构完善与数据流规范化（2026-10-21）
+
+- 七个 package 保持，唯一正式入口仍为 `scripts/demo_stage8_interaction.py`；bringup 委托同一 app。启用相机时静态组合 interaction/perception 两 Node、各自独立 ROS executor；无相机只建 interaction。Camera/推理仍是原唯一 owner，本地 Frame/Master 共享，不通过 DDS 迂回消费。
+- 感知 observer 改为三个有界 latest 槽，DDS 序列化移出 capture worker，无订阅者不序列化 RGB。frozen_sim 同样只交接估计/实际命令快照，ROS timer 发布遥测，不进入 500 Hz control / 1 kHz physics 调度；合并计数可见。
+- 文字入口同步有界接纳，64 项、local control 优先、满载拒绝；UserInput response 新增 input_id，连通 provenance→Session→Feedback，消费前拒绝排队过期。旧 ROSIDL 客户端须随 workspace 重建；SourceStamp v2 / binary v1、Supervisor 授权与 Fake 执行合同保持。
+- 加入运行状态/标准 diagnostics、后台错误传播、完整 cleanup、首帧前退出、SIGTERM 和 required-process 失败传递。安装的 ROS 参数文件、namespace、agent_config、独立输出目录已验。运行状态不是 ROS ManagedNode lifecycle，不支持热 reset/reconnect。
+- 最终全量 Python/ROS **346 passed，0 skipped（9.49 s）**；独立 underlay clean build 七包通过（36.5 s），正常 workspace 构建七包通过；clean colcon **347 tests / 0 errors / 0 failures / 0 skipped**，含一个 CTest 外层，不增加 coverage 计数。pip check / rosdep check 通过。
+- 冻结移动 payload Q-OFF、坡面/偏载/冲激、五个 radial 场景、八个动态窗口场景和 reference stream/原 4 ms delay 复现通过。与既有同版本 Linux 完整 metrics/history/事件/计数共 **76 项 exact JSON checks** 一致；最新 Windows 动态 latch 最大差约 8.55e-14 m/s，未改门限。
+- 实际 launch / typed DDS / rclpy Graph / ros2 CLI 检查通过；perception 是感知 publisher，interaction 是输入与 feedback owner，二者 PID 相同、executor 分开。正式回放没有自动选 Master；显式 track-1 软件 fixture 收到 119 RGB / 102 Master / 68 relative。正常退出取消在途 Fake task，ROS 线程停止、Graph 不留项目 runtime；无效源非零退出，真实首帧前有限退出通过。
+- ROS/异步验证最初受沙箱本地 socket 禁止影响，原失败/超时保留；在允许本地通信的环境复验通过。新 node 曾与 rclpy 的 publishers 只读属性重名，验收工具曾使用无可检查签名的 deque.append；均已修复并保留失败日志。无算法调参。
+- 当前权威合同、两张架构/数据流图、接口/生命周期/依赖与运行命令：[运行架构](docs/RUNTIME_ARCHITECTURE.md)。完整工程报告：[final_report](models/minisegway/runtime_architecture/final_report.md)、[learning_log](models/minisegway/runtime_architecture/learning_log.md)。成果只在 `models/minisegway/runtime_architecture/results/20261021T1335/`；桌面交付目录为 `C:\Users\29603\Desktop\CompanionBot\stage report\ROS2_Runtime_Architecture\`，副本 SHA256 见报告。
+- 真实视觉→follow、SLAM/Nav2、实际 odometry、Pi/STM32 transport/实时性、物理相机/音频/GUI 未新增认证；Robot/NavigationBackend 仍 Fake、hardware_execution_ready=false。共进程不隔离 native crash/OOM；同 boot monotonic proof 不等于跨设备同步。未 commit/push。
+
+以下是已冻结的历史状态，反映当时架构；当前运行关系以上述文档为准。
+
+## 历史：Linux 迁移与源码职责整理（2026-10-05）
 
 - 主环境保持 WSL2 Ubuntu 24.04.4 / .venv Python 3.12.3 / ROS 2 Jazzy；Windows venv 不复用，数值/模型/Agent 依赖与初次迁移相同。source scripts/env.sh 后统一解释器；pip check、rosdep check 通过，未重复安装 Jazzy。
 - 当前七个 package：**interfaces / perception / follow / control / behavior / simulation / bringup**，代码唯一归属 ros2_ws/src。原顶层 control/sim/perception/embodied_agent/learning 与混杂 scripts 已按职责搬迁；算法 core/runtime 与 ros adapter 分层，package 不强制等于 node。根 pyproject 仅 editable bootstrap 同一份源码。

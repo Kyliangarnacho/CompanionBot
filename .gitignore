@@ -25,6 +25,11 @@ CMakeFiles/
 CMakeCache.txt
 /ros2_ws/install/
 /ros2_ws/log/
+# Runtime acceptance sessions include local clean build/install/log trees.
+/models/minisegway/runtime_architecture/results/
+# Cross-language firmware/ROS acceptance evidence and local build artifacts.
+/models/minisegway/cross_language_embedded/results/
+/firmware/boards/*/MDK-ARM/*.uvguix.*
 *.egg-info/
 *.o
 *.obj
@@ -62,6 +67,8 @@ CMakeCache.txt
 !/models/minisegway/stage3/results/config/*.json
 
 # Archived raw experiment traces stay local; historical reports and configs remain tracked.
+/models/minisegway/spatial_slam_foundation/results/
+/models/minisegway/retail_navigation/results/
 /models/minisegway/**/reference/**/*.csv
 /models/minisegway/**/reference/**/*.json
 /models/minisegway/**/reference/**/*.npz

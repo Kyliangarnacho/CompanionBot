@@ -1,0 +1,109 @@
+{
+  "alignment": "one initial sensor/GT origin and yaw only; no trajectory or map best fit",
+  "gt_posthoc_only": true,
+  "path_length_m": 21.768472040892,
+  "xy_span_m": [
+    3.386581770188754,
+    2.999613882243383
+  ],
+  "yaw_accumulated_rad": 12.584185989515552,
+  "pitch_abs_peak_deg": 7.703283759822945,
+  "pose": {
+    "samples": 64,
+    "position_rmse_m": 0.014229286159390994,
+    "position_p95_m": 0.021313268049419323,
+    "position_peak_m": 0.06778073601894773,
+    "yaw_rmse_rad": 0.0031293459582355967,
+    "yaw_peak_rad": 0.005496300970171795
+  },
+  "odom": {
+    "samples": 3993,
+    "position_rmse_m": 0.00991487966823149,
+    "position_p95_m": 0.01655712131836554,
+    "position_peak_m": 0.016957972324566434,
+    "yaw_rmse_rad": 0.0062143411486634565,
+    "yaw_peak_rad": 0.009552340758479836
+  },
+  "map": {
+    "resolution_m": 0.05000000074505806,
+    "shape_cells": [
+      161,
+      161
+    ],
+    "occupied_cells": 658,
+    "occupied_geometry_p50_m": 0.03272768711493339,
+    "occupied_geometry_p95_m": 0.03698618288024744,
+    "occupied_precision_within_0p10m": 1.0,
+    "room_boundary_coverage_within_0p10m": 0.6984375,
+    "known_interior_fraction": 0.988740959894806
+  },
+  "performance": {
+    "scan_to_pose_arrival_wall_s_p50": 0.004415243999574159,
+    "scan_to_pose_arrival_wall_s_p95": 0.005449455200414377,
+    "pose_hz_wall": 0.8518695847742788,
+    "map_hz_wall": 1.0658186101057954,
+    "processes": {
+      "48494": {
+        "name": "async_slam_toolbox_node",
+        "mean_cpu_percent_one_core": 4.142745073393075,
+        "peak_rss_mib": 54.609375
+      },
+      "48495": {
+        "name": "robot_state_publisher",
+        "mean_cpu_percent_one_core": 1.8948353390827686,
+        "peak_rss_mib": 34.015625
+      },
+      "48496": {
+        "name": "spatial_state",
+        "mean_cpu_percent_one_core": 10.192102714351778,
+        "peak_rss_mib": 108.9296875
+      },
+      "48497": {
+        "name": "tf_authority",
+        "mean_cpu_percent_one_core": 2.671602373009021,
+        "peak_rss_mib": 32.046875
+      },
+      "48498": {
+        "name": "spatial_sim",
+        "mean_cpu_percent_one_core": 52.66705385007617,
+        "peak_rss_mib": 882.5625
+      }
+    }
+  },
+  "tf_authorities": {
+    "base_footprint": [
+      "odom|spatial_state|/tf|010f1ef870bd4e0a0000000000001703"
+    ],
+    "base_link": [
+      "base_footprint|spatial_state|/tf|010f1ef870bd4e0a0000000000001703"
+    ],
+    "imu_link": [
+      "base_link|robot_state_publisher|/tf_static|010f1ef86fbd56880000000000001603"
+    ],
+    "left_wheel_link": [
+      "base_link|robot_state_publisher|/tf|010f1ef86fbd56880000000000001503"
+    ],
+    "lidar_link": [
+      "base_link|robot_state_publisher|/tf_static|010f1ef86fbd56880000000000001603"
+    ],
+    "odom": [
+      "map|slam_toolbox|/tf|010f1ef86ebda8180000000000002603"
+    ],
+    "right_wheel_link": [
+      "base_link|robot_state_publisher|/tf|010f1ef86fbd56880000000000001503"
+    ]
+  },
+  "upstream_loop_closures": 0,
+  "checks": {
+    "geometry_p95": true,
+    "occupied_precision": true,
+    "room_coverage": false,
+    "known_interior": true,
+    "position_rmse": true,
+    "yaw_rmse": true,
+    "actual_motion": true,
+    "map_authority": true,
+    "loop_closure": false
+  },
+  "passed": false
+}

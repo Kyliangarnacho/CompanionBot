@@ -40,10 +40,29 @@ def test_rejected_input_does_not_poison_watermark(mutate, reason):
 
 def test_ros_input_only_queues_and_cannot_bypass_session():
     queued = []
-    bridge = SimpleNamespace(guard=InputGuard(clock=lambda: 10.1), enqueue=queued.append)
+    bridge = SimpleNamespace(guard=InputGuard(clock=lambda: 10.1), enqueue=queued.append, state="RUNNING")
     request = UserInput.Request(meta=input_stamp(), text="你好小柒")
     response = InteractionBridge._input(bridge, request, UserInput.Response())
-    assert response.queued and "not_execution_ack" in response.reason and queued == ["你好小柒"]
+    assert response.queued and "not_execution_ack" in response.reason
+    assert queued[0].text == "你好小柒" and queued[0].input_id == response.input_id
+    assert queued[0].provenance["sequence"] == 1
     assert not InteractionBridge._input(bridge, request, UserInput.Response()).queued
+
+
+def test_full_or_closed_inbox_does_not_bind_or_advance_the_source():
+    guard = InputGuard(clock=lambda: 10.1)
+    assert guard.accept(input_stamp(), enqueue=lambda: False) == "input_inbox_full_or_closed"
+    assert guard.source is None
+    assert guard.accept(input_stamp()) is None
+
+
+def test_startup_and_shutdown_inputs_are_rejected_before_source_guard():
+    for state in ("STARTING", "STOPPING", "ERROR"):
+        guard = InputGuard(clock=lambda: 10.1)
+        bridge = SimpleNamespace(state=state, guard=guard)
+        request = UserInput.Request(meta=input_stamp(), text="你好小柒")
+        response = InteractionBridge._input(bridge, request, UserInput.Response())
+        assert not response.queued and response.reason == "runtime_not_running"
+        assert guard.source is None
 
 

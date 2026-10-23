@@ -7,6 +7,8 @@
   <license>LicenseRef-CompanionBot</license>
   <exec_depend>companionbot_interfaces</exec_depend>
   <exec_depend>rclpy</exec_depend>
+  <exec_depend>diagnostic_msgs</exec_depend>
+  <exec_depend>rcl_interfaces</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>tf2_ros_py</exec_depend>
   <test_depend>python3-pytest</test_depend>

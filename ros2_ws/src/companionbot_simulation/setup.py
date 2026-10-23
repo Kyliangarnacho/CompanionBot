@@ -13,6 +13,7 @@ setup(
     zip_safe=False, maintainer="CompanionBot",
     maintainer_email="maintainer@companionbot.local",
     description="MuJoCo plant, synthetic sensors and frozen scenario composition", license="LicenseRef-CompanionBot",
-    entry_points={"console_scripts": ["frozen_sim = companionbot_simulation.ros.frozen_sim:main"]},
+    entry_points={"console_scripts": ["frozen_sim = companionbot_simulation.ros.frozen_sim:main",
+                                     "spatial_sim = companionbot_simulation.ros.spatial_sim:main"]},
 )
 

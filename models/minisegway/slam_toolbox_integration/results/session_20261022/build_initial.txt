@@ -1,0 +1,21 @@
+/home/kylian/projects/CompanionBot/.venv/bin/python
+3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]
+pip 24.0 from /home/kylian/projects/CompanionBot/.venv/lib/python3.12/site-packages/pip (python 3.12)
+Starting >>> companionbot_interfaces
+Starting >>> companionbot_description
+Finished <<< companionbot_description [0.13s]
+Finished <<< companionbot_interfaces [0.55s]
+Starting >>> companionbot_follow
+Starting >>> companionbot_perception
+Finished <<< companionbot_follow [2.26s]
+Starting >>> companionbot_control
+Finished <<< companionbot_perception [2.26s]
+Starting >>> companionbot_behavior
+Finished <<< companionbot_control [1.26s]
+Starting >>> companionbot_simulation
+Finished <<< companionbot_behavior [2.76s]
+Finished <<< companionbot_simulation [4.16s]
+Starting >>> companionbot_bringup
+Finished <<< companionbot_bringup [7.79s]
+
+Summary: 8 packages finished [16.2s]

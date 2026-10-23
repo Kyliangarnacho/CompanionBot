@@ -1,0 +1,29 @@
+[INFO] [launch]: All log files can be found below /home/kylian/projects/CompanionBot/models/minisegway/slam_toolbox_integration/results/session_20261022/lifecycle/ros_logs/2026-10-22-21-33-39-847645-Mbappe7-54463
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [async_slam_toolbox_node-1]: process started with pid [54496]
+[INFO] [robot_state_publisher-2]: process started with pid [54497]
+[INFO] [spatial_state-3]: process started with pid [54498]
+[INFO] [tf_authority-4]: process started with pid [54499]
+[INFO] [spatial_sim-5]: process started with pid [54500]
+[robot_state_publisher-2] [WARN] [1792730020.164418834] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[robot_state_publisher-2] [INFO] [1792730020.164566500] [companionbot.robot_state_publisher]: Robot initialized
+[async_slam_toolbox_node-1] [INFO] [1792730020.167987841] [slam_toolbox]: Node using stack size 40000000
+[async_slam_toolbox_node-1] [INFO] [1792730020.386647107] [slam_toolbox]: Configuring
+[async_slam_toolbox_node-1] [INFO] [1792730020.391239886] [slam_toolbox]: Using solver plugin solver_plugins::CeresSolver
+[async_slam_toolbox_node-1] [INFO] [1792730020.391399583] [slam_toolbox]: CeresSolver: Using SCHUR_JACOBI preconditioner.
+[INFO] [launch.user]: [LifecycleLaunch] Slamtoolbox node is activating.
+[async_slam_toolbox_node-1] [INFO] [1792730020.406543955] [slam_toolbox]: Activating
+[async_slam_toolbox_node-1] Info: clipped range threshold to be within minimum and maximum range!
+[async_slam_toolbox_node-1] Registering sensor: [Custom Described Lidar]
+[ERROR] [async_slam_toolbox_node-1]: process has died [pid 54496, exit code -9, cmd '/opt/ros/jazzy/lib/slam_toolbox/async_slam_toolbox_node --ros-args -r __node:=slam_toolbox -r __ns:=/ --params-file /home/kylian/projects/CompanionBot/ros2_ws/install/companionbot_bringup/share/companionbot_bringup/config/slam.yaml --params-file /tmp/launch_params_xqshjsze'].
+[ERROR] [launch]: Caught exception in launch (see debug for traceback): Required runtime exited with code -9
+[INFO] [spatial_sim-5]: sending signal 'SIGINT' to process[spatial_sim-5]
+[INFO] [tf_authority-4]: sending signal 'SIGINT' to process[tf_authority-4]
+[INFO] [spatial_state-3]: sending signal 'SIGINT' to process[spatial_state-3]
+[INFO] [robot_state_publisher-2]: sending signal 'SIGINT' to process[robot_state_publisher-2]
+[tf_authority-4] [INFO] [1792730024.475850479] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[robot_state_publisher-2] [INFO] [1792730024.476492076] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [tf_authority-4]: process has finished cleanly [pid 54499]
+[INFO] [robot_state_publisher-2]: process has finished cleanly [pid 54497]
+[INFO] [spatial_state-3]: process has finished cleanly [pid 54498]
+[INFO] [spatial_sim-5]: process has finished cleanly [pid 54500]

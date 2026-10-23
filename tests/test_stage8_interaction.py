@@ -418,7 +418,7 @@ def test_single_entry_camera_precedes_local_listening_and_input_acceptance(tmp_p
             stop.wait(5)
             return 0
         args = Namespace(config=None, fake=True, tts=False, vosk_model=None,
-                         audio_device=None, audio_samplerate=16000)
+                         audio_device=None, audio_samplerate=16000, output_dir=tmp_path)
         bridge.submit("/look-roi bad input")
         bridge.submit("你好小柒")
         bridge.submit("普通对话")

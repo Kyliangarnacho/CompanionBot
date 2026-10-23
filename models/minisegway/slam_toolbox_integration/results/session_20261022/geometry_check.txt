@@ -1,0 +1,1 @@
+ros2_ws/src/companionbot_description/config/minisegway.yaml verified

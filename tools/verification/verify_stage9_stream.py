@@ -4,6 +4,7 @@ All phases call the existing runner. Config, controller, seeds, solver choices
 and the 4 ms delay case are unchanged. No viewer or real transport is used.
 """
 import json
+import argparse
 from pathlib import Path
 import sys
 
@@ -12,7 +13,9 @@ from companionbot_simulation.scenarios import run_stage5_v1_5_pi_mcu_stream as s
 
 
 def main():
-    output = repository_root() / "models/minisegway/stage9/results/architecture/reference_stream"
+    cli = argparse.ArgumentParser(description=__doc__)
+    cli.add_argument("--output-dir", type=Path, required=True)
+    output = cli.parse_args().output_dir.resolve()
     output.mkdir(parents=True, exist_ok=True)
     stage5.RESULT_DIR = output
     stage5.PLOT_DIR = output / "plots"
