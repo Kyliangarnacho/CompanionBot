@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "repository": "https://github.com/gazebosim/gazebo-classic",
+  "commit": "b22c6e15e52299865b31093b8feebc9ca19e26e8",
+  "model": "Gazebo walking actor",
+  "license": "Apache-2.0 as distributed in archived Gazebo-classic; preserve upstream LICENSE/COPYING",
+  "attribution": "Open Source Robotics Foundation Gazebo walking actor; original COLLADA authoring metadata Blender User 2012-05-19",
+  "documentation": "https://gazebosim.org/docs/harmonic/actors/",
+  "files": [
+    {
+      "path": "media/models/walk.dae",
+      "sha256": "49af0df3a319d1cb8ca2cebf02dbd00f625e5d5bec820bc5e109925b18b65c6e",
+      "bytes": 2277322
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "d26974a952e546ec998cc18efa7a043b33d5edc06d3019ba1bad453955051968",
+      "bytes": 621
+    },
+    {
+      "path": "COPYING",
+      "sha256": "e1925845017bf307c7d465af432e8bb20cbb6ce17b10cd323af59da717753075",
+      "bytes": 10175
+    }
+  ],
+  "cache": "ignored .venv/assets/visual_companion_gazebo",
+  "upstream_immutable": true,
+  "converter": "Ubuntu libassimp5 package5.3.1+ds-2build1, runtime reports5.3.0: COLLADA importer/glTF2 exporter; existing MuJoCo native skin adapter"
+}

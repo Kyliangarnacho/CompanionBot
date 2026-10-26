@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "scope": "Bookstore true same-snapshot stereo RGB + original AI models + shared C++ follow owner; simulation only",
+  "camera_config": "models/minisegway/native_runtime/config/stereo_camera.json",
+  "depth_protocol": "models/minisegway/native_runtime/config/stereo_depth_protocol.json",
+  "character_asset_dir": ".venv/assets/visual_companion_gazebo/derived",
+  "depth_calibration": null,
+  "depth_status": "new image-only stereo channel under fixed validation; no passed certificate and no motion authorization",
+  "select_track_id": 1,
+  "selection_semantics": "explicit simulated operator selects an actual tracker ID; no actor GT identity enters tracking or control",
+  "actor_route": [
+    {
+      "time_s": 0.0,
+      "position_ros_m": [
+        1.8,
+        0.0,
+        0.0
+      ],
+      "yaw_rad": 0.0
+    },
+    {
+      "time_s": 3.0,
+      "position_ros_m": [
+        1.8,
+        0.0,
+        0.0
+      ],
+      "yaw_rad": 0.0
+    },
+    {
+      "time_s": 8.0,
+      "position_ros_m": [
+        2.7,
+        0.0,
+        0.0
+      ],
+      "yaw_rad": 0.0
+    },
+    {
+      "time_s": 12.0,
+      "position_ros_m": [
+        3.3,
+        0.4,
+        0.0
+      ],
+      "yaw_rad": 0.0
+    },
+    {
+      "time_s": 16.0,
+      "position_ros_m": [
+        3.3,
+        0.4,
+        0.0
+      ],
+      "yaw_rad": 0.0
+    }
+  ],
+  "actor_route_policy": "simulation physics/image generation and separate posthoc evaluation only",
+  "hardware_execution_ready": false,
+  "route_geometry_source": "initial onboard camera faces ROS +X; actor route follows front free aisle; only image/physics generation",
+  "metric_depth_source": "native_stereo",
+  "stereo_validation": null,
+  "inference_threads": 4
+}

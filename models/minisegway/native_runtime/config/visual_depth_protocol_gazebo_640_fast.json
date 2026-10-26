@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "status": "frozen_before_first_gazebo_640_fast_render_or_depth_inference",
+  "character_asset_lock_sha256": "d5cf5c4be3276afc48007a34b06c23719330c1d61373b082cd518a590f433fc0",
+  "camera_config_sha256": "b5842d4ae4692c37e09ac13421b87110e24217403f0f4500aafe5eca5f7dc1ca",
+  "detector": {
+    "model": "yolo26n.pt",
+    "imgsz": 640,
+    "confidence": 0.25,
+    "source": "existing Stage7 detector defaults"
+  },
+  "depth": {
+    "model": ".venv/models/yolo26n-depth.pt",
+    "imgsz": 768,
+    "raw_output_preserved": true,
+    "conventions_evaluated": [
+      "axial_z",
+      "euclidean_range"
+    ],
+    "online_ground_truth_calibration": false
+  },
+  "calibration_split": {
+    "distance_m": [
+      1.2,
+      1.8,
+      2.4,
+      3.0
+    ],
+    "lateral_m": [
+      0.0
+    ],
+    "actor_yaw_rad": [
+      0.0,
+      3.141592653589793
+    ],
+    "animation_time_s": [
+      0.25,
+      0.75
+    ],
+    "purpose": "fit one frozen log-affine mapping on calibration output only; retain both raw and fitted outputs"
+  },
+  "heldout_split": {
+    "distance_m": [
+      1.1,
+      1.5,
+      2.1,
+      2.7
+    ],
+    "lateral_m": [
+      -0.35,
+      0.35
+    ],
+    "actor_yaw_rad": [
+      -0.35,
+      0.35
+    ],
+    "animation_time_s": [
+      0.5,
+      1.25
+    ],
+    "purpose": "heldout distance/lateral/yaw/animation frames, never used to fit parameters or revise gates"
+  },
+  "measurement_acceptance": {
+    "heldout_rmse_m": 0.03,
+    "heldout_p95_absolute_error_m": 0.09,
+    "source": "Stage6.5 kf.measurement_distance_std=0.03m; P95 engineering allowance fixed at 3 sigma; not a universal camera accuracy guarantee",
+    "missing_visible_master_or_model_depth": "unavailable; count explicitly, never replace with renderer depth"
+  },
+  "freshness": {
+    "max_result_source_age_s": 0.2,
+    "source": "Stage6.4 yaw.freshness_timeout_s=0.2; not extended for slow inference"
+  },
+  "truth_policy": "renderer RGB enters detector/depth; renderer depth and actor state are separate posthoc assessment only; no GT target observation",
+  "hardware_execution_ready": false,
+  "asset_experiment": "Gazebo native walking skin; final finite low-cost render-pass ablation, same safety/detector/depth gates"
+}

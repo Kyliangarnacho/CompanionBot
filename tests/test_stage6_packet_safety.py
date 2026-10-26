@@ -153,17 +153,28 @@ class Stage6PacketSafetyTest(unittest.TestCase):
         ).to_bytes(), 0.05)
         arbiter.command(0.05)
         self.assertEqual(arbiter.state, "SAFE_HOLD")
-        self.assertEqual(arbiter.resume_start_tick, 50)
+        # A fresh-sequence HARD/BRAKE is a revocation barrier even when already
+        # safe. The former expectation that tick-50 resume survived was unsafe.
+        self.assertIsNone(arbiter.resume_start_tick)
+        self.assertIsNone(arbiter.pending_resume_epoch)
+        self.assertIsNone(receiver.next)
+        self.assertEqual(receiver.reference_epoch, 2)
         for tick in range(26, 50):
             arbiter.command(tick * 0.002)
-        normal = arbiter.command(0.1)
+        arbiter.command(0.1)
+        self.assertEqual(arbiter.state, "SAFE_HOLD")
+        self.assertEqual(statuses[-1].state, "SAFE_HOLD")
+        arbiter.receive("resume", ResumeReferenceCommandPacket(
+            PROTOCOL_VERSION, 2, 0.1, 2).to_bytes(), 0.1)
+        arbiter.receive("reference", block(0, 60, epoch=2).to_bytes(), 0.1)
+        for tick in range(51, 61):
+            normal = arbiter.command(tick * .002)
         self.assertEqual(arbiter.state, "NORMAL")
         self.assertEqual(normal.planning_path, "WIRE_NORMAL")
-        self.assertEqual(receiver.reference_epoch, 1)
-        self.assertEqual(statuses[-1].state, "NORMAL")
+        self.assertEqual(receiver.reference_epoch, 2)
         self.assertIsNone(arbiter.pending_safety)
 
-    def test_safe_hold_heartbeat_loss_is_health_only(self):
+    def test_safe_hold_heartbeat_loss_revokes_recovery_without_restarting_brake(self):
         receiver = MCUReferenceBlockReceiver(dt_s=0.002, block_samples=25)
         receiver.receive(block(0, 0).to_bytes(), 0.0)
         statuses = []
@@ -186,6 +197,7 @@ class Stage6PacketSafetyTest(unittest.TestCase):
         self.assertEqual(arbiter.state, "SAFE_HOLD")
         self.assertEqual(arbiter.health, "PI_LOST")
         self.assertEqual(statuses[-1].health, "PI_LOST")
+        self.assertEqual(receiver.reference_epoch, 2)
         self.assertEqual(sum(event["event"] == "safety_takeover"
                              for event in arbiter.events), 1)
 

@@ -45,6 +45,13 @@ int cb_mcu_yaw(cb_mcu *m,uint32_t seq,double target,uint32_t tick) {
     m->has_yaw=1; m->yaw_sequence=seq; m->yaw_target=target; m->yaw_receive_tick=tick; return CB_OK;
 }
 static void disarm(cb_mcu *m,uint32_t tick) { m->hard_disarmed=1; m->hard_rearm_tick=tick; }
+/* A revocation barrier applies at command acceptance, including while already
+ * stopped. Advancing the epoch also rejects old references still in flight. */
+static void revoke(cb_mcu *m) {
+    m->epoch++; m->has_active=0; m->has_next=0; m->has_ref_sequence=0; m->paused=1;
+    m->pending_resume=0; m->resume_armed=0;
+}
+static void takeover(cb_mcu *,uint32_t,int,int);
 static int fresh_rearm(const cb_mcu *m,uint32_t tick) {
     return m->has_yaw && m->hard_disarmed && m->yaw_receive_tick>m->hard_rearm_tick &&
            tick>=m->yaw_receive_tick && tick-m->yaw_receive_tick<=ticks(m->config.yaw_timeout,m->config.brake.dt);
@@ -52,31 +59,39 @@ static int fresh_rearm(const cb_mcu *m,uint32_t tick) {
 int cb_mcu_safety(cb_mcu *m,uint32_t seq,int authority,int reason,uint32_t tick) {
     if(!m || (authority!=CB_HARD && authority!=CB_LONGITUDINAL) || reason<=0) return reject(m,CB_INVALID);
     if(m->has_safety_sequence && seq<=m->safety_sequence) return reject(m,CB_SEQUENCE);
-    m->has_safety_sequence=1; m->safety_sequence=seq;
-    if(m->state!=CB_NORMAL) {
-        if(authority==CB_HARD && m->authority==CB_LONGITUDINAL) {
-            m->authority=CB_HARD; m->reason=reason; m->pending_resume=0; m->resume_armed=0; disarm(m,tick);
+    if(authority==CB_LONGITUDINAL) {
+        if(m->state!=CB_NORMAL || (m->pending_safety && m->pending_authority==CB_HARD))
+            return reject(m,CB_STATE);
+        m->pending_safety=1; m->pending_authority=authority; m->pending_reason=reason;
+    } else if(m->state==CB_NORMAL) {
+        /* Do not defer revocation until the next control tick: ingress may run
+         * just after a release. The brake's first sample remains step-driven. */
+        takeover(m,tick,authority,reason);
+    } else {
+        revoke(m); m->pending_safety=0; disarm(m,tick);
+        if(m->authority==CB_LONGITUDINAL) {
+            m->authority=CB_HARD; m->reason=reason;
             if(m->state==CB_LONGITUDINAL_STOP) m->state=CB_SAFE_HOLD;
-            return CB_OK;
         }
-        return reject(m,CB_STATE);
+        /* Repeated HARD does not restart braking or replace an independent
+         * fault's reason. A new sequence still establishes a new barrier. */
     }
-    m->pending_safety=1; m->pending_authority=authority; m->pending_reason=reason; return CB_OK;
+    m->has_safety_sequence=1; m->safety_sequence=seq; return CB_OK;
 }
 int cb_mcu_resume(cb_mcu *m,uint32_t seq,uint32_t epoch,int authority,uint32_t tick) {
     int expected=authority==CB_LONGITUDINAL?CB_LONGITUDINAL_STOP:CB_SAFE_HOLD;
     if(!m || (authority!=CB_HARD && authority!=CB_LONGITUDINAL)) return reject(m,CB_INVALID);
     if(m->has_resume_sequence && seq<=m->resume_sequence) return reject(m,CB_SEQUENCE);
     m->has_resume_sequence=1; m->resume_sequence=seq;
-    if(m->state!=expected || epoch!=m->epoch || (authority==CB_HARD && !fresh_rearm(m,tick))) return reject(m,CB_STATE);
+    if(m->state!=expected || epoch!=m->epoch || m->pi_lost ||
+       (authority==CB_HARD && !fresh_rearm(m,tick))) return reject(m,CB_STATE);
     m->pending_resume=1; m->pending_resume_epoch=epoch; m->pending_authority=authority; return CB_OK;
 }
 static void takeover(cb_mcu *m,uint32_t tick,int authority,int reason) {
     cb_reference initial={0};
     if(m->has_last) initial=m->output.reference;
     (void)cb_brake_init(&m->brake,&m->config.brake,&initial);
-    m->epoch++; m->has_active=0; m->has_next=0; m->has_ref_sequence=0; m->paused=1;
-    m->pending_resume=0; m->resume_armed=0; m->state=CB_BRAKING;
+    revoke(m); m->pending_safety=0; m->state=CB_BRAKING;
     m->authority=authority; m->reason=reason;
     if(authority==CB_HARD) disarm(m,tick);
 }
@@ -93,10 +108,14 @@ int cb_mcu_step(cb_mcu *m,uint32_t tick,double velocity,double pitch,double rate
     cb_reference safe;
     if(!m || !out || !isfinite(velocity) || !isfinite(pitch) || !isfinite(rate)) return CB_INVALID;
     m->local_velocity=velocity; m->local_pitch=pitch; m->local_pitch_rate=rate;
-    if((m->state==CB_SAFE_HOLD || m->state==CB_LONGITUDINAL_STOP) && m->has_heartbeat &&
+    if((m->state==CB_SAFE_HOLD || m->state==CB_LONGITUDINAL_STOP) && !m->pi_lost && m->has_heartbeat &&
        (tick-m->heartbeat_tick)*m->config.brake.dt>m->config.heartbeat_timeout+1e-12) {
-        m->pi_lost=1;
-        if(m->state==CB_LONGITUDINAL_STOP) { m->state=CB_SAFE_HOLD; m->authority=CB_HARD; disarm(m,tick); }
+        m->pi_lost=1; revoke(m); m->state=CB_SAFE_HOLD; m->authority=CB_HARD; disarm(m,tick);
+        /* Restored heartbeat clears health, not this independent fault. Keep
+         * an earlier local fault as the primary reason; do not leave a Pi STOP
+         * reason that would authorize a task owner to resume a lost-link stop. */
+        if(m->reason!=CB_REASON_HEARTBEAT && m->reason!=CB_REASON_STARVATION &&
+           m->reason!=CB_REASON_UNDERRUN) m->reason=CB_REASON_HEARTBEAT;
     }
     if(m->state==CB_SAFE_HOLD || m->state==CB_LONGITUDINAL_STOP) {
         if(m->pending_resume && m->pending_resume_epoch==m->epoch && !m->resume_armed &&

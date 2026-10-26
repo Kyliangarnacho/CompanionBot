@@ -10,12 +10,15 @@
   <depend>companionbot_interfaces</depend>
   <depend>rclcpp</depend>
   <depend>diagnostic_msgs</depend>
+  <depend>ament_index_cpp</depend>
+  <depend>nlohmann_json</depend>
+  <depend>openssl</depend>
   <exec_depend>rclpy</exec_depend>
-  <exec_depend>rcl_interfaces</exec_depend>
-  <exec_depend>sensor_msgs</exec_depend>
-  <exec_depend>geometry_msgs</exec_depend>
-  <exec_depend>nav_msgs</exec_depend>
-  <exec_depend>tf2_ros</exec_depend>
+  <depend>rcl_interfaces</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>tf2_ros</depend>
   <depend>tf2_msgs</depend>
   <exec_depend>companionbot_description</exec_depend>
   <test_depend>ament_cmake_pytest</test_depend>

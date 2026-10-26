@@ -5,8 +5,19 @@
   <description>Pi-side following estimation, governor and reference planning</description>
   <maintainer email="maintainer@companionbot.local">CompanionBot</maintainer>
   <license>LicenseRef-CompanionBot</license>
-  <exec_depend>companionbot_interfaces</exec_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+  <build_depend>python3-dev</build_depend>
+  <build_depend>pybind11-dev</build_depend>
+  <depend>companionbot_interfaces</depend>
+  <depend>rclcpp</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>tf2_msgs</depend>
+  <depend>nlohmann_json</depend>
+  <test_depend>ament_cmake_pytest</test_depend>
   <test_depend>python3-pytest</test_depend>
-  <export><build_type>ament_python</build_type></export>
+  <export><build_type>ament_cmake</build_type></export>
 </package>
 

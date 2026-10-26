@@ -1,4 +1,8 @@
-"""Frozen MCU reference consumer and local safety arbiter; no Pi planner."""
+"""MCU reference consumer and local safety oracle; no Pi planner.
+
+Control/braking math is frozen. Accepted HARD stops now revoke old reference
+epochs and pending recovery immediately, including while already safe.
+"""
 from __future__ import annotations
 from dataclasses import dataclass, replace
 import math
@@ -242,30 +246,39 @@ class MCUSafetyArbiter:
             packet = SafetyCommandPacket.from_bytes(payload)
             if (self.last_safety_sequence_id is not None
                     and packet.sequence_id <= self.last_safety_sequence_id):
+                self.events.append({"event": "safety_rejected", "time_s": time_s,
+                                    "sequence_id": packet.sequence_id, "reason": "SEQUENCE"})
                 return
-            self.last_safety_sequence_id = packet.sequence_id
             self.events.append({"event": "safety_received", "time_s": time_s,
                                 "issued_time_s": packet.issued_time_s,
                                 "action": packet.action, "sequence_id": packet.sequence_id})
-            if self.state != "NORMAL":
-                if (packet.action in ("HARD_STOP", "BRAKE")
-                        and self.safety_action == "LONGITUDINAL_STOP"):
-                    self.safety_action = "HARD_STOP"
-                    self.reason = packet.reason
-                    self.pending_resume_epoch = None
-                    self.resume_start_tick = None
+            hard = packet.action in ("HARD_STOP", "BRAKE")
+            if not hard and self.state != "NORMAL":
+                self.events.append({"event": "safety_rejected", "time_s": time_s,
+                                    "state": self.state, "sequence_id": packet.sequence_id,
+                                    "reason": "STATE"})
+                return
+            self.last_safety_sequence_id = packet.sequence_id
+            if hard:
+                if self.state == "NORMAL":
+                    self.pending_safety = None
+                    self._trigger(time_s, packet.reason, packet.issued_time_s, packet.action)
+                else:
+                    self._revoke(time_s)
+                    self.pending_safety = None
                     if self.yaw_source is not None:
-                        self.yaw_source.hard_stop(
-                            int(round(time_s / self.receiver.dt_s)))
+                        self.yaw_source.hard_stop(int(round(time_s / self.receiver.dt_s)))
+                    escalated = self.safety_action == "LONGITUDINAL_STOP"
+                    if escalated:
+                        self.reason = packet.reason
+                    self.safety_action = "HARD_STOP"
                     if self.state == "LONGITUDINAL_STOP":
                         self.state = "SAFE_HOLD"
-                    self.events.append({"event": "hard_stop_escalated",
-                                        "time_s": time_s, "reason": packet.reason})
+                    self.events.append({"event": ("hard_stop_escalated" if escalated
+                                                  else "hard_stop_revoked"),
+                                        "time_s": time_s, "reason": self.reason,
+                                        "sequence_id": packet.sequence_id})
                     self._publish_status(time_s)
-                    return
-                self.events.append({"event": "safety_command_ignored_while_safe",
-                                    "time_s": time_s, "state": self.state,
-                                    "sequence_id": packet.sequence_id})
                 return
             self.pending_safety = packet
         elif channel == "resume":
@@ -278,6 +291,7 @@ class MCUSafetyArbiter:
                               else "SAFE_HOLD")
             if (self.state != expected_state
                     or packet.reference_epoch != self.receiver.reference_epoch
+                    or self.health == "PI_LOST"
                     or (packet.authority == "HARD" and self.yaw_source is not None
                         and not self.yaw_source.fresh_for_rearm(
                             int(round(time_s / self.receiver.dt_s))))):
@@ -301,6 +315,15 @@ class MCUSafetyArbiter:
         self.status_sequence_id += 1
         self.status_sink(packet.to_bytes(), time_s)
 
+    def _revoke(self, time_s: float) -> None:
+        self.invalidated_epoch = self.receiver.invalidate_current_epoch()
+        self.pending_resume_epoch = None
+        self.pending_resume_authority = None
+        self.resume_start_tick = None
+        self.events.append({"event": "reference_revoked", "time_s": time_s,
+                            "invalidated_reference_epoch": self.invalidated_epoch,
+                            "new_reference_epoch": self.receiver.reference_epoch})
+
     def _trigger(self, time_s: float, reason: str,
                  issued_time_s: float | None = None,
                  action: str = "HARD_STOP") -> None:
@@ -321,10 +344,7 @@ class MCUSafetyArbiter:
         buffer_remaining_s = self.receiver.remaining_ticks(
             int(round(time_s / self.receiver.dt_s))
         ) * self.receiver.dt_s
-        self.invalidated_epoch = self.receiver.invalidate_current_epoch()
-        self.pending_resume_epoch = None
-        self.pending_resume_authority = None
-        self.resume_start_tick = None
+        self._revoke(time_s)
         self.state = "BRAKING"
         self.safety_action = "LONGITUDINAL_STOP" if action == "LONGITUDINAL_STOP" else "HARD_STOP"
         if self.safety_action == "HARD_STOP" and self.yaw_source is not None:
@@ -351,11 +371,14 @@ class MCUSafetyArbiter:
                 and self.health != "PI_LOST"):
             self.health = "PI_LOST"
             self.events.append({"event": "pi_lost_in_safe_hold", "time_s": time_s})
-            if self.state == "LONGITUDINAL_STOP":
-                self.state = "SAFE_HOLD"
-                self.safety_action = "HARD_STOP"
-                if self.yaw_source is not None:
-                    self.yaw_source.hard_stop(tick)
+            self._revoke(time_s)
+            self.state = "SAFE_HOLD"
+            self.safety_action = "HARD_STOP"
+            if self.reason not in ("HEARTBEAT_TIMEOUT", "REFERENCE_STARVATION_IMMINENT",
+                                   "REFERENCE_UNDERRUN"):
+                self.reason = "HEARTBEAT_TIMEOUT"
+            if self.yaw_source is not None:
+                self.yaw_source.hard_stop(tick)
             self._publish_status(time_s)
         if self.state in ("SAFE_HOLD", "LONGITUDINAL_STOP"):
             if (self.pending_resume_epoch == self.receiver.reference_epoch

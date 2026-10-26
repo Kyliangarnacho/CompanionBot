@@ -1,0 +1,5 @@
+# Asset preparation only; native physics/rendering remain the installed MuJoCo.
+pygltflib==1.16.5
+# Existing project NumPy/SciPy/Pillow are reused, not replaced by asset setup.
+# Gazebo profile additionally needs installed libassimp-dev + g++ (Ubuntu noble
+# package5.3.1+ds-2build1; library API reports5.3.0). No runtime download/conversion.

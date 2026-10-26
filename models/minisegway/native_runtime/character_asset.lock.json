@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "repository": "https://github.com/KhronosGroup/glTF-Sample-Assets",
+  "commit": "8f492390ddc7a2ae221a1369ef560589cf8c70fb",
+  "model": "CesiumMan",
+  "attribution": "Cesium Man \u00a9 2017 Cesium; adapted for MuJoCo skin/animation; source asset CC-BY-4.0",
+  "license": "CC-BY-4.0; embedded Cesium logo additionally subject to source LegalMark terms; no endorsement implied",
+  "files": [
+    {
+      "path": "Models/CesiumMan/glTF/CesiumMan.gltf",
+      "sha256": "bbb66a129c906e015620197b683edbc6e7a27510169ffa5adec2114046f14919",
+      "bytes": 51950
+    },
+    {
+      "path": "Models/CesiumMan/LICENSE.md",
+      "sha256": "709e02749c7c904c480d98f883cae63046f589031b5f22249544b13c159eedf6",
+      "bytes": 858
+    },
+    {
+      "path": "Models/CesiumMan/metadata.json",
+      "sha256": "635ca496eafa7b82639b3b90f65e35beb9d0ac0d8721e6425a9471f08a9cc603",
+      "bytes": 971
+    },
+    {
+      "path": "LICENSES/LicenseRef-LegalMark-Cesium.txt",
+      "sha256": "7bafc8dbff0b9d04297bced53a47809e3ab6721cb35b4a2d780533476b28ebd4",
+      "bytes": 625
+    },
+    {
+      "path": "LICENSES/CC-BY-4.0.txt",
+      "sha256": "c8041334a99cb48852b2139253cbde5f8ac87e27f124aed51223e0d5bf0080eb",
+      "bytes": 13034
+    },
+    {
+      "path": "Models/CesiumMan/glTF/CesiumMan_data.bin",
+      "sha256": "2115d3c8df0519cea62f7def76d66d2346c5ac2216319859d3c79e3784dafd3f",
+      "bytes": 252664
+    },
+    {
+      "path": "Models/CesiumMan/glTF/CesiumMan_img0.jpg",
+      "sha256": "35d278c7b7b0b9e22881b2c435e41ce8659f230c776ef8780b4a5087abbefaa1",
+      "bytes": 157013
+    }
+  ],
+  "cache": "ignored .venv/assets/visual_companion",
+  "upstream_immutable": true
+}

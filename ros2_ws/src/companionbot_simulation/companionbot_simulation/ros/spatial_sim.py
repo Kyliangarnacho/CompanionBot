@@ -57,6 +57,7 @@ class SpatialSimulation(Node):
         self.state_published = self.imu_published = self.scan_published = 0
         self.stop = threading.Event()
         self.error, self.state = None, "STARTING"
+        self.cleanup_errors = []
         self.finish_grace_s = float(parameter("finish_grace_s", .25))
         self.scan_dropout_start = float(parameter("scan_dropout_start_s", -1.))
         self.scan_dropout_duration = float(parameter("scan_dropout_duration_s", 0.))
@@ -68,13 +69,14 @@ class SpatialSimulation(Node):
         self.truth = [] if parameter("record_truth", False) else None
         self.steady = Clock(clock_type=ClockType.STEADY_TIME)
         scenario = parameter("scenario", "mixed")
+        visual_config = parameter('visual_companion_config', '')
         self.navigation = None
         if scenario == "navigation":
             from companionbot_simulation.ros.navigation_ingress import NavigationIngress
             self.navigation = NavigationIngress(self,
                 output_dir=output,
                 map_id=parameter("navigation_map_id", ""),
-                map_version=parameter("navigation_map_version", ""))
+                map_version=parameter("navigation_map_version", ""),enable_follow=bool(visual_config))
         self.session = SpatialSession(output, scenario=scenario,
             duration_s=float(parameter("duration_s", 14.)), on_frame=self.observe, stop=self.stop,
             realtime_factor=factor, imu_dropout_at_s=float(parameter("imu_dropout_at_s", -1.)),
@@ -84,6 +86,7 @@ class SpatialSimulation(Node):
             route_file=parameter("route_file", "") or None,
             viewer=parameter("viewer", False),
             motion_adapter=self.navigation.adapter if self.navigation else None,
+            visual_config=visual_config or None,
             posthoc=self.record_truth if self.truth is not None else None)
         self.imu_config = load_imu_hardware_config()
         self.last_imu_stamp = -1.
@@ -91,6 +94,10 @@ class SpatialSimulation(Node):
         self.create_timer(.2, self.report, clock=self.steady)
         self.worker = threading.Thread(target=self.run, name="spatial-simulation")
         self.start_deadline = time.monotonic()+10.
+        if self.navigation is not None:
+            # Start native ROS ownership only after the complete simulation
+            # composition/configuration has constructed successfully.
+            self.navigation.start()
 
     def record_truth(self, sim):
         # Explicit one-way evaluation sink; no return into sensors or control.
@@ -186,9 +193,17 @@ class SpatialSimulation(Node):
                 "scan_dropout_count": self.scan_dropped, "pacing_slip_s": self.session.pacing_slip_s,
                 "physics_dt_s": .001, "controller_dt_s": .002, "hardware_execution_ready": False,
                 "world": self.session.world,
-                "navigation": self.navigation.adapter.snapshot(include_events=False) if self.navigation else None}
+                "navigation": self.navigation.adapter.snapshot(include_events=False) if self.navigation else None,
+                "navigation_ingress": self.navigation.snapshot() if self.navigation else None,
+                "cleanup_errors": self.cleanup_errors}
 
     def report(self):
+        if self.navigation is not None and not self.error:
+            try:
+                self.navigation.check_health()
+            except Exception as error:
+                self.error = error
+                self.stop.set()
         if not self.error and len(self.get_publishers_info_by_topic("/clock")) > 1:
             self.error = RuntimeError("multiple_simulation_clock_publishers")
             self.stop.set()
@@ -226,20 +241,31 @@ def main():
                 rclpy.spin_once(node, timeout_sec=.02)
     except KeyboardInterrupt:
         pass
+    except Exception as error:
+        if node is None:
+            raise
+        node.error = error
     finally:
         # A terminal process-group SIGINT and launch's forwarded SIGINT can
         # both arrive. Finish bounded worker/log cleanup before accepting more.
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         if node is not None:
             if node.navigation is not None:
-                node.navigation.close()
+                try:
+                    node.navigation.close()
+                    node.navigation.check_health()
+                except Exception as error:
+                    node.cleanup_errors.append(repr(error))
+                    node.error = node.error or error
                 (node.session.output_dir/"navigation_authority.json").write_text(
                     json.dumps(node.navigation.adapter.snapshot(), indent=2)+"\n")
             node.stop.set()
             if node.worker.ident is not None:
                 node.worker.join(timeout=5)
             if node.worker.is_alive():
-                node.error = RuntimeError("spatial simulation worker failed to stop")
+                error = RuntimeError("spatial simulation worker failed to stop")
+                node.cleanup_errors.append(repr(error))
+                node.error = node.error or error
             node.state = "ERROR" if node.error else "CLOSED"
             if rclpy.ok():
                 node.report()

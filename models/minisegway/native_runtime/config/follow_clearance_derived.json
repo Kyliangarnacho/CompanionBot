@@ -1,0 +1,24 @@
+{
+  "radius_m": 0.36901692559127275,
+  "reaction_time_s": 0.552,
+  "maximum_projection_steps": 12750,
+  "source_age_limit_s": 0.35,
+  "braking_receipt_limit_s": 0.15,
+  "source_files": {
+    "footprint": {
+      "path": "ros2_ws/src/companionbot_bringup/config/nav2_geometry.json",
+      "sha256": "5aca92bf84aa416ddbc3da6503483195d521da93f0a6a7ce526c2ed82a69f5a2"
+    },
+    "lidar": {
+      "path": "ros2_ws/src/companionbot_description/config/sim_lidar.yaml",
+      "sha256": "ede7156501761c06ae777fe34a799a71972eab4532b01fe6ca50988f95f49c8f"
+    },
+    "follow": {
+      "path": "models/minisegway/stage6/config/stage6_4_2d_follow_config.json",
+      "sha256": "eed9f48a57ffe8cc00c76e79f97ac9dddebbe89256cd698c7f8f97702ebe45ef"
+    }
+  },
+  "derivation": "attitude-invariant robot radius + lidar-origin triangle bound + 3 sigma simulation range noise; reaction = visual source deadline + existing scan age limit + one MCU tick",
+  "limitations": "2D observed-plane conservative engineering guard, no hardware braking certification; physical tracking evaluated separately",
+  "hardware_execution_ready": false
+}

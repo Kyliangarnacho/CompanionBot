@@ -1,0 +1,213 @@
+{
+  "schema_version": 2,
+  "status": "frozen_before_first_stereo_render_or_disparity_result",
+  "character_asset_lock_sha256": "d5cf5c4be3276afc48007a34b06c23719330c1d61373b082cd518a590f433fc0",
+  "camera_config_sha256": "7de38e9981d553582b9e1aba537423c70248802755cf021214c0810e42f147e4",
+  "detector": {
+    "model": "yolo26n.pt",
+    "imgsz": 640,
+    "confidence": 0.25,
+    "source": "existing Stage7 detector defaults"
+  },
+  "depth": {
+    "model": ".venv/models/yolo26n-depth.pt",
+    "imgsz": 768,
+    "raw_output_preserved": true,
+    "conventions_evaluated": [
+      "axial_z",
+      "euclidean_range"
+    ],
+    "online_ground_truth_calibration": false
+  },
+  "calibration_split": {
+    "distance_m": [
+      1.2,
+      1.8,
+      2.4,
+      3.0
+    ],
+    "lateral_m": [
+      0.0
+    ],
+    "actor_yaw_rad": [
+      0.0,
+      3.141592653589793
+    ],
+    "animation_time_s": [
+      0.25,
+      0.75
+    ],
+    "purpose": "same original16poses, validate declared stereo geometry/algorithm without fitting depth or rescaling to GT"
+  },
+  "heldout_split": {
+    "distance_m": [
+      1.1,
+      1.5,
+      2.1,
+      2.7
+    ],
+    "lateral_m": [
+      -0.35,
+      0.35
+    ],
+    "actor_yaw_rad": [
+      -0.35,
+      0.35
+    ],
+    "animation_time_s": [
+      0.5,
+      1.25
+    ],
+    "purpose": "same original32 untouched heldout poses; no parameter revision from results"
+  },
+  "measurement_acceptance": {
+    "heldout_rmse_m": 0.03,
+    "heldout_p95_absolute_error_m": 0.09,
+    "source": "Stage6.5 kf.measurement_distance_std=0.03m; P95 engineering allowance fixed at 3 sigma; not a universal camera accuracy guarantee",
+    "missing_visible_master_or_model_depth": "unavailable; count explicitly, never replace with renderer depth"
+  },
+  "freshness": {
+    "max_result_source_age_s": 0.2,
+    "source": "Stage6.4 yaw.freshness_timeout_s=0.2; not extended for slow inference"
+  },
+  "truth_policy": "matcher receives only real left/right RGB and declared calibration; no renderer depth, skin mask, actorGT, hitID or posthoc fit; GT is separate one-way scoring only",
+  "hardware_execution_ready": false,
+  "asset_experiment": "same matureGazebo/Bookstore actor and original48pose split; only explicitly authorized new true stereo image source",
+  "depth_source": "explicit native OpenCV4.6 stereo image triangulation; original YOLODepth remains independent diagnostic, no fallback",
+  "stereo": {
+    "opencv_native_version": "4.6.0",
+    "input_color": "BGR8; native cvtColor COLOR_BGR2GRAY for matching only",
+    "rectification": "parallel axes and zero distortion; OpenCV stereoRectify CALIB_ZERO_DISPARITY alpha=0 validates R1/R2/P1/P2/Q; no guessed focal length",
+    "min_disparity": 0,
+    "num_disparities": 64,
+    "block_size": 3,
+    "P1": 72,
+    "P2": 288,
+    "disp12_max_diff_px": 1,
+    "pre_filter_cap": 0,
+    "effective_pre_filter_cap": 15,
+    "uniqueness_ratio": 10,
+    "speckle_window_size": 100,
+    "speckle_range": 2,
+    "mode": "MODE_SGBM",
+    "right_min_disparity": -63,
+    "left_right_consistency_max_error_px": 1.0,
+    "disparity_scale": 16,
+    "texture_gate": {
+      "operator": "SobelX ksize3 scale1/8, local3x3 RMS",
+      "minimum_rms_gray_code_per_pixel": 1.0,
+      "require_left_and_matched_right": true,
+      "source": "one8bit intensity code/pixel engineering observability floor fixed before data; not a statistical depth-accuracy guarantee"
+    },
+    "hole_filling": false,
+    "invalid_output": "NaN/unavailable, never copy previous or GT depth",
+    "output_convention": "axial_z in left optical frame",
+    "parameter_source": {
+      "implementation": "https://github.com/opencv/opencv/blob/4.6.0/modules/calib3d/src/stereosgbm.cpp",
+      "rectify": "https://github.com/opencv/opencv/blob/4.6.0/modules/calib3d/src/calibration.cpp",
+      "documentation": "https://docs.opencv.org/4.6.0/d2/d85/classcv_1_1StereoSGBM.html",
+      "choices": "block3+MODE_SGBM official default; P1/P2 documented8/32*C*block\u00b2 for grayscaleC1; uniqueness10/speckle100 and ranges recommended docs; num64 from geometric disparity domain, LR1 from sample/outlier check; cap0 actual4.6 source effective15"
+    }
+  },
+  "observability": {
+    "focal_px": 234.58056711141703,
+    "baseline_m": 0.15,
+    "fb_pixel_m": 35.187085066712555,
+    "evaluated_actor_planar_distance_domain_m": [
+      1.1,
+      3.0
+    ],
+    "disparity_px_at_nominal_z_m": {
+      "1.1": 31.988259151556864,
+      "1.5": 23.458056711141705,
+      "2.1": 16.755754793672644,
+      "2.7": 13.032253728412057,
+      "3.0": 11.729028355570852
+    },
+    "max_disparity_error_px_for_3cm_at_3m": 0.11729028355570852,
+    "half_quantization_depth_error_m_at_3m": 0.00799298945811417,
+    "source": "Z=fB/d first-order sensitivity |deltaZ|\u2248Z\u00b2/(fB)|delta_d|; 1/16 output quantization; these establish observability only, not matcher accuracy"
+  },
+  "negative_cases": [
+    "left/right pair snapshot/source epoch/sequence/time mismatch => unavailable",
+    "swapped pair or negative/nonfinite/zero disparity => unavailable",
+    "no common source-time or sensorized pitch history => unavailable",
+    "flat or insufficient horizontal texture => unavailable, no hole fill",
+    "left-right occlusion/inconsistent match => invalid pixels; original torso median requires>=10 valid pixels",
+    "wrong camera config/extrinsic/baseline identity => reject",
+    "LOST/uncertain Master or acquisition-to-authority>0.2s => revoke/deny FOLLOW via existing authority"
+  ],
+  "source_contract": {
+    "offline_grid": "actual monotonic host snapshot acquisition timestamp shared by left/right FrameStamp; clock_domain=host_perf_counter; MjData static poses are not represented as a running physics clock",
+    "production": "actual mjSTATE snapshot source simtime/epoch; left/right shared source stamp; separate actual host read-complete times",
+    "original_three_frame_offsets_s": [
+      0.0,
+      0.05,
+      0.1
+    ],
+    "phase_semantics": "split animation_time_s is initial pose phase; each real repeat adds original .05s phase; final evaluated frame is listed phase+.10s, same as prior monocular verifier",
+    "fixed_per_pose_warmup": {
+      "frames": 40,
+      "minimum_actual_capture_interval_s": 0.05,
+      "animation_offsets_s": [
+        -2.0,
+        -1.95,
+        -1.9,
+        -1.85,
+        -1.8,
+        -1.75,
+        -1.7,
+        -1.65,
+        -1.6,
+        -1.55,
+        -1.5,
+        -1.45,
+        -1.4,
+        -1.35,
+        -1.2999999999999998,
+        -1.25,
+        -1.2,
+        -1.15,
+        -1.1,
+        -1.0499999999999998,
+        -1.0,
+        -0.95,
+        -0.8999999999999999,
+        -0.8499999999999999,
+        -0.7999999999999998,
+        -0.75,
+        -0.7,
+        -0.6499999999999999,
+        -0.5999999999999999,
+        -0.5499999999999998,
+        -0.5,
+        -0.44999999999999996,
+        -0.3999999999999999,
+        -0.34999999999999987,
+        -0.2999999999999998,
+        -0.25,
+        -0.19999999999999996,
+        -0.1499999999999999,
+        -0.09999999999999987,
+        -0.04999999999999982
+      ],
+      "included_in_depth_accuracy_metrics": false,
+      "source": "upstream ByteTrack track_buffer=30 updates; original Master3 stable updates; 7 additional fixed updates, chosen before stereo/model results. Global original tracker/Master maintained across poses, no GT ID/reset or wait-until-success.",
+      "bytetrack_config_sha256": "395701d947a749179dee3e327b1181b730c4ca98e7cac5a2ab05280aae573b8b",
+      "scope": "warmup lifecycle explicitly differs from prior3frame mono coverage diagnostic; final evaluated phases/heldout poses/gates unchanged"
+    }
+  },
+  "posthoc_scoring": {
+    "target": "median left-renderer axial depth of visible original actor skin within the same unchanged torso ROI; do not select GT samples based on SGBM validmask",
+    "controller_input": false,
+    "coverage": "retain failed/no Master and invalid/texture/occlusion counts; minimum valid measurement pixels remains original10",
+    "calibration": "geometry/implementation checks only; no fit/correction of stereo output against GT",
+    "per_pose_evaluated_frame": "fixed final third measurement frame at animation_time_s+.10; earlier2 measurement frames and all40warmup frames logged as diagnostics, never used to choose a favorable pose result"
+  },
+  "runtime_budget": {
+    "torch_intraop_threads": 4,
+    "source": "fixed before first stereo/model results based on independent saved12RGB original-model thread-budget ablation;4workers P95~.086s vsdefault~.105 and2~.115, outputs validated independently",
+    "opencv_native_threads": "existing native build/runtime default, logged calling-thread CPU excludes helpers",
+    "predictor_setup": "original Ultralytics first-predict setup, then public torch.set_num_threads(4) in each original worker; actual count logged per frame"
+  }
+}

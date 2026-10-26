@@ -1,0 +1,4 @@
+#!@Python3_EXECUTABLE@
+from companionbot_perception.ros.camera_tf import main
+if __name__ == '__main__':
+    main()

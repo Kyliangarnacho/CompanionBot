@@ -1,11 +1,10 @@
 # companionbot_follow
 
-Pi/上位机的跟随估计与数值规划库，不执行 actuator；没有单独 node。
+Pi/上位机运动运行库，不执行actuator或物理arm。用ament_cmake＋ament_cmake_python构建；安装的原生模块缺失时明确报错，无Python运行fallback。
 
-- `core/`：原 radial KF、Follow Governor、motion/reference 生命周期、FULL/LIGHTWEIGHT scheduler、cached-KKT/Ruckig 与 bearing yaw servo。
-- `runtime/reference_producer.py`：原 PiReferenceBlockProducer，输出现有 binary reference packets。
-- setup.cfg：直接引用原根 rolling reference、wait/resume、alignment 回归。
+- C++ `MotionAuthority`：唯一FOLLOW/GUIDE_TO租约、epoch、freshness与撤销；`FollowController`组合原KF/history/Governor/BearingYaw。
+- C++ `TwoPathProducer`：原FULL/LIGHTWEIGHT scheduler/lifecycle与25sample ReferenceBlock；直接复用Ruckig0.19.4。FULL只在接受计划时低频调用原SciPy cached-KKT数学solver。
+- `runtime/navigation_motion.py`、`runtime/native_follow.py`：薄DTO/时钟/配置与数学solver组合。rclcpp ingress直接共享同一native owner，不经500Hz DDS往返。
+- Python `core/`与`reference_producer.py`保留冻结实验和oracle；不再是正式导航/视觉运动状态机。
 
-运行依赖 interfaces/contracts 与既有数值库；不加载 MuJoCo/ROS/视觉库。synthetic observation/RobotState history 由 simulation 提供；Stage 7 真实观测尚未成为运行输入。source time、clock、history alignment、双窗口 cruise latch 保持。
-
-规划与 follow 共用生命周期，保留一包；MCU 消费/安全属于 control，plant/调度属于 simulation。真实感知没有 DDS→follow 消费者，不应擅自接入 actuator。上下游与扩展位置见 [运行架构](../../../docs/RUNTIME_ARCHITECTURE.md)。
+真实渲染视觉观测已接入native权限，但本轮depth heldout未达到原KF条件，FOLLOW不得授权运动。AI与Agent继续Python；hardware_execution_ready=false。接口、owner和构建见[运行架构](../../../docs/RUNTIME_ARCHITECTURE.md)。

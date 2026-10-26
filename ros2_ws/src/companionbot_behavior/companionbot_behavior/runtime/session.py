@@ -544,6 +544,7 @@ async def main(args, *, frames=None, camera_runner=None, camera_ready=None,
 
         await cleanup("session", session.close())
         if navigation_mode == "nav2":
+            await cleanup("robot", robot.close())
             await cleanup("navigation", navigation.close())
         if speech:
             await cleanup("speech", speech.close())

@@ -104,7 +104,7 @@ sequenceDiagram
   M-->>B: 50Hz status；actual未知为NaN且actual_valid=false
 ```
 
-- `LONGITUDINAL_STOP`只接管纵向，yaw仍走fresh latest；`HARD_STOP`同时使yaw本地衰减到0。停止使reference epoch递增、清空active/next；恢复需要正确authority、当前epoch、future block，HARD恢复另需停止后的新鲜yaw。保留heartbeat150ms、starvation margin12ms、yaw timeout200ms/decay0.8rad/s²。
+- `LONGITUDINAL_STOP`只接管纵向，yaw仍走fresh latest；`HARD_STOP`同时使yaw本地衰减到0。每个被接受的新sequence HARD_STOP在所有状态立即形成撤销屏障：reference epoch递增，active/next、pending/armed resume及旧恢复资格全部失效；不重启已在进行的制动、不清除独立fault，重复/陈旧sequence明确拒绝。恢复需要正确authority、当前epoch、future block，HARD恢复另需停止后的新鲜yaw。保留heartbeat150ms、starvation margin12ms、yaw timeout200ms/decay0.8rad/s²。
 - 固件startup在估计有效和首块实际到期前不伪造运行控制；随后可在禁用电机时消费reference并输出诊断。物理arm只能来自board adapter的本地边沿；要求健康传感器/驱动、fresh heartbeat、NORMAL、低速度/姿态及连续的近零reference。该gate尚未用真实电路验证。Agent/ROS没有arm字段。
 - I/O错误、控制deadline overrun、异常倾角/运算、运行中传感器故障会禁用实际输出，关键故障锁存。软件safety brake保持平衡控制，与物理输出禁用分开。IWDG名义250ms监控主循环服务，LSI误差/真实复位未测。
 - 串口队列最多8帧，status为latest；有效safety会清除排队旧意图。TX按8N1线速预算限速，并在绝对deadline内等待driver output queue排空；write成功不等于远端接收，USB私有FIFO仍未实测。队列有待发数据时worker不额外等待5ms。partial write失败后不重放半帧/旧指令；worker错误传播至主进程非零退出，关闭时best-effort清除driver待发数据，须显式重启。设备session改变清队列，不自动恢复运动或代发heartbeat。

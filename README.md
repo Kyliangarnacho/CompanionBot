@@ -7,7 +7,8 @@ CompanionBot 是面向双轮自平衡陪伴机器人的研究项目，结合自�
 | 功能 | 已有能力 | 当前验证范围 |
 | --- | --- | --- |
 | 视觉感知与目标锁定 | 人物检测、持续跟踪、人工选择 Master、丢失后 ReID 重绑定、深度与机器人相对位置观测 | 真实 C920；外参、pitch 与深度几何仍有待实机确认的参数 |
-| 目标跟随与运动规划 | 相对运动估计、追赶/巡航/减速、二维转向、平滑运动参考与安全接管 | MuJoCo 仿真；尚未与真实视觉闭环连接 |
+| 目标跟随与运动规划 | 原生 KF/Governor、完整参考生命周期、二维转向、安全接管与单一运动权限 | MuJoCo 仿真；真实渲染模型链已接入，depth 精度门禁未过，视觉运动跟随尚未验收 |
+| C++/C 运行层 | C++ task/lease/epoch、rclcpp 命令与空间节点、批量 ReferenceBlock、共享 C99 MCU 安全核心 | WSL 主机真实构建/运行；Pi 5 实时性与实体执行待测 |
 | 自平衡与轮端控制 | 状态估计、纵向 LQR、yaw PD、轮端转矩分配、共享 C 控制核心及 STM32 HAL 工程 | 冻结仿真与主机对照；Pi/MCU 完整实机链仍待接入 |
 | 商业场景与自主导航 | AWS Bookstore 完整资产、SLAM Toolbox 建图、AMCL、官方 Nav2 规划/避障与多目标导航 | WSL2 MuJoCo 真实物理与传感器估计；实体 LiDAR、Pi/MCU 执行与 GUI 人工验收待完成 |
 | 自然交互与行为请求 | 本地语音唤醒、多轮对话、按需视觉问答、场馆检索与歧义澄清、带路、流式语音、打断/取消/休眠 | Supervisor 审核；默认 Fake，显式 Nav2 模式接版本化地图目标与原平衡控制链 |
@@ -27,7 +28,7 @@ flowchart TD
     P --> G[Torso median + K/D back-projection]
     G --> R[Camera extrinsic + source-time pitch provider]
     R --> O[Robot-relative observation]
-    O -. Future time/validity adapter .-> F[Radial KF + Follow Governor]
+    O -->|source-time / validity gate| F[Native Radial KF + Follow Governor]
     F --> S[Planner / reference blocks + yaw command]
     S --> MCU[MCU safety / state estimation / frozen controller]
     MCU --> W[Wheel actuation / MuJoCo plant]

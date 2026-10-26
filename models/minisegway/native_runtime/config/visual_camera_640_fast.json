@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "name": "companion_rgb",
+  "frame_id": "camera_optical_frame",
+  "width": 640,
+  "height": 360,
+  "frame_rate_hz": 20.0,
+  "vertical_fov_deg": 75.0,
+  "K": [
+    [
+      234.58056711141703,
+      0,
+      320.0
+    ],
+    [
+      0,
+      234.58056711141703,
+      180.0
+    ],
+    [
+      0,
+      0,
+      1.0
+    ]
+  ],
+  "distortion": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "camera_extrinsic": {
+    "rotation_body_camera": [
+      [
+        0.0,
+        0.25881904510252074,
+        0.9659258262890682
+      ],
+      [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        -0.9659258262890682,
+        0.25881904510252074
+      ]
+    ],
+    "translation_body_camera_m": [
+      0.08,
+      0.0,
+      0.35
+    ],
+    "provisional": false
+  },
+  "calibration_scope": "exact declared MuJoCo pinhole simulation camera only; independent of unverified C920 calibration",
+  "optical_axes": "+X right +Y down +Z forward",
+  "body_axes": "+X forward +Y left +Z up",
+  "pitch_definition": "physical estimated body pitch at acquisition, never actor/robot GT observation",
+  "hardware_execution_ready": false,
+  "experiment": "explicit low-cost MuJoCo native offscreen profile: 640x360, 1 sample, no shadows/reflections; physics/mount/K unchanged, RGB quality differs",
+  "offscreen_samples": 1,
+  "render_flags": {
+    "shadows": false,
+    "reflections": false
+  }
+}

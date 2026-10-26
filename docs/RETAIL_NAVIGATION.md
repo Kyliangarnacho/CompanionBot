@@ -14,10 +14,10 @@ flowchart TB
   ACTION --> LEASE[NavigationControl<br/>有界任务租约 / map_id / map_version]
   STOP --> LEASE
   ACTION --> NAV[官方 Nav2<br/>BT / Smac2D / RPP / Costmap2D]
-  NAV -->|TwistStamped / base_footprint| ADAPT[NavigationIngress / MotionAdapter<br/>单 publisher / freshness / health / authority]
+  NAV -->|TwistStamped / base_footprint| ADAPT[rclcpp ingress / C++ MotionAuthority<br/>实际 GID / freshness / health / authority]
   LEASE --> ADAPT
-  ADAPT --> PLAN[既有 LIGHTWEIGHT Ruckig / Pi producer<br/>原 v/a/jerk / ReferenceBlock v1]
-  PLAN --> LINK[既有 bytes transport / yaw / heartbeat]
+  ADAPT --> PLAN[C++ TwoPathProducer / LIGHTWEIGHT Ruckig<br/>原 v/a/jerk / ReferenceBlock v1]
+  PLAN --> LINK[C++ 同进程 Pi scheduler / 有界 transport / yaw / heartbeat]
   LINK --> MCU[既有 MCU receiver / safety / epoch / brake<br/>冻结 sensorized LQR / yaw PD / allocator]
   MCU --> PLANT[MuJoCo physics 1ms<br/>control 2ms]
   WORLD[锁定 Bookstore SDF / 同源显示与接触资产] --> PLANT
@@ -33,7 +33,7 @@ flowchart TB
   PLANT -. 单向独立文件 .-> GT[post-hoc GT / 接触与误差评测]
 ```
 
-当前 MCU 框是既有主机物理仿真的 MCU 逻辑与控制 runner，不是已连接 STM32。共享 C 核心、C++ 串口桥及原协议另做冻结回归；本模式不自动启动串口 TX、不物理 arm。`hardware_execution_ready=false`。Agent 只发目标或停止请求，Nav2 不写转矩、MuJoCo pose 或关节状态。
+当前 MCU 框的reference/safety已由共享C99核实际执行，物理控制仍经冻结simulation runner；不是已连接 STM32。共享 C 核心、C++ 串口桥及原协议另做冻结回归；本模式不自动启动串口 TX、不物理 arm。`hardware_execution_ready=false`。Agent 只发目标或停止请求，Nav2 不写转矩、MuJoCo pose 或关节状态。
 
 | 数据 | canonical source / 唯一 owner |
 | --- | --- |
@@ -46,13 +46,13 @@ flowchart TB
 | motion authority | `/companionbot/navigation/control`；一个 task/source_epoch、递增 sequence、有界本地 receipt-time 租约 |
 | 高频轨迹与控制 | 原 Pi producer、ReferenceBlock、MCU receiver/safety；ROS 不调度 500Hz 闭环 |
 
-NavigationControl 命令为 ACQUIRE、RENEW、RELEASE、STOP、WAIT、CHECK、CHECK_STOPPED。CHECK 是软件导航 readiness；CHECK_STOPPED 观察 MCU SAFE_HOLD。它们都不是物理 arm。CANCEL 先撤销租约、发本地 safety，再取消 Action；新目标需要新的显式授权和匹配的 reference epoch。独立 MCU heartbeat/starvation/fault 不属于 Nav2 可恢复的停止原因。
+NavigationControl 原命令为 ACQUIRE、RENEW、RELEASE、STOP、WAIT、CHECK、CHECK_STOPPED，默认对应GUIDE_TO；另显式支持 ACQUIRE_FOLLOW、RENEW_FOLLOW、CHECK_FOLLOW。FOLLOW需已配置的真实观测/独立障碍与制动门禁；没有可用depth证书时拒绝。模式切换先撤销再新grant，不重用旧task/观测。CHECK 是软件导航 readiness；CHECK_STOPPED 观察 MCU SAFE_HOLD。它们都不是物理 arm。CANCEL 先撤销租约、发本地 safety，再取消 Action；新目标需要新的显式授权和匹配的 reference epoch。独立 MCU heartbeat/starvation/fault 不属于 Nav2 可恢复的停止原因。
 
-cmd 同时检查 ROS source stamp 与本机 receipt freshness；租约只使用服务器本机 monotonic age，不把客户端时间与 MCU tick 相减。scan/odom/map TF 缺失、定位协方差失效、命令过期和节点退出均撤销旧意图。没有命令队列，也没有恢复传感器后自动重放。Jazzy rclpy 无逐消息 GID；速度入口检查单一 Graph endpoint 和变更锁止，不宣称网络身份认证。部署域仍遵守原内部可信 ROS 边界。
+cmd 同时检查 ROS source stamp 与本机 receipt freshness；租约只使用服务器本机 monotonic age，不把客户端时间与 MCU tick 相减。scan/odom/map TF 缺失、定位协方差失效、命令过期和节点退出均撤销旧意图。没有命令队列，也没有恢复传感器后自动重放。rclcpp速度入口同时检查逐消息实际GID与单一Graph endpoint/重启锁止，不宣称网络身份认证。部署域仍遵守原内部可信 ROS 边界。
 
 Nav2 Action 的 SUCCEEDED/CANCELED/ABORTED 分别映射为原 Feedback 的 COMPLETED/CANCEL/FAILED，保留业务合同。ACCEPT/RUNNING 不是到达；Agent 文本轮次 COMPLETED 也不是导航完成。进度来自 Nav2 距离反馈，初始化默认零表示未知，只有实际成功结果产生 1.0。执行 readiness 同时要求 motion health、安全状态、Action discovery 与五个官方节点 ACTIVE；服务被发现不等于 lifecycle 已激活。到点释放会启动真实 MCU 制动，重复任务须等 SAFE_HOLD 后才能重新授权；不会为重复目标跳过这一过程。
 
-租约续期为0.35s，terminal result独立及时处理并RELEASE，不等待下一次续期以免先触发0.3s命令watchdog。有租约而无有效非零运动意图时不请求MCU resume；撤销后迟到的NORMAL确认会在更多block产生前重申STOP，原MCU算法和协议保持。
+租约续期为0.35s，terminal result独立及时处理并RELEASE，不等待下一次续期以免先触发0.3s命令watchdog。有租约而无有效非零运动意图时不请求MCU resume；有效新HARD_STOP在唯一MCU C99核立即撤销旧reference epoch与pending/armed resume，即使已SAFE_HOLD也成立；不依赖Pi重复STOP补偿。重复/陈旧sequence拒绝，独立fault不能由同名业务reason冒充恢复资格；控制律与协议保持。
 
 ## Borrow / Adapt 的运行选择
 

@@ -125,12 +125,12 @@ flowchart LR
 | `VirtualPlanarLidar.sample` | 当前物理 site 与碰撞几何 → MuJoCo `mj_multiRay`、独立测距噪声 → 只有时间/角度/范围的 ScanSample；不输出 pose、hit id 或场景 oracle |
 | `SpatialSession` | 原 runner 的公开 estimate、实际消费的 IMU measurement/timing → 坐标适配、被动态势、50 Hz 快照 → BalanceState 所需 DTO 与 source JSONL；observer 返回空字典，无 actuator augmentation |
 | `SpatialSimulation` | 快照和 scan → 稳态 ROS timer、原始 source stamp → BalanceState、Imu、LaserScan、clock 与 diagnostics |
-| `SpatialState.decode` | typed BalanceState + ROS clock → schema/frame/source/epoch/mapping/geometry/time/validity 检查 → coherent SpatialSample 或明确错误 |
+| C++ `SourceGate.accept` | typed BalanceState + ROS clock → schema/frame/source/epoch/mapping/geometry/time/validity 检查 → coherent SpatialSample 或明确错误 |
 | `PlanarOdometry.update` | 既有 pitch-corrected path + navigation yaw → 连续平面积分与过程协方差 → odom 估计；错误锁存，不隐式 reset |
-| `SpatialState.publish_sample` | 同一有效 sample/estimate → 标准 ROS 表达与轮索引映射 → Odometry、JointState、两条动态 body TF |
+| C++ `SpatialState::publish_sample` | 同一有效 sample/estimate → 标准 ROS 表达与轮索引映射 → Odometry、JointState、两条动态 body TF |
 | C++ `TfAuthority::inspect` | TF parent/child + rclcpp publisher GID/Graph → 单父、单 owner、静态/动态通道检查 → authority diagnostics 或非零退出 |
 
-Python 空间估计与 C++ TF 运行审计位于伴随计算机/仿真侧，独立于 MCU 确定性控制；没有为了空间输出新增 MCU 控制频率或 DDS 依赖。
+空间 ROS owner 已为 C++ `spatial_state` ELF（普通 C++ SourceGate/PlanarOdometry + rclcpp）；旧 Python 估计仅保留冻结实验/oracle，被动 SpatialAttitude 仍在仿真侧。空间状态与 C++ TF 运行审计位于伴随计算机/仿真侧，独立于 MCU 确定性控制；没有为了空间输出新增 MCU 控制频率或 DDS 依赖。
 
 ## ROS 接口与时间合同
 

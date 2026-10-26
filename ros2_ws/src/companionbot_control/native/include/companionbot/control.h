@@ -109,6 +109,10 @@ int cb_mcu_init(cb_mcu *, const cb_mcu_config *, uint32_t epoch);
 int cb_mcu_reference(cb_mcu *, const uint8_t *, size_t, uint32_t tick);
 int cb_mcu_heartbeat(cb_mcu *, uint32_t sequence, uint32_t tick);
 int cb_mcu_yaw(cb_mcu *, uint32_t sequence, double target, uint32_t tick);
+/* CB_OK HARD is an immediate reference/resume revocation barrier in every
+ * safety state. Duplicate/stale sequences and authority downgrades reject
+ * without advancing the accepted safety sequence. Braking is not restarted.
+ * A new HARD sequence invalidates the old epoch even if already in SAFE_HOLD. */
 int cb_mcu_safety(cb_mcu *, uint32_t sequence, int authority, int reason, uint32_t tick);
 int cb_mcu_resume(cb_mcu *, uint32_t sequence, uint32_t epoch, int authority, uint32_t tick);
 int cb_mcu_step(cb_mcu *, uint32_t tick, double velocity, double pitch,

@@ -1,10 +1,22 @@
 # CompanionBot 运行架构与数据流
 
-当前合同，2026-10-23。八个 package 的源码是唯一当前实现；package 是职责/安装单位，Node 是 ROS 通信单位，进程是部署/故障单位。唯一正式用户入口保留 [`scripts/demo_stage8_interaction.py`](../scripts/demo_stage8_interaction.py)，bringup 和终端都调用同一个 `companionbot_behavior.app.main`。文件名中的历史编号不代表另一套运行架构。
+当前合同，2026-10-24。八个 package 的源码是唯一当前实现；package 是职责/安装单位，Node 是 ROS 通信单位，进程是部署/故障单位。唯一正式用户入口保留 [`scripts/demo_stage8_interaction.py`](../scripts/demo_stage8_interaction.py)，bringup 和终端都调用同一个 `companionbot_behavior.app.main`。文件名中的历史编号不代表另一套运行架构。
 
-control现含主机/STM32共用C核心和独立C++ `mcu_bridge`，参考G474 HAL固件已交叉编译；语言分工、设备协议与硬件边界统一见 [跨语言控制工程](CROSS_LANGUAGE_EMBEDDED.md)。正式interaction与有限simulation拓扑不自动启动MCU通信调试，真实视觉跟随和实体执行仍未接通。
+control现含主机/STM32共用C核心和独立C++ `mcu_bridge`，参考G474 HAL固件已交叉编译；语言分工、设备协议与硬件边界统一见 [跨语言控制工程](CROSS_LANGUAGE_EMBEDDED.md)。正式interaction与有限simulation拓扑不自动启动MCU通信调试，渲染RGB模型链已接入原生FOLLOW权限，但米制深度验收失败，运动授权保持关闭；实体执行仍未认证。
 
 SLAM 建图复用 spatial_sim / spatial_state / RSP，原版 SLAM Toolbox 唯一发布 map→odom；保存/加载见 [SLAM 建图合同](SLAM_MAPPING.md)。显式 `navigation_mode=nav2` 后，同一 interaction 可通过真实 Action 在 AWS Bookstore 物理仿真中带路；默认仍为 Fake。AMCL 定位与 mapping 互斥，Nav2 意图必须经租约、原 Pi reference 与 MCU safety，完整数据流和启动合同见 [商业场景导航](RETAIL_NAVIGATION.md)。所有模式均 `hardware_execution_ready=false`。
+
+## 原生运动运行层
+
+导航与可选视觉仿真实际消费 `companionbot_follow` C++库及 `companionbot_simulation._native_simulation`：唯一 `MotionAuthority` 负责任务租约、mode、source/receipt freshness和epoch；`TwoPathProducer` 负责完整scheduler/lifecycle与25sample批量编码；`NavigationRuntime` 在同进程调度Pi包并调用共享C99 MCU safety。Python runner每2ms传一组sensorized本地估计并取回当前/下一reference，不经DDS往返，不保留Python正式权限或MCU状态机。旧Python链只用于冻结实验/oracle；mapping仍为显式有限预授权实验。
+
+`rclcpp NavigationIngressRuntime` 有独立Context、标准SingleThreadedExecutor线程和明确shutdown，直接共享同一native authority。Nav2保持原官方进程。`spatial_state` 已为独立C++ ELF，source/time/geometry gate、里程计和TF由它唯一发布；相对topic、QoS与时间语义保持。C++不自动意味着实时，额外context/thread和DDS成本由本工程实测记录。
+
+可选 `visual_companion_config` 在同一SpatialSession physics worker中渲染机载RGB，独立原YOLO/ByteTrack/Master/ReID与Depth线程经严格same-frame pair形成几何；source-time pitch来自同capture horizon的sensorized估计。每个模型观测仅一次低频调用原生 `FollowController`（KF/history/Governor/BearingYaw组合）。仅接受FULL计划时调用原Ruckig/SciPy cached-KKT数学solver，批量数组返回；执行状态机与逐sample采样仍在C++。
+
+FOLLOW与GUIDE_TO共享唯一authority，须撤销后新task/epoch显式授权。source loss、LOST、深度/外参/历史不确定、过期和障碍guard均阻止FOLLOW；视觉失效不会越权撤销GUIDE_TO。Nav2残留命令不能控制FOLLOW。失败depth calibration不能生成运动证书，renderer GT depth/人物pose不进入controller。机载渲染会阻塞仿真wall cadence，不能把source-clock无underrun外推为实体500Hz保证。
+
+合同细节和当前验收状态见 [原生审计](../models/minisegway/native_runtime/NATIVE_MIGRATION_AUDIT.md)、[Follow接口](../models/minisegway/native_runtime/follow_native_contract.md)、[FULL接口](../models/minisegway/native_runtime/full_reference_contract.md)及 [CURRENT_STATE](../CURRENT_STATE.md)。下节描述默认交互/Fake和保留冻结实验的拓扑；可选原生运动层按本节覆盖相应运行责任。
 
 ## 系统架构
 
@@ -47,7 +59,7 @@ flowchart TB
     C -. C移植与C++transport已实现，实体待验 .-> MCU[STM32 C/HAL / board_io unavailable]
 ```
 
-这是 rclpy **静态组合**，不是 `rclcpp_components` container，没有动态 load/unload 服务。默认共进程保留原相机帧与 Master 的本地消费，避免将 RGB 先发 DDS 再读回；每个 ROS executor 都不运行 Agent、推理或控制算法。感知仍有原始 capture、detector/tracker、depth worker，控制侧不因 ROS 增加高频通信。
+默认交互应用是 rclpy **静态组合**，不是 `rclcpp_components` container，没有动态 load/unload 服务。默认共进程保留原相机帧与 Master 的本地消费，避免将 RGB 先发 DDS 再读回；每个 ROS executor 都不运行 Agent、推理或控制算法。感知仍有原始 capture、detector/tracker、depth worker，控制侧不因 ROS 增加高频通信。
 
 Python 异常可传播并有序关闭进程；共进程不能隔离 native crash、OOM 或 GIL 竞争。现阶段没有新增独立感知进程部署模式。将来有测量证据需要隔离时，必须同步实现带 source epoch / clock mapping / freshness 的远程消费者。
 
@@ -187,7 +199,26 @@ ros2 topic echo /companionbot/diagnostics
 ros2 launch companionbot_bringup simulation.launch.py duration_s:=8.0
 ```
 
-launch 不接终端 stdin；需要终端交互用上面的根脚本。实体相机/音频/GUI 仅由用户亲自操作。首次 Linux 安装、模型来源与历史设备限制仍参考 [Linux 迁移记录](../models/minisegway/stage9/RUNNING.md)中的环境/资产章节；其旧验收命令属于历史。当前验收使用以下显式结果目录：
+launch 不接终端 stdin；需要终端交互用上面的根脚本。实体相机/音频/GUI 仅由用户亲自操作。首次 Linux 安装、模型来源与历史设备限制仍参考 [Linux 迁移记录](../models/minisegway/stage9/RUNNING.md)中的环境/资产章节；其旧验收命令属于历史。
+
+WSL 的 VS Code C/C++ IntelliSense 使用实际构建生成的编译数据库。`build_ros.sh` 已启用 [CMake 编译命令导出](https://cmake.org/cmake/help/latest/variable/CMAKE_EXPORT_COMPILE_COMMANDS.html)，无需手工重复维护 ROS、Ruckig、OpenCV 或 pybind11 的 include/defines。当前本地 `.vscode/settings.json`（按仓库约定忽略）使用以下配置；构建由 colcon 负责，避免单个 interfaces CMake 项目覆盖其他包的 IntelliSense。新环境可复制这些设置，原有个人设置保留。若编辑器仍保留旧诊断，由用户执行一次 `C/C++: Reset IntelliSense Database` 并重新打开文件；此操作不是构建验收的一部分。
+
+```json
+{
+  "cmake.configureOnOpen": false,
+  "C_Cpp.default.configurationProvider": "",
+  "C_Cpp.default.compilerPath": "/usr/bin/c++",
+  "C_Cpp.default.compileCommands": [
+    "${workspaceFolder}/ros2_ws/build/companionbot_interfaces/compile_commands.json",
+    "${workspaceFolder}/ros2_ws/build/companionbot_control/compile_commands.json",
+    "${workspaceFolder}/ros2_ws/build/companionbot_follow/compile_commands.json",
+    "${workspaceFolder}/ros2_ws/build/companionbot_perception/compile_commands.json",
+    "${workspaceFolder}/ros2_ws/build/companionbot_simulation/compile_commands.json"
+  ]
+}
+```
+
+验收命令如下；新实验将示例输出路径替换为当前工程的独立会话目录，不覆盖历史证据：
 
 ```bash
 python -c 'import sys; print(sys.executable); print(sys.version)'

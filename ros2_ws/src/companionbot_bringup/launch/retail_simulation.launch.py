@@ -41,7 +41,7 @@ def start(context):
         raise ValueError("retail mapping motion requires an explicit route_file; legacy room route is not reused")
     sensor_keys = ("world_assets", "route_file", "duration_s", "realtime_factor", "output_dir", "viewer",
         "record_truth", "finish_grace_s", "scan_dropout_start_s", "scan_dropout_duration_s",
-        "imu_dropout_at_s", "navigation_map_id", "navigation_map_version")
+        "imu_dropout_at_s", "navigation_map_id", "navigation_map_version", "visual_companion_config")
     spatial = IncludeLaunchDescription(PythonLaunchDescriptionSource(str(share/"launch/spatial_simulation.launch.py")),
         launch_arguments={**{k: identity.get(k, value(k)) for k in sensor_keys}, "world": "bookstore", "scenario": scenario,
             "map_authority": "/slam_toolbox" if mode == "mapping" else "/amcl",
@@ -64,6 +64,7 @@ def generate_launch_description():
         "imu_dropout_at_s": "-1.0", "scan_dropout_start_s": "-1.0", "scan_dropout_duration_s": "0.0",
         "map_yaml": "", "map_file_name": "", "navigation_map_id": "", "navigation_map_version": "",
         "navigation_bindings": "",
+        "visual_companion_config": "",
         "set_initial_pose": "false", "initial_pose_x": "0.0", "initial_pose_y": "0.0", "initial_pose_yaw": "0.0",
         "nav2_params_file": str(share/"config/nav2.yaml"), "slam_params_file": str(share/"config/slam.yaml"),
         "output_dir": str(repository_root()/"models/minisegway/retail_navigation/results/sessions"/uuid4().hex)}

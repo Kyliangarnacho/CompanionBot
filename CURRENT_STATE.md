@@ -1,6 +1,16 @@
 # CompanionBot current state — Ubuntu / ROS 2 Jazzy
 
-## 当前：商业书店场景与完整自主导航集成（2026-10-23）
+## 当前工程进行中：Native Runtime 与视觉陪伴（2026-10-26）
+
+- MCU C99 已修有效 HARD_STOP 撤销旧 resume/reference 的本地安全屏障；原生/对照/故障注入及 ARM 交叉构建证据见本工程 `mcu_safety/summary.json`。控制律、1ms physics/2ms control、wire 与物理 arm 权限保持。
+- 已实际构建安装 C++ MotionAuthority、rclcpp ingress、完整 TwoPath scheduler/lifecycle/ReferenceBlock、FollowController 和空间节点；正式导航仿真已消费原生链。90000 tick、61500 samples 与 wire/state 对照已有通过证据；根全量634 pytest、八包实际构建安装和colcon汇总797 tests/0 errors/0 failures/0 skipped通过（含外层，不相加计coverage）。新版native链8项20s物理故障全部通过，含pending-resume取消，旧权限未恢复。
+- 最新190s Bookstore西书架→东书架→服务台全部通过，停稳误差6.26/8.18/11.01cm，零障碍接触/意外接管，RTF约0.995；日志14条TF过滤丢弃保留。首轮RTF约0.90的负结果不覆盖。固定参考块P95改善约95%、P99约94–97%，但同输入20s whole-physics对照wall/CPU退化约4.3%；10000tick控制/物理exact，两个SAFETY时间字段仍超过原2e−12容差，全面parity未过。
+- Gazebo成熟人物真实RGB→原YOLO/ByteTrack/Master/OSNet＋独立Depth已执行，含LOST→ReID。单目heldout RMSE约0.388m失败。用户授权新增真实双目后，48位置/2064帧实际执行，heldout31/32可用，RMSE0.06084m/P950.11031m、age P95239ms，原0.03/0.09m/0.2s门禁仍失败；一次scale-only辅助退化并Reject。原生双目45项单测/CTest/sanitizer通过不能代替测距验收，当前无合格motion证书。
+- 正式唯一app最新60s双目/Agent/真实Nav2运行完成两次同服务台的新task GUIDE_TO、零碰撞/意外接管并正常清理；实际332组双目、311组metric pair/308组原YOLODepth诊断pair，FOLLOW正确拒绝。310条观测仅104条满足原200ms，P95约368ms，不能认证连续跟随。当前全向保守障碍guard在原起点被0.751m桌体阻挡（静止要求1.356m），已有有限审计，未裁扇区或降低门限。真实主人跟随、完整互斥切换与最终组合回归尚未验收。
+- 最新82s原SLAM回归通过：C++空间节点实际消费，820/820扫描有source-time TF，原地图质量/控制门禁及保存加载/故障清理通过。VS Code已接五包编译数据库覆盖25个C++源码，八包构建和六个主要编译参数检查通过；未操作GUI或关闭诊断，1003份冻结成果SHA保持。
+- `hardware_execution_ready=false`。审计：[Native Migration Audit](models/minisegway/native_runtime/NATIVE_MIGRATION_AUDIT.md)；统一证据根 `models/minisegway/native_runtime/results/session_20261023/`。唯一报告继续维护，桌面`stage report/Native_Runtime/`进展副本以该证据根`report_delivery_current.json`的SHA核验为准，非最终验收；未 commit/push。
+
+## 已完成工程：商业书店场景与完整自主导航集成（2026-10-23）
 
 - AWS Bookstore ros2 固定commit `f5a2aaac`：26原型、138实例、完整纹理/真实接触与射线几何；成熟库转换，非凸货架分解/开放墙面薄凸体保留通道。第三方和派生mesh仅在ignored cache，196源hash及派生manifest验证；原件不覆盖，Gazebo不接入。
 - 原SLAM链实走37.737m主图和9.225m补图，标准地图/posegraph保存加载通过；最终5cm地图，几何P95=4.333cm，occupied precision=99.816%，补图SLAM位置RMSE=2.364cm。正式map version `b48c61b3b2bf76d5`，五个语义目标均经真实Smac Action验证；mapping/AMCL的map→odom互斥，GT只事后评价。

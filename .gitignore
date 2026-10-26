@@ -69,6 +69,7 @@ CMakeCache.txt
 # Archived raw experiment traces stay local; historical reports and configs remain tracked.
 /models/minisegway/spatial_slam_foundation/results/
 /models/minisegway/retail_navigation/results/
+/models/minisegway/native_runtime/results/
 /models/minisegway/**/reference/**/*.csv
 /models/minisegway/**/reference/**/*.json
 /models/minisegway/**/reference/**/*.npz

@@ -60,9 +60,61 @@ static void prepare(void) {
     cb_put_u32(p+8,1);cb_put_u32(p+12,26);assert(cb_mcu_reference(&mcu,p,sizeof(p),0)==CB_OK);
     assert(cb_mcu_heartbeat(&mcu,0,0)==CB_OK);
 }
+static void ingress(cb_frame *frame) {
+    uint8_t encoded[CB_WIRE_ENCODED]; size_t length,i;
+    frame->session=session; frame->tick=scheduled+100u;
+    length=cb_frame_encode(frame,encoded,sizeof(encoded)); assert(length);
+    for(i=0;i<length;i++) {
+        uint16_t position=dma_previous==RX_DMA_SIZE?0:dma_previous;
+        dma_rx[position]=encoded[i]; cb_app_rx_isr(position+1u);
+    }
+    cb_app_poll(); assert(head==tail);
+}
+static void release(void) {
+    DWT->CYCCNT+=340000u; cb_app_timer_isr(); cb_app_poll();
+}
+static void pending_resume_stop(void) {
+    cb_frame frame={0}; uint32_t tick,old_epoch; unsigned old_rejections;
+    sensor_cycles=1000; release(); assert(mcu.state==CB_NORMAL);
+    frame.type=CB_MSG_SAFETY; frame.length=3; frame.payload[0]=CB_HARD;
+    cb_put_u16(frame.payload+1,CB_REASON_PI); ingress(&frame);
+    assert(mcu.state==CB_BRAKING && !mcu.has_active && !mcu.has_next);
+    for(tick=2;tick<=600;tick++) {
+        if(tick%20u==0) {
+            memset(&frame,0,sizeof(frame)); frame.type=CB_MSG_HEARTBEAT;
+            frame.sequence=tick; ingress(&frame);
+        }
+        release();
+    }
+    assert(mcu.state==CB_SAFE_HOLD);
+    memset(&frame,0,sizeof(frame)); frame.type=CB_MSG_YAW;
+    frame.length=8; frame.sequence=601; ingress(&frame);
+    memset(&frame,0,sizeof(frame)); frame.type=CB_MSG_REFERENCE;
+    frame.length=640; cb_put_u32(frame.payload,1); cb_put_u32(frame.payload+4,mcu.epoch);
+    cb_put_u32(frame.payload+12,610); put_double(frame.payload+24,CB_DT);
+    cb_put_u32(frame.payload+32,CB_BLOCK_SAMPLES); ingress(&frame);
+    memset(&frame,0,sizeof(frame)); frame.type=CB_MSG_RESUME; frame.length=5;
+    cb_put_u32(frame.payload,mcu.epoch); frame.payload[4]=CB_HARD; ingress(&frame);
+    release(); assert(mcu.resume_armed && mcu.pending_resume);
+    old_epoch=mcu.epoch;
+    memset(&frame,0,sizeof(frame)); frame.type=CB_MSG_SAFETY; frame.sequence=1;
+    frame.length=3; frame.payload[0]=CB_HARD; cb_put_u16(frame.payload+1,CB_REASON_PI);
+    ingress(&frame);
+    assert(mcu.epoch==old_epoch+1 && !mcu.resume_armed && !mcu.pending_resume && !mcu.has_next);
+    old_rejections=rejections; ingress(&frame);
+    assert(rejections==old_rejections+1 && last_result==CB_SEQUENCE && mcu.epoch==old_epoch+1);
+    for(tick=602;tick<=620;tick++) {
+        release(); assert(mcu.state==CB_SAFE_HOLD && command.reference.v==0);
+    }
+    assert(overruns==0 && cb_timing.control_calls==620 && !latched_faults);
+    printf("{\"case\":\"dma_pending_resume_stop\",\"scope\":\"host HAL and actuator fixtures, real app and wire core\","
+           "\"control_ticks\":%u,\"epoch\":%u,\"resume_armed\":%d,\"parser_accepted\":%u,\"rejections\":%u,\"overruns\":%u}\n",
+           cb_timing.control_calls,mcu.epoch,mcu.resume_armed,parser.accepted,rejections,overruns);
+}
 int main(int argc,char **argv) {
     const char *mode=argc>1?argv[1]:"timely";
     prepare();
+    if(!strcmp(mode,"pending_resume_stop")) { pending_resume_stop(); return 0; }
     if(!strcmp(mode,"dma_duplicate")) {
         cb_app_rx_isr(1024);assert(head==1024);
         cb_app_rx_isr(1024);assert(head==1024);

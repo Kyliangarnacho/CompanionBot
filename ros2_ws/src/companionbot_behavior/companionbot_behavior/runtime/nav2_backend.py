@@ -211,11 +211,16 @@ class Nav2NavigationBackend:
             except Exception:
                 pass  # Lease expiry is independently enforced by the motion owner.
         finally:
-            if self.active == task_id:
-                try:
-                    await self.control(task_id, "RELEASE")
-                finally:
-                    self.active = None
+            try:
+                if self.active == task_id:
+                    try:
+                        await self.control(task_id, "RELEASE")
+                    finally:
+                        self.active = None
+            finally:
+                self.monitors.pop(task_id, None)
+                self.handles.pop(task_id, None)
+                self.initial_distance.pop(task_id, None)
 
     async def cancel(self, task_id):
         previous = self.tasks.get(task_id)
@@ -223,6 +228,9 @@ class Nav2NavigationBackend:
             return Feedback(status="REJECT", reason="unknown_task", task_id=task_id)
         if previous.status not in IN_FLIGHT:
             return previous
+        # Retain the handle across awaited STOP/monitor cleanup, including a
+        # simultaneous terminal result; acknowledgement still comes from Nav2.
+        handle = self.handles.get(task_id)
         answer = await self.control(task_id, "STOP")
         if not answer.accepted:
             return self.event(task_id, "UNKNOWN", "navigation_stop_not_acknowledged")
@@ -230,7 +238,6 @@ class Nav2NavigationBackend:
         self.active = None
         if monitor:
             monitor.cancel(); await asyncio.gather(monitor, return_exceptions=True)
-        handle = self.handles.get(task_id)
         if handle:
             await self.wait(handle.cancel_goal_async())
             result = await self.wait(handle.get_result_async(), 1.)
@@ -262,9 +269,21 @@ class Nav2NavigationBackend:
 
 
 class NavigationRobotBackend:
-    """Supervisor readiness and STOP/WAIT for this explicitly simulated runtime."""
+    """Existing Supervisor robot side of the same native motion authority."""
     def __init__(self, navigation):
         self.navigation, self.tasks, self.sequence = navigation, {}, 0
+        self.follow_monitors = {}
+        self.active_follow = None
+
+    def follow_event(self, task_id, status, reason):
+        self.sequence += 1
+        result = Feedback(status=status, reason=reason, task_id=task_id, intent=Intent.FOLLOW,
+            backend="nav2_simulation", contract_version=2, source_id="native:follow_authority",
+            source_epoch=self.navigation.source_epoch, sequence=self.sequence,
+            observed_at_s=time.perf_counter())
+        self.tasks[task_id] = result
+        retain_tasks(self.tasks)
+        return result
 
     async def latest_state(self):
         self.sequence += 1
@@ -273,18 +292,32 @@ class NavigationRobotBackend:
             answer = await self.navigation.control("supervisor_readiness", "CHECK")
             safe = answer.accepted
             connected = True
+            follow = await self.navigation.control("supervisor_follow_readiness", "CHECK_FOLLOW")
+            master_locked = follow.accepted
         except (RuntimeError, TimeoutError):
             connected = safe = False
+            master_locked = False
         ready = safe and await self.navigation.navigation_active()
         if ready:
             self.navigation.publish_targets()
         now = time.perf_counter()
         return RobotSnapshot(observed_at_s=requested_at, connected=connected, execution_ready=ready, safety_ok=safe,
-            master_locked=False, backend="nav2_simulation", contract_version=2,
+            master_locked=master_locked, backend="nav2_simulation", contract_version=2,
             source_id="nav2:authority_check", source_epoch=self.navigation.source_epoch,
             sequence=self.sequence, received_at_s=now)
 
     async def request(self, task_id, request):
+        if request.intent == Intent.FOLLOW:
+            previous = self.tasks.get(task_id)
+            if previous is not None:
+                return previous
+            answer = await self.navigation.control(task_id, "ACQUIRE_FOLLOW")
+            if not answer.accepted:
+                return self.follow_event(task_id, "REJECT", answer.reason)
+            self.active_follow = task_id
+            result = self.follow_event(task_id, "ACCEPT", "native_follow_authority_acquired")
+            self.follow_monitors[task_id] = asyncio.create_task(self.monitor_follow(task_id))
+            return result
         if request.intent not in (Intent.STOP_REQUEST, Intent.WAIT):
             return Feedback(status="REJECT", reason="navigation_mode_follow_unavailable", task_id=task_id)
         command = "STOP" if request.intent == Intent.STOP_REQUEST else "WAIT"
@@ -296,8 +329,37 @@ class NavigationRobotBackend:
         self.tasks[task_id] = result
         return result
 
+    async def monitor_follow(self, task_id):
+        try:
+            while self.active_follow == task_id:
+                answer = await self.navigation.control(task_id, "RENEW_FOLLOW")
+                if not answer.accepted:
+                    self.follow_event(task_id, "FAILED", "follow_authority_lost:"+answer.reason)
+                    return
+                self.follow_event(task_id, "RUNNING", "native_visual_follow_executing")
+                await asyncio.sleep(.35)
+        except asyncio.CancelledError:
+            raise
+        except Exception as error:
+            self.follow_event(task_id, "FAILED", str(error))
+            try:
+                await self.navigation.control(task_id, "STOP")
+            except Exception:
+                pass  # Native lease/measurement expiry independently revokes.
+        finally:
+            try:
+                if self.active_follow == task_id:
+                    try:
+                        await self.navigation.control(task_id, "RELEASE")
+                    finally:
+                        self.active_follow = None
+            finally:
+                self.follow_monitors.pop(task_id, None)
+
     async def status(self, task_id):
         result = self.tasks.get(task_id, Feedback(status="REJECT", reason="unknown_task", task_id=task_id))
+        if result.intent == Intent.FOLLOW:
+            return result.model_copy(update={"observed_at_s": time.perf_counter()})
         if result.status == "ACCEPT":
             answer = await self.navigation.control(task_id, "CHECK_STOPPED")
             if answer.accepted:
@@ -307,4 +369,27 @@ class NavigationRobotBackend:
         return result
 
     async def cancel(self, task_id):
+        result = self.tasks.get(task_id)
+        if result is not None and result.intent == Intent.FOLLOW:
+            if result.status not in IN_FLIGHT:
+                return result
+            answer = await self.navigation.control(task_id, "STOP")
+            if not answer.accepted:
+                return self.follow_event(task_id, "UNKNOWN", "follow_stop_not_acknowledged")
+            self.active_follow = None
+            monitor = self.follow_monitors.pop(task_id, None)
+            if monitor:
+                monitor.cancel()
+                await asyncio.gather(monitor, return_exceptions=True)
+            return self.follow_event(task_id, "CANCEL", "follow_authority_revoked")
         return await self.status(task_id)
+
+    async def close(self):
+        try:
+            if self.active_follow:
+                await self.cancel(self.active_follow)
+        finally:
+            for monitor in self.follow_monitors.values():
+                monitor.cancel()
+            await asyncio.gather(*self.follow_monitors.values(), return_exceptions=True)
+            self.follow_monitors.clear()

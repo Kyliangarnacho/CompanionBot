@@ -4,8 +4,10 @@ Uses measured state flags and a declared simulation clock. No truth/pose enters
 the intent producer. This complements, and never substitutes for, DDS faults.
 """
 import argparse
+from contextlib import ExitStack
 import json
 from pathlib import Path
+from unittest.mock import patch
 
 from companionbot_follow.runtime.navigation_motion import NavigationMotionAdapter
 from companionbot_simulation.runtime.spatial_session import SpatialSession
@@ -69,7 +71,35 @@ class FaultDriver:
 def main():
     cli=argparse.ArgumentParser(description=__doc__);cli.add_argument("--output-dir",type=Path,required=True)
     cli.add_argument("--faults",nargs="+",default=["STOP","WAIT","CANCEL","command_expiry","lease_expiry","scan_health_loss","localization_health_loss","cancel_during_resume"])
+    cli.add_argument("--native-control",action="store_true",help="C99 V1 control drives MuJoCo; the production navigation runtime already uses the C99 MCU")
+    cli.add_argument("--python-runtime-oracle",action="store_true",help="Diagnostic only: replay the preserved Python scheduler; never a production fallback")
     args=cli.parse_args()
+    with ExitStack() as stack:
+        oracle = None
+        if args.python_runtime_oracle:
+            import importlib.util
+            from companionbot_contracts.paths import repository_root
+            from companionbot_simulation.runtime import navigation_motion
+            spec = importlib.util.spec_from_file_location("navigation_packet_oracle",
+                repository_root()/"tests/oracles/navigation_packet_link_python.py")
+            oracle = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(oracle)
+            stack.enter_context(patch.object(navigation_motion, "build_navigation_reference", oracle.build_navigation_reference))
+        if args.native_control:
+            from companionbot_simulation.runtime.native_backend import native_backend, CheckedNativeArbiter, parity_summary
+            from companionbot_simulation.runtime import navigation_motion
+            stack.enter_context(native_backend())
+            if oracle is not None:
+                stack.enter_context(patch.object(oracle,"MCUSafetyArbiter",CheckedNativeArbiter))
+        try:
+            run(args)
+        finally:
+            if args.native_control:
+                args.output_dir.mkdir(parents=True,exist_ok=True)
+                (args.output_dir/"native_parity.json").write_text(json.dumps(parity_summary(),indent=2)+"\n")
+
+
+def run(args):
     out=args.output_dir.resolve();out.mkdir(parents=True,exist_ok=True);summaries=[]
     for fault in args.faults:
         driver=FaultDriver(fault);path=out/fault;summary=dict(fault=fault,passed=False,scope="software ingress fault + actual frozen MuJoCo/reference/MCU chain; no ROS Action")

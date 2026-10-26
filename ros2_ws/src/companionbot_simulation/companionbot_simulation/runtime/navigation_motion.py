@@ -1,141 +1,124 @@
-"""Simulation composition of Nav2 intents and the unchanged Pi/MCU protocol.
+"""Composition boundary between the frozen MuJoCo runner and native motion.
 
-Physics/control scheduling remains owned by the original runner. No Nav2
-callback runs control, changes state, clears MCU safety, or writes an actuator.
+C++ owns Pi scheduling, reference lifecycle, bounded transport and the shared
+C99 software MCU. Python passes consumed estimator scalars once per control
+tick and converts the result to the runner's existing DTO. Task/ROS callbacks
+share the same native authority; no DDS round trip occurs here.
 """
 import json
 import math
 
+import numpy as np
+
 from companionbot_contracts.paths import repository_root
-from companionbot_contracts.packets import PROTOCOL_VERSION, YawCommandPacket
-from companionbot_control.runtime.mcu import MCUSafetyArbiter, MCUReferenceBlockReceiver
-from companionbot_control.runtime.yaw_reference import MCULatestYawSource
-from companionbot_control.core.safety_brake import SafetyBrakeConfig
-from companionbot_follow.runtime.navigation_motion import NavigationIntentReader
-from companionbot_follow.runtime.reference_producer import PiReferenceBlockProducer
-from companionbot_simulation.runtime.packet_link import InMemoryPacketTransport, Stage6PacketLink
+from companionbot_control.runtime.mcu import WireReferenceCommand
+from companionbot_follow import _native_runtime as follow_native
+from companionbot_simulation import _native_simulation as native
 
 
-class NavigationPacketLink(Stage6PacketLink):
-    def __init__(self, *, adapter, reader, source_factory, **kwargs):
-        super().__init__(**kwargs)
-        self.adapter, self.reader, self.source_factory = adapter, reader, source_factory
-        self.yaw_sequence = 0
-        self._last_resume_generation = -1
-        self._last_navigation_stop = None
-        self.all_producers = [self.producer]
+class NativeNavigationReference:
+    """Runner adapter only; contains no motion or recovery state machine."""
+    def __init__(self, adapter, producer_config, mcu_config, latency_s, *, common=None, stream=None):
+        self.adapter = adapter
+        self.dt_s = producer_config.dt
+        follow_controller = getattr(adapter, 'follow_controller', None)
+        if follow_controller is None:
+            self.runtime = native.NavigationRuntime(adapter.native_authority,
+                producer_config, mcu_config, latency_s)
+        else:
+            from companionbot_follow.runtime.native_follow import (
+                producer_configuration, full_solver, clearance_configuration)
+            clearance = clearance_configuration(common)
+            self.runtime = native.NavigationRuntime(adapter.native_authority,
+                producer_configuration(common,stream,producer_config), mcu_config, latency_s,
+                full_solver(common,stream),follow_controller,
+                native.FollowClearanceConfig(clearance['radius_m'],clearance['reaction_time_s'],
+                    clearance['maximum_projection_steps']))
+        self._local = None
+        self._output = None
+        self._tick = None
 
-    def on_robot_state_packet(self, packet):
-        pass  # Nav2 consumes odometry; no synthetic follow governor is active.
+    def mcu_local_state(self, time_s, estimate, yaw_estimate):
+        # Same control-time sensorized estimate as the frozen C/Python core.
+        self._local = (float(estimate.velocity_hat_m_s), float(estimate.theta_hat_rad),
+                       float(estimate.theta_dot_hat_rad_s))
 
-    def after_pi_packets(self, time_s):
-        self.reader.time_s = time_s
-        # Existing SafetyStatus is transition-driven, not a startup heartbeat.
-        # NORMAL is explicitly reported by the decoded 20Hz MCU RobotState;
-        # stopped/fault reasons come from the matching transition status.
-        robot_status = self.latest_robot_state
-        safety_status = self.latest_safety_status
-        if (safety_status is not None and safety_status.state != "NORMAL"
-                and (robot_status is None or safety_status.timestamp_s >= robot_status.sample_time_s)):
-            self.adapter.update_mcu_status(safety_status.state, safety_status.reason)
-        elif (robot_status is not None and time_s-robot_status.sample_time_s <= .1
-                and robot_status.safety_state == "NORMAL"):
-            self.adapter.update_mcu_status("NORMAL", "normal_from_robot_state_packet")
-        elif self.latest_safety_status is not None:
-            self.adapter.update_mcu_status(self.latest_safety_status.state, self.latest_safety_status.reason)
-        intent = self.adapter.sample(time_s)
-        stop = self.adapter.take_stop()
-        if stop is not None:
-            self.send_brake(time_s, stop[1], "HARD_STOP")
-            self._last_navigation_stop = (time_s, stop[1])
-        tick = round(time_s / self.producer.dt_s)
-        if tick % self.producer.block_samples == 0:
-            packet = YawCommandPacket(PROTOCOL_VERSION, self.yaw_sequence, time_s,
-                                      intent.yaw_rate_target_rad_s)
-            self.yaw_sequence += 1
-            self.transport.send("mcu", "yaw", packet.to_bytes(), time_s)
-        # A new, explicit high-level lease may request software reference rearm
-        # only after the MCU reports SAFE_HOLD. Physical arm/fault gates remain
-        # entirely MCU-owned. Fresh stopped status and matching reference epoch
-        # are checked again by Stage6PacketLink.request_resume / MCU receiver.
-        snapshot = self.adapter.snapshot(include_events=False)
-        status, robot = self.latest_safety_status, self.latest_robot_state
-        # The frozen MCU ignores a new safety command while already SAFE_HOLD;
-        # a previously armed future resume can still acknowledge NORMAL later.
-        # Keep the revoked task's stop authoritative across that acknowledgement
-        # without altering the MCU, producing more blocks or clearing its gate.
-        if (not snapshot["authorized"] and self._last_navigation_stop is not None
-                and status is not None and status.state == "NORMAL"
-                and status.timestamp_s >= self._last_navigation_stop[0]):
-            self.send_brake(time_s, self._last_navigation_stop[1], "HARD_STOP")
-            self._last_navigation_stop = (time_s, self._last_navigation_stop[1])
-        # A lease alone is not a motion command. Planning failure / an already
-        # satisfied goal need no MCU rearm and must not leave a pending resume.
-        moving_intent = (abs(intent.linear_velocity_target_m_s) > 1e-9
-                         or abs(intent.yaw_rate_target_rad_s) > 1e-9)
-        if (not snapshot["authorized"] or not self.reference_production_stopped
-                or not moving_intent
-                or status is None or robot is None or status.state != "SAFE_HOLD"
-                or robot.safety_state != status.state or robot.sample_time_s < status.timestamp_s
-                or snapshot["authority_epoch"] <= self._last_resume_generation):
-            return
-        # Never implicitly recover a MCU-originated heartbeat/starvation/fault.
-        # Only a safety stop requested by this adapter belongs to this rearm path.
-        local_reasons = {event["reason"] for event in self.packet_events
-                         if event["event"] == "pi_safety_command"}
-        if status.reason not in local_reasons:
-            return
-        if robot.applied_p_ref_m is None:
-            return
-        source = self.source_factory()
-        source.lifecycle.reset(float(robot.applied_p_ref_m), 0.)
-        producer = PiReferenceBlockProducer(source, reference_epoch=status.reference_epoch)
-        block_ticks = producer.block_samples
-        start_tick = (math.floor(time_s / producer.dt_s / block_ticks) + 2) * block_ticks
-        block, _ = producer.produce(start_tick, time_s)
-        self.request_resume(time_s=time_s, hazard_cleared=True, fresh_producer=producer,
-                            first_block=block, authority="HARD")
-        self.all_producers.append(producer)
-        self._last_resume_generation = snapshot["authority_epoch"]
+    def before_control_tick(self, time_s):
+        if self._local is None:
+            raise RuntimeError("native_navigation_requires_local_estimator_sample")
+        self._tick = round(time_s / self.dt_s)
+        self._output = self.runtime.step(self._tick, self.adapter.clock(), *self._local)
+        self._local = None
+
+    def command(self, time_s):
+        if self._output is None or round(time_s / self.dt_s) != self._tick:
+            raise RuntimeError("native_navigation_command_without_matching_control_tick")
+        out = self._output
+        ref = out.reference
+        normal = out.safety_state == 0
+        return WireReferenceCommand(
+            np.asarray([ref.p, ref.v, ref.theta, ref.theta_dot]), ref.a,
+            ref.u_ff, ref.u_ff, ref.v, out.yaw_rate,
+            "WIRE" if normal else "SAFETY", "WIRE" if normal else self.state,
+            1., out.block_sequence, out.sample_index, out.block_start_time_s,
+            out.intent_source_time_s, planning_path="WIRE_NORMAL" if normal else "SAFETY")
+
+    @property
+    def next_reference_state(self):
+        ref = self._output.next_reference
+        return np.asarray([ref.p, ref.v, ref.theta, ref.theta_dot])
+
+    @property
+    def next_reference_acceleration_m_s2(self):
+        return self._output.next_reference.a
+
+    @property
+    def state(self):
+        return native.NavigationRuntime.state_name(
+            self._output.safety_state if self._output is not None else self.runtime.safety_state)
+
+    @property
+    def reason(self):
+        return self.runtime.reason_name(
+            self._output.reason if self._output is not None else self.runtime.reason)
+
+    def report(self):
+        return self.runtime.report()
 
 
 def build_navigation_reference(common, stage5, config, adapter):
-    """Return existing MCU arbiter, serialized link and explicit nav adaptation.
-
-    Borrow the existing small-command LIGHTWEIGHT Ruckig branch. A forward-only
-    0..0.25 m/s envelope cannot cross the frozen 0.35 m/s FULL threshold, so
-    retargets remain interruptible without changing the FULL lifecycle contract.
-    Existing jerk / acceleration / block / MCU safety parameters are untouched.
-    """
-    if adapter.max_velocity_m_s >= config["scheduler"]["T_full_delta_v_m_s"]:
+    """Load canonical limits; instantiate the sole production navigation chain."""
+    threshold = float(config["scheduler"]["T_full_delta_v_m_s"])
+    if adapter.max_velocity_m_s >= threshold:
         raise ValueError("navigation_envelope_requires_review_of_full_planner_lock")
-    reader = NavigationIntentReader(adapter)
-    policy = dict(require_stable_candidate=False, minimum_delta_enabled=False,
-                  follow_force_full_dynamic=False, follow_defer_until_full_exit=False)
-
-    def source_factory():
-        return stage5.make_reference_source(config, common, reader, follower=reader.intent,
-                                            scheduler_gate_overrides=policy)
-
-    producer = PiReferenceBlockProducer(source_factory())
+    if config["scheduler"]["initial_accepted_velocity_m_s"] != 0.:
+        raise ValueError("navigation_startup_requires_stationary_reference")
+    _, _, dynamic_config, motion_config, *_ = common
+    limits = motion_config["reference_limits"]
+    producer = follow_native.ProducerConfig()
+    producer.dt = float(motion_config["controller_dt_s"])
+    producer.block_samples = int(config["reference_block"]["sample_count"])
+    if not math.isclose(producer.dt, config["reference_block"]["dt_s"], abs_tol=1e-12):
+        raise ValueError("canonical_reference_period_mismatch")
+    producer.max_velocity = float(limits["max_velocity_m_s"])
+    producer.max_acceleration = float(limits["max_acceleration_m_s2"])
+    producer.max_jerk = float(dynamic_config["max_jerk_m_s3"])
+    producer.full_delta_velocity = threshold
     path = repository_root() / "models/minisegway/stage6/config/stage6_4_2d_follow_config.json"
     baseline = json.loads(path.read_text())
     safety, yaw = baseline["safety"], baseline["yaw"]
-    transport = InMemoryPacketTransport(safety["transport_latency_s"])
-    receiver = MCUReferenceBlockReceiver(dt_s=producer.dt_s, block_samples=producer.block_samples)
-    yaw_source = MCULatestYawSource(dt_s=producer.dt_s, timeout_s=yaw["freshness_timeout_s"],
-                                   decay_rate_rad_s2=yaw["decay_rate_rad_s2"])
-    arbiter = MCUSafetyArbiter(receiver, SafetyBrakeConfig(safety["safe_max_deceleration_m_s2"],
-        safety["safe_max_jerk_m_s3"], safety["hidden_reference_handoff_time_s"], producer.dt_s),
-        heartbeat_timeout_s=safety["heartbeat_timeout_s"],
-        starvation_margin_s=safety["reference_starvation_margin_s"],
-        nominal_pitch_rad=float(common[7]["parameters"]["theta_eq_rad"]), yaw_source=yaw_source,
-        status_sink=lambda payload, t: transport.send("pi", "safety_status", payload, t))
-    link = NavigationPacketLink(adapter=adapter, reader=reader, source_factory=source_factory,
-        transport=transport, producer=producer, governor=None, arbiter=arbiter,
-        crash_time_s=None, hazard_time_s=None)
-    return arbiter, link, dict(command_owner="Nav2 task lease", scheduler_policy=policy,
-        planner="existing_LIGHTWEIGHT_Ruckig", physical_output_gate="unchanged_MCU",
+    brake = native.BrakeConfig(producer.dt, safety["safe_max_deceleration_m_s2"],
+        safety["safe_max_jerk_m_s3"], safety["hidden_reference_handoff_time_s"])
+    mcu = native.McuConfig(brake, safety["heartbeat_timeout_s"],
+        safety["reference_starvation_margin_s"], float(common[7]["parameters"]["theta_eq_rad"]),
+        yaw["freshness_timeout_s"], yaw["decay_rate_rad_s2"])
+    reference = NativeNavigationReference(adapter, producer, mcu, safety["transport_latency_s"],
+        common=common, stream=config)
+    return reference, reference, dict(command_owner="native_cpp_motion_authority",
+        scheduler_owner="native_cpp_navigation_runtime", mcu_owner="shared_native_c99",
+        scheduler_policy=dict(require_stable_candidate=False, minimum_delta_enabled=False,
+            follow_force_full_dynamic=False, follow_defer_until_full_exit=False),
+        planner="existing_LIGHTWEIGHT_Ruckig_0.19.4_cpp", physical_output_gate="unchanged_MCU",
         safety_config_source=str(path), map_id=adapter.map_id, map_version=adapter.map_version,
         max_velocity_m_s=adapter.max_velocity_m_s, max_yaw_rate_rad_s=adapter.max_yaw_rate_rad_s,
-        velocity_smoother=False)
+        velocity_smoother=False, hardware_execution_ready=False)

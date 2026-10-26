@@ -29,10 +29,19 @@ def start(context):
     mappings = {"geometry_config": str(share/"config/minisegway.yaml"),
                 "lidar_config": str(share/"config/sim_lidar.yaml"),
                 "sim_lidar": "true", "provisional_camera": camera}
-    if camera == "true":
+    visual_config = value('visual_companion_config')
+    if visual_config and camera == 'true':
+        raise ValueError('select_one_sim_camera_or_provisional_camera_mount')
+    if camera == "true" or visual_config:
         # Reuse the existing provisional extrinsic as the one source of this
         # fact. RSP is the only mount authority in this diagnostic graph.
-        mount = json.loads((repository_root()/"models/minisegway/stage7/config/final_demo.json").read_text())["camera_extrinsic"]
+        if visual_config:
+            from companionbot_simulation.core.visual_companion_scene import load_visual_camera
+            visual = json.loads(Path(visual_config).read_text())
+            mount = load_visual_camera(repository_root()/visual['camera_config'])['camera_extrinsic']
+            mappings['provisional_camera'] = 'true'  # Existing xacro mount switch; exact sim values below.
+        else:
+            mount = json.loads((repository_root()/"models/minisegway/stage7/config/final_demo.json").read_text())["camera_extrinsic"]
         body_optical = Rotation.from_matrix(mount["rotation_body_camera"])
         camera_optical = Rotation.from_euler("xyz", [-1.5707963267948966, 0., -1.5707963267948966])
         mappings["camera_xyz"] = " ".join(map(str, mount["translation_body_camera_m"]))
@@ -51,7 +60,8 @@ def start(context):
         Node(package="companionbot_control", executable="tf_authority", namespace=namespace, output="screen",
              parameters=[{"use_sim_time": True, "map_authority": value("map_authority")}]),
         Node(package="companionbot_simulation", executable="spatial_sim", namespace=namespace, output="screen",
-             additional_env={"OPENBLAS_NUM_THREADS": "1", "OMP_NUM_THREADS": "1"},
+             additional_env={"OPENBLAS_NUM_THREADS": "1", "OMP_NUM_THREADS": "1",
+                 **({'MUJOCO_GL':'egl'} if visual_config else {})},
              parameters=[{"use_sim_time": True, "output_dir": value("output_dir"), "scenario": value("scenario"),
                  "geometry_config": mappings["geometry_config"], "lidar_config": mappings["lidar_config"],
                  "duration_s": float(value("duration_s")), "realtime_factor": float(value("realtime_factor")),
@@ -65,7 +75,8 @@ def start(context):
                  "world": value("world"), "world_assets": value("world_assets"),
                  "route_file": value("route_file"),
                  "navigation_map_id": value("navigation_map_id"),
-                 "navigation_map_version": value("navigation_map_version")}]),
+                 "navigation_map_version": value("navigation_map_version"),
+                 "visual_companion_config": visual_config}]),
     ]
     return [*nodes, *(RegisterEventHandler(OnProcessExit(target_action=node, on_exit=exit_with_runtime)) for node in nodes)]
 
@@ -78,6 +89,7 @@ def generate_launch_description():
                 "scan_dropout_start_s": "-1.0", "scan_dropout_duration_s": "0.0",
                 "world": "indoor", "world_assets": "", "route_file": "",
                 "navigation_map_id": "", "navigation_map_version": "",
+                "visual_companion_config": "",
                 "output_dir": str(repository_root()/"models/minisegway/spatial_slam_foundation/results/sessions"/uuid4().hex)}
     return LaunchDescription([*(DeclareLaunchArgument(k, default_value=v) for k, v in defaults.items()),
                               OpaqueFunction(function=start)])

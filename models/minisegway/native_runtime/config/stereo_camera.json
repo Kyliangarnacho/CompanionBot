@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "name": "companion_stereo_left",
+  "frame_id": "stereo_left_optical_frame",
+  "width": 640,
+  "height": 360,
+  "frame_rate_hz": 20.0,
+  "vertical_fov_deg": 75.0,
+  "K": [
+    [
+      234.58056711141703,
+      0,
+      320.0
+    ],
+    [
+      0,
+      234.58056711141703,
+      180.0
+    ],
+    [
+      0,
+      0,
+      1.0
+    ]
+  ],
+  "distortion": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "camera_extrinsic": {
+    "rotation_body_camera": [
+      [
+        0.0,
+        0.25881904510252074,
+        0.9659258262890682
+      ],
+      [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        -0.9659258262890682,
+        0.25881904510252074
+      ]
+    ],
+    "translation_body_camera_m": [
+      0.08,
+      0.075,
+      0.35
+    ],
+    "provisional": false
+  },
+  "calibration_scope": "exact declared parallel MuJoCo stereo pinhole simulation only; no C920/Pi/hardware stereo certification",
+  "optical_axes": "+X right +Y down +Z forward",
+  "body_axes": "+X forward +Y left +Z up",
+  "pitch_definition": "physical estimated body pitch at acquisition, never actor/robot GT observation",
+  "hardware_execution_ready": false,
+  "experiment": "new real stereo image-ranging source; both RGB images separately rendered from one immutable integration snapshot; original monocular failure profiles retained",
+  "offscreen_samples": 1,
+  "render_flags": {
+    "shadows": false,
+    "reflections": false
+  },
+  "sensor_kind": "stereo_rgb_simulation",
+  "baseline_m": 0.15,
+  "right_camera": {
+    "name": "companion_stereo_right",
+    "frame_id": "stereo_right_optical_frame",
+    "intrinsics_source": "same canonical top-level K/distortion/resolution/FOV as left",
+    "camera_extrinsic": {
+      "rotation_body_camera": [
+        [
+          0.0,
+          0.25881904510252074,
+          0.9659258262890682
+        ],
+        [
+          -1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          -0.9659258262890682,
+          0.25881904510252074
+        ]
+      ],
+      "translation_body_camera_m": [
+        0.08,
+        -0.075,
+        0.35
+      ],
+      "provisional": false
+    }
+  },
+  "right_from_left": {
+    "rotation": [
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "translation_m": [
+      -0.15,
+      0.0,
+      0.0
+    ],
+    "equation": "P_right = R_right_left @ P_left + t_right_left; d=u_left-u_right positive"
+  },
+  "baseline_source": {
+    "selection": "explicit simulated150mm baseline, both lens centers within existing177mm wheel-center width; no physical camera housing fit certification",
+    "geometry_path": "ros2_ws/src/companionbot_description/config/minisegway.yaml",
+    "geometry_sha256": "0998495553aaca17075091f62e45a754491a8e4c5ffdfc848c08f58b1805fae0",
+    "wheel_separation_m": 0.177,
+    "minimum_lens_center_inboard_margin_m": 0.013499999999999998
+  },
+  "image_profile_source": {
+    "path": "models/minisegway/native_runtime/config/visual_camera_640_fast.json",
+    "sha256": "b5842d4ae4692c37e09ac13421b87110e24217403f0f4500aafe5eca5f7dc1ca"
+  },
+  "acquisition": {
+    "scene_time": "same mjSTATE_INTEGRATION snapshot for left and right; private mj_forward, no physics advancement",
+    "left_host_time": "actual left render/read completion",
+    "right_host_time": "actual right render/read completion",
+    "controller_age_basis": "actual physics snapshot acquisition_begin_host_s through final metric observation reception; includes render queue and both channels",
+    "pixel_source": "left BGR is unchanged YOLO/Master/independent YOLODepth input; right only for explicit stereo channel",
+    "physical_camera_mounts": "massless model cameras physically attached to chassis; retain physical pitch"
+  }
+}

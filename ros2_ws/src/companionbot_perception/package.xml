@@ -5,6 +5,11 @@
   <description>Camera, YOLO, ByteTrack, Master, ReID, depth and geometry</description>
   <maintainer email="maintainer@companionbot.local">CompanionBot</maintainer>
   <license>LicenseRef-CompanionBot</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+  <build_depend>python3-dev</build_depend>
+  <build_depend>pybind11-dev</build_depend>
+  <depend>libopencv-dev</depend>
   <exec_depend>companionbot_interfaces</exec_depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>diagnostic_msgs</exec_depend>
@@ -12,6 +17,7 @@
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>tf2_ros_py</exec_depend>
   <test_depend>python3-pytest</test_depend>
-  <export><build_type>ament_python</build_type></export>
+  <test_depend>ament_cmake_pytest</test_depend>
+  <export><build_type>ament_cmake</build_type></export>
 </package>
 

@@ -23,7 +23,7 @@ class SpatialSession:
     def __init__(self, output_dir, *, scenario="mixed", duration_s=14., epoch=None,
                  on_frame=None, stop=None, realtime_factor=0., posthoc=None, imu_dropout_at_s=-1.,
                  geometry_config=None, lidar_config=None, world="indoor", world_assets=None,
-                 route_file=None, motion_adapter=None, viewer=False):
+                 route_file=None, motion_adapter=None, viewer=False, visual_config=None):
         if (scenario not in ("balance", "forward", "turn", "mixed", "pitch", "mapping", "navigation")
                 or world not in ("indoor", "bookstore")
                 or not math.isfinite(duration_s) or not .2 <= duration_s <= (1800 if world == "bookstore" else 300)
@@ -37,6 +37,11 @@ class SpatialSession:
         self.dropout_at = imu_dropout_at_s
         self.world, self.world_assets = world, world_assets
         self.route_file, self.motion_adapter = route_file, motion_adapter
+        self.visual_config, self.visual = visual_config, None
+        self.current_source_time_s = 0.
+        if visual_config and (scenario != 'navigation' or world != 'bookstore'
+                or getattr(motion_adapter, 'follow_controller', None) is None):
+            raise ValueError('visual_companion_requires_bookstore_and_native_follow_owner')
         self.viewer_requested, self.viewer = bool(viewer), None
         self._cleanup = ExitStack()
         if (scenario == "navigation") != (motion_adapter is not None):
@@ -55,6 +60,8 @@ class SpatialSession:
         self.pacing_slip_s = 0.
 
     def setup(self, sim):
+        if self.visual is not None:
+            self.visual.setup(sim)
         if self.viewer_requested:
             # User-invoked GUI only. This same model/data is stepped exclusively
             # by the unchanged runner; no second simulator or controller exists.
@@ -86,6 +93,9 @@ class SpatialSession:
         return {"spatial_diagnostic": True, "imu_dropout_at_s": self.dropout_at}
 
     def physics_step(self, sim):
+        self.current_source_time_s = float(sim.data.time)
+        if self.visual is not None:
+            self.visual.physics_step(sim)
         if self.viewer is not None and sim.step_index % 50 == 0:
             if not self.viewer.is_running():
                 raise InterruptedError("user_closed_simulation_viewer")
@@ -129,6 +139,7 @@ class SpatialSession:
 
     def observe(self, context):
         self.sequence += 1
+        self.current_source_time_s = context['time_s']
         estimate = context["estimate_after"]
         # Read ONLY the public consumed sensor measurement/timing interface.
         # ImuReadout's hidden noise/ideal sample fields are never accessed here.
@@ -146,15 +157,22 @@ class SpatialSession:
             # Carry values only as explicitly INVALID evidence, never publish as
             # current IMU/odom/TF. The spatial consumer must fail closed.
             attitude = self.last_attitude
-        sample = SpatialSample(self.epoch, self.sequence, context["time_s"],
-            estimate.position_hat_m, estimate.velocity_hat_m_s,
-            attitude.roll_rad, estimate.theta_hat_rad, attitude.yaw_rad,
-            attitude.roll_rate_rad_s, estimate.theta_dot_hat_rad_s, attitude.yaw_rate_rad_s,
-            tuple(map(float, estimate.wheel_relative_angle_hat_rad)),
-            tuple(map(float, estimate.wheel_relative_velocity_hat_rad_s)),
-            readout.packet.sample_time_s, readout.packet.available_time_s, readout.measurement_age_s,
-            valid, readout.imu_stale, True)
-        if self.sequence % 10:
+        # The attitude estimator still consumes every 2ms sensor sample. The
+        # spatial DTO is consumed only by the unchanged 50Hz publication path;
+        # avoid constructing/discarding it and two wheel tuples nine times.
+        sample = None
+        if self.sequence % 10 == 0:
+            sample = SpatialSample(self.epoch, self.sequence, context["time_s"],
+                estimate.position_hat_m, estimate.velocity_hat_m_s,
+                attitude.roll_rad, estimate.theta_hat_rad, attitude.yaw_rad,
+                attitude.roll_rate_rad_s, estimate.theta_dot_hat_rad_s, attitude.yaw_rate_rad_s,
+                tuple(map(float, estimate.wheel_relative_angle_hat_rad)),
+                tuple(map(float, estimate.wheel_relative_velocity_hat_rad_s)),
+                readout.packet.sample_time_s, readout.packet.available_time_s, readout.measurement_age_s,
+                valid, readout.imu_stale, True)
+        if self.visual is not None:
+            self.visual.observe(context, sensors_valid=valid, control_sequence=self.sequence)
+        if sample is None:
             return {}
         frame = {"state": sample, "accel_ros": tuple(map(float, accel_ros)),
                  "gyro_ros": tuple(map(float, gyro_ros)), "scan": self.scan,
@@ -185,6 +203,12 @@ class SpatialSession:
         model = prepare(repository_root()/"models/minisegway/mini_segway.xml",
                         self.output_dir/"indoor_model.xml", geometry=self.geometry,
                         lidar=self.lidar_config, **world_options)
+        if self.visual_config:
+            from companionbot_simulation.runtime.visual_companion import VisualCompanionSession
+            self.visual = VisualCompanionSession(self.visual_config,self.output_dir/'visual',
+                epoch=self.epoch,adapter=self.motion_adapter,source_now=lambda:self.current_source_time_s)
+            self._cleanup.callback(self.visual.close)
+            model = self.visual.prepare_model(model,self.output_dir/'visual_model.xml')
         scenario = copy.deepcopy(baseline.MIXED_SCENARIO)
         scenario["name"], scenario["duration_s"] = "spatial_" + self.scenario, self.duration_s
         if self.scenario in ("balance", "pitch", "turn", "navigation"):
@@ -201,6 +225,7 @@ class SpatialSession:
             "world": self.world, "world_assets": str(self.world_assets) if self.world_assets else None,
             "viewer_requested": self.viewer_requested,
             "route_file": str(self.route_file) if self.route_file else None,
+            "visual_config": str(self.visual_config) if self.visual_config else None,
             "allocation_policy": "finite_mapping_cyclic_gc_deferred" if self.scenario in ("mapping", "navigation") else "unchanged",
             "Q_actuator": False, "hardware_execution_ready": False}, indent=2) + "\n")
         yaw = common[0]["yaw"]
@@ -230,12 +255,17 @@ class SpatialSession:
         self._log = None
         (self.output_dir/"frozen_result_posthoc.json").write_text(json.dumps(result, indent=2) + "\n")
         if self.scenario in ("mapping", "navigation"):
-            (self.output_dir/"motion_authority.json").write_text(json.dumps({
+            if hasattr(link, "report"):
+                authority_report = link.report()
+                authority_report["allocation_policy"] = allocation_metrics
+            else:
+                authority_report = {
                 "arbiter_state": arbiter.state, "arbiter_reason": arbiter.reason,
                 "safety_events": arbiter.events, "receiver_events": arbiter.receiver.events,
                 "producer_events": link.producer.events, "transport_events": link.transport.events,
                 "producer_epochs": [{"reference_epoch": p.reference_epoch, "events": p.events}
                     for p in getattr(link, "all_producers", [link.producer])],
                 "packet_events": link.packet_events,
-                "yaw_events": arbiter.yaw_source.events, "allocation_policy": allocation_metrics}, indent=2)+'\n')
+                "yaw_events": arbiter.yaw_source.events, "allocation_policy": allocation_metrics}
+            (self.output_dir/"motion_authority.json").write_text(json.dumps(authority_report, indent=2)+'\n')
         return result

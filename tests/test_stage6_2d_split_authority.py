@@ -67,6 +67,7 @@ class SplitAuthorityTest(unittest.TestCase):
         ).to_bytes(), 0.004)
         self.assertAlmostEqual(arbiter.command(0.004).yaw_rate_target_rad_s, 0.298)
         self.assertEqual(yaw.source, "LOCAL_YAW_TO_ZERO")
+        self.assertEqual(receiver.reference_epoch, 2)
         arbiter.state = "SAFE_HOLD"
         arbiter.receive("resume", ResumeReferenceCommandPacket(
             PROTOCOL_VERSION, 0, 0.006, 1, "HARD"
@@ -75,7 +76,7 @@ class SplitAuthorityTest(unittest.TestCase):
         arbiter.receive("yaw", YawCommandPacket(
             PROTOCOL_VERSION, 1, 0.006, 0.1).to_bytes(), 0.006)
         arbiter.receive("resume", ResumeReferenceCommandPacket(
-            PROTOCOL_VERSION, 1, 0.006, 1, "HARD"
+            PROTOCOL_VERSION, 1, 0.006, 2, "HARD"
         ).to_bytes(), 0.006)
         self.assertEqual(arbiter.events[-1]["event"], "resume_requested")
 

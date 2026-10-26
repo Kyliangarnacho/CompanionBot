@@ -1,0 +1,4 @@
+#!@Python3_EXECUTABLE@
+from companionbot_simulation.ros.spatial_sim import main
+if __name__ == "__main__":
+    main()
